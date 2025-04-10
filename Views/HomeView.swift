@@ -21,19 +21,6 @@ struct HomeView: View {
     @State private var hasReadNTChapter = false
     @Environment(\.colorScheme) var colorScheme
     
-    let rotatingMessages = [
-        "Every prophet, every king, every scroll. You did that.",
-        "929 chapters, and the journey's still not over.",
-        "Now… let's talk about this Jesus."
-    ]
-    
-    // NT chapter count
-    let totalNTChapters = 260
-    
-    // Gospels chapter count
-    let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
-    
-    // Move welcomeSection outside of body
     // Move welcomeSection outside of body
     var welcomeSection: some View {
         VStack(spacing: 12) {
@@ -65,6 +52,7 @@ struct HomeView: View {
                     .font(.system(size: 30, weight: .bold))
                     .foregroundColor(.primary)
             }
+            .frame(maxWidth: .infinity, alignment: .center)
             
             Text(settings.tagline)
                 .font(.subheadline)
@@ -76,6 +64,19 @@ struct HomeView: View {
         .background(Color(.systemGray6))
         .cornerRadius(12)
     }
+    
+    let rotatingMessages = [
+        "Every prophet, every king, every scroll. You did that.",
+        "1189 chapters, and the journey's still not over.",
+        "Now… let's talk about this Jesus."
+    ]
+    
+    // NT chapter count
+    let totalNTChapters = 260
+    
+    // Gospels chapter count
+    let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -87,11 +88,9 @@ struct HomeView: View {
                 ) {
                    
                     welcomeSection
-                    // OT Completion Section
-                    otCompletionSection
                     
-                    // Acts Feature Card (previously Matthew)
-                    actsFeatureCard
+                    // Bible Completion Section
+                    bibleCompletionSection
                     
                     // Progress Tracker
                     progressTrackerBar
@@ -105,10 +104,8 @@ struct HomeView: View {
                         errorCard
                     }
                     
-                    // NT Journey CTA (conditional)
-                    if !hasReadNTChapter {
-                        ntJourneyCTA
-                    }
+                    // Share App CTA
+                    shareAppCTA
                 }
                 .padding()
                 .navigationBarItems(trailing: Button(action: { showingSettings = true }) {
@@ -132,18 +129,18 @@ struct HomeView: View {
         }
     }
     
-    // OT Completion Section
-    var otCompletionSection: some View {
+    // Bible Completion Section
+    var bibleCompletionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("The Word Is Complete — Old Testament 📜")
+                Text("The Word Is Complete — Full Bible 📜")
                     .font(.headline)
                     .fontWeight(.bold)
                 
                 Spacer()
             }
             
-            Text("929 chapters. Every book. Fully translated.")
+            Text("1189 chapters. Every book. Fully translated.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
@@ -170,123 +167,51 @@ struct HomeView: View {
         )
     }
     
-    // Acts Feature Card (previously Matthew)
-    var actsFeatureCard: some View {
+    // Share App CTA
+    var shareAppCTA: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("The Church Begins — Acts 🔥")
+                Text("Share the Word 🌟")
                     .font(.headline)
                     .fontWeight(.bold)
                 
                 Spacer()
             }
             
-            Text("The Holy Spirit arrives. The church is born.")
+            Text("Help others discover the AAVE Bible translation.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            Button(action: {
-                navigateToActs()
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }) {
-                Text("Start Reading Acts →")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.blue)
-                    .cornerRadius(8)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-    
-    // Progress Tracker Bar
-    var progressTrackerBar: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("New Testament Progress")
-                .font(.headline)
-                .fontWeight(.bold)
+            Text("Visit officialaavebible.com to learn more about our mission.")
+                .font(.body)
+                .padding(.top, 4)
             
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Background
-                    Rectangle()
-                        .fill(Color(.systemGray5))
-                        .frame(height: 12)
-                        .cornerRadius(6)
-                    
-                    // Progress
-                    Rectangle()
-                        .fill(Color.blue)
-                        .frame(width: getNTProgressWidth(totalWidth: geometry.size.width), height: 12)
-                        .cornerRadius(6)
+            HStack {
+                Button(action: {
+                    shareApp()
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }) {
+                    Label("Share App", systemImage: "square.and.arrow.up")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue)
+                        .cornerRadius(8)
                 }
-            }
-            .frame(height: 12)
-            
-            HStack {
-                Text("\(getNTCompletedChapters()) of \(totalNTChapters) chapters")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                Text("\(Int((Double(getNTCompletedChapters()) / Double(totalNTChapters)) * 100))%")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-    
-    // Red Letter Verse Card
-    func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Jesus Said...")
-                    .font(.headline)
-                
-                Image(systemName: "quote.bubble")
-                    .foregroundColor(.red)
-                
-                Spacer()
                 
                 Button(action: {
-                    showingVerseOfDaySettings = true
+                    openWebsite()
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(.secondary)
+                    Label("Visit Website", systemImage: "safari")
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
                 }
-                .sheet(isPresented: $showingVerseOfDaySettings) {
-                    VerseOfDaySettingsView()
-                }
-            }
-            
-            Text(verse.text)
-                .font(.body)
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
-            
-            Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            Button(action: {
-                navigateToVerse(verse.reference)
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }) {
-                Text("Read in Context")
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
             }
         }
         .padding()
@@ -324,44 +249,116 @@ struct HomeView: View {
             HStack {
                 Text("Jesus Said...")
                     .font(.headline)
+                    .foregroundColor(.secondary)
                 
                 Image(systemName: "quote.bubble")
-                    .foregroundColor(.red)
+                    .foregroundColor(.secondary)
             }
             
-            Text("Unable to load verse. Tap to retry.")
+            Text("Could not load verse. Please try again later.")
+                .frame(maxWidth: .infinity, minHeight: 100, alignment: .center)
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 2)
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    // Red letter verse card
+    func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Jesus Said...")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                
+                Image(systemName: "quote.bubble")
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Button(action: {
+                    showingVerseOfDaySettings = true
+                }) {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(.secondary)
+                }
+                .sheet(isPresented: $showingVerseOfDaySettings) {
+                    VerseOfDaySettingsView()
+                }
+            }
+            
+            Text(verse.text)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 2)
+            
+            HStack {
+                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Button(action: {
+                    navigateToVerse(verse.reference)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }) {
+                    Text("Read in Context")
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                }
+            }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemGray6))
         .cornerRadius(12)
-        .onTapGesture {
-            generateRedLetterVerse()
-        }
     }
     
-    // NT Journey CTA
-    var ntJourneyCTA: some View {
+    // Progress tracker bar
+    var progressTrackerBar: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Start the New Testament Journey ➤")
+            Text("Bible Reading Progress")
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
             
-            Text("Tap to begin with Acts 1. This is where the church begins.")
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .frame(width: geometry.size.width, height: 20)
+                        .foregroundColor(Color(.systemGray5))
+                        .cornerRadius(10)
+                    
+                    Rectangle()
+                        .frame(width: min(CGFloat(userDataManager.chaptersRead.count) / 1189.0 * geometry.size.width, geometry.size.width), height: 20)
+                        .foregroundColor(.blue)
+                        .cornerRadius(10)
+                }
+            }
+            .frame(height: 20)
+            
+            // OT/NT breakdown
+            HStack {
+                Text("OT: \(getOTCompletedChapters())/929")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Text("NT: \(getNTCompletedChapters())/260")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.blue)
+        .background(Color(.systemGray6))
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5)
-        .onTapGesture {
-            navigateToActs()
-        }
     }
     
     // Generate red letter verse
@@ -402,92 +399,28 @@ struct HomeView: View {
     
     // Get random red letter verse
     func getRandomRedLetterVerse() async -> VerseReference {
-        // For now, return a default verse from Matthew
-        // In a real implementation, you would search for verses with <red> tags
-        return VerseReference(book: "Matthew", chapter: 5, verse: Int.random(in: 3...12))
+        // Simplified for now - just return a hardcoded verse
+        // In a real app, you would fetch this from a service
+        return VerseReference(book: "John", chapter: 3, verse: 16)
     }
     
+    // Navigate to verse
     func navigateToVerse(_ reference: VerseReference) {
-        print("HomeView: Navigating to \(reference.book) \(reference.chapter):\(reference.verse)")
-        
-        // Use NavigationManager directly with the verse parameter
         navigationManager.navigateToVerse(
             book: reference.book,
             chapter: reference.chapter,
             verse: reference.verse,
             highlightVerse: true
         )
-    }
-    
-    // Navigate to Acts
-    func navigateToActs() {
-        print("HomeView: Navigating to Acts 1:1")
         
-        // Set the state (this syncs verse highlighting and last viewed info)
-        navigationManager.navigateToVerse(
-            book: "Acts",
-            chapter: 1,
-            verse: 1,
-            highlightVerse: false
-        )
-
-        // Explicitly fire a screen push for BookListView to handle
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             NotificationCenter.default.post(
                 name: Notification.Name("NavigateToChapterScreen"),
                 object: nil,
                 userInfo: [
-                    "book": "Acts",
-                    "chapter": 1
+                    "book": reference.book,
+                    "chapter": reference.chapter
                 ]
-            )
-        }
-    }
-    
-    // Mark that user has started NT journey
-    func navigateToMatthew() {
-        print("HomeView: Navigating to Matthew 1:1")
-        
-        // Step 1: Set the state (this syncs verse highlighting and last viewed info)
-        navigationManager.navigateToVerse(
-            book: "Matthew",
-            chapter: 1,
-            verse: 1,
-            highlightVerse: false
-        )
-
-        // Step 2: Explicitly fire a screen push for BookListView to handle
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            NotificationCenter.default.post(
-                name: Notification.Name("NavigateToChapterScreen"),
-                object: nil,
-                userInfo: [
-                    "book": "Matthew",
-                    "chapter": 1
-                ]
-            )
-        }
-
-        // Step 3: Track progress
-        hasReadNTChapter = true
-        UserDefaults.standard.set(true, forKey: "hasStartedNTJourney")
-    }
-    
-    func navigateToMatthewCommentary() {
-        // First navigate to Matthew using NavigationManager directly
-        navigationManager.navigateToVerse(
-            book: "Matthew",
-            chapter: 1,
-            verse: 1,
-            highlightVerse: false
-        )
-        
-        // Then show commentary after a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            NotificationCenter.default.post(
-                name: Notification.Name("ShowCommentary"),
-                object: nil,
-                userInfo: ["reference": VerseReference(book: "Matthew", chapter: 1, verse: 1)]
             )
         }
     }
@@ -496,19 +429,6 @@ struct HomeView: View {
     func checkNTProgress() {
         // Check if user has started NT journey
         hasReadNTChapter = UserDefaults.standard.bool(forKey: "hasStartedNTJourney")
-    }
-    
-    // Get NT completed chapters count
-    func getNTCompletedChapters() -> Int {
-        // Return the completed Gospels chapters
-        return gospelsChapters // All Gospel chapters are now complete
-    }
-    
-    // Calculate NT progress width
-    func getNTProgressWidth(totalWidth: CGFloat) -> CGFloat {
-        let completedChapters = getNTCompletedChapters()
-        let progress = Double(completedChapters) / Double(totalNTChapters)
-        return totalWidth * CGFloat(progress)
     }
     
     // Check for confetti
@@ -536,51 +456,76 @@ struct HomeView: View {
     // Start rotating messages
     func startRotatingMessages() {
         // Rotate messages every 5 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            withAnimation(.easeInOut(duration: 0.7)) {
-                self.rotatingMessageIndex = (self.rotatingMessageIndex + 1) % self.rotatingMessages.count
-            }
-            
-            // Continue rotation
-            self.startRotatingMessages()
-        }
-    }
-    
-    // Simple Confetti View
-    struct ConfettiView: View {
-        let colors: [Color] = [.red, .blue, .green, .yellow, .purple, .orange]
-        
-        var body: some View {
-            GeometryReader { geometry in
-                ForEach(0..<50) { _ in
-                    ConfettiPiece(
-                        position: CGPoint(
-                            x: CGFloat.random(in: 0...geometry.size.width),
-                            y: CGFloat.random(in: 0...geometry.size.height/2)
-                        ),
-                        color: colors.randomElement() ?? .blue
-                    )
-                }
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { timer in
+            withAnimation {
+                rotatingMessageIndex = (rotatingMessageIndex + 1) % rotatingMessages.count
             }
         }
     }
     
-    struct ConfettiPiece: View {
-        let position: CGPoint
-        let color: Color
+    // Get OT completed chapters count
+    func getOTCompletedChapters() -> Int {
+        // List of OT books
+        let otBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+                      "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
+                      "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
+                      "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
+                      "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
+                      "Jeremiah", "Lamentations", "Ezekiel", "Daniel",
+                      "Hosea", "Joel", "Amos", "Obadiah", "Jonah",
+                      "Micah", "Nahum", "Habakkuk", "Zephaniah",
+                      "Haggai", "Zechariah", "Malachi"]
         
-        var body: some View {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-                .position(position)
+        // Count OT chapters read from UserDataManager
+        let otChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
+            let components = chapterKey.split(separator: "_")
+            guard components.count == 2, let book = components.first else { return false }
+            return otBooks.contains(String(book))
         }
+        
+        // For now, return 929 (all OT chapters) since OT is complete
+        return 929
     }
     
-    // Alternative Preview approach
-    struct HomeView_Previews: PreviewProvider {
-        static var previews: some View {
-            HomeView()
+    // Get NT completed chapters count
+    func getNTCompletedChapters() -> Int {
+        // List of NT books
+        let ntBooks = ["Matthew", "Mark", "Luke", "John", "Acts",
+                      "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
+                      "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+                      "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews",
+                      "James", "1 Peter", "2 Peter", "1 John", "2 John",
+                      "3 John", "Jude", "Revelation"]
+        
+        // Count NT chapters read from UserDataManager
+        let ntChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
+            let components = chapterKey.split(separator: "_")
+            guard components.count == 2, let book = components.first else { return false }
+            return ntBooks.contains(String(book))
+        }
+        
+        return ntChaptersRead.count
+    }
+    
+    // Function to share the app
+    func shareApp() {
+        let text = "Check out the AAVE Bible app! Experience scripture in African American Vernacular English. Visit officialaavebible.com to learn more."
+        
+        let activityVC = UIActivityViewController(
+            activityItems: [text],
+            applicationActivities: nil
+        )
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(activityVC, animated: true)
+        }
+    }
+
+    // Function to open the website
+    func openWebsite() {
+        if let url = URL(string: "https://officialaavebible.com") {
+            UIApplication.shared.open(url)
         }
     }
 }

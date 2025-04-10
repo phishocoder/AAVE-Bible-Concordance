@@ -35,6 +35,7 @@
 		E00962902D835966007677BD /* BibleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E009628F2D835963007677BD /* BibleData.swift */; };
 		E00BC61D2D839B7D00D3BBCF /* TestamentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00BC61C2D839B7400D3BBCF /* TestamentPicker.swift */; };
 		E0196C372D9B3D2000A07E19 /* NotificationMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */; };
+		E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */; };
 		E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */; };
 		E040971D2D8C9CF40054BA3A /* HighlightColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */; };
 		E04A93A32D7D2AA6006AC6E6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */; };
@@ -63,6 +64,7 @@
 		E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */; };
 		E05A4D872D7D0E270091AA66 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D812D7D0E270091AA66 /* APIConfig.swift */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
+		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
 		E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */; };
 		E0D29A0F2D8B20CC0057EE2B /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */; };
@@ -123,6 +125,7 @@
 		E009628F2D835963007677BD /* BibleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleData.swift; sourceTree = "<group>"; };
 		E00BC61C2D839B7400D3BBCF /* TestamentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestamentPicker.swift; sourceTree = "<group>"; };
 		E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMessages.swift; sourceTree = "<group>"; };
+		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
 		E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -152,7 +155,7 @@
 		E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleAPIService.swift; sourceTree = "<group>"; };
 		E05A4D832D7D0E270091AA66 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
-		E09191B82D9C859B00A1AEA9 /* Untitled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Untitled.swift; sourceTree = "<group>"; };
+		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
 		E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedBottomToolbar.swift; sourceTree = "<group>"; };
 		E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
@@ -247,7 +250,7 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				E09191B82D9C859B00A1AEA9 /* Untitled.swift */,
+				E0914E9C2DA8736B00C463DB /* ConfettiView.swift */,
 				E04E0F9D2D93397F004C44A2 /* NotificationSettingsView.swift */,
 				E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */,
 				E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */,
@@ -350,6 +353,7 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */,
 				E04E0F9B2D933967004C44A2 /* NotificationManager.swift */,
 				E00962742D82862A007677BD /* HighlightManager.swift */,
 				E0DCC51D2D7D76910061F222 /* VerseManager.swift */,
@@ -496,6 +500,7 @@
 				E04E15D32D85D938002EDE4A /* MoreView.swift in Sources */,
 				E0DCC5212D7E020F0061F222 /* BibleModels.swift in Sources */,
 				E0054FDE2D7CC71F00A26A71 /* DownloadManagerView.swift in Sources */,
+				E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */,
 				E0054FA92D7C157000A26A71 /* VerseDetailView.swift in Sources */,
 				E00962852D834ACD007677BD /* PreferenceKeys.swift in Sources */,
 				E00962752D828630007677BD /* HighlightManager.swift in Sources */,
@@ -538,6 +543,7 @@
 				E04E172D2D87DC62002EDE4A /* VerseListViewModel.swift in Sources */,
 				E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */,
 				E04E15E12D86059C002EDE4A /* NavigationModels.swift in Sources */,
+				E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */,
 				E04A93A32D7D2AA6006AC6E6 /* AboutView.swift in Sources */,
 				E0F415C02D825C1D000A4C7E /* VerseCard.swift in Sources */,
 				E0D74C892D8A29D100A8D279 /* UIColor+DynamicColors.swift in Sources */,

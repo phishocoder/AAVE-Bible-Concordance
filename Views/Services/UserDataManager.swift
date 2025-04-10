@@ -4,12 +4,15 @@ class UserDataManager: ObservableObject {
     static let shared = UserDataManager()
     
     @Published private(set) var history: [VerseReference] = []
-  
     @Published var notes: [String: String] = [:]
+    @Published var lastReadVerse: VerseReference?
+    @Published var chaptersRead: Set<String> = []
     
     private let historyKey = "readingHistory"
     private let bookmarksKey = "bookmarks"
     private let notesKey = "verseNotes"
+    private let lastReadVerseKey = "lastReadVerse"
+    private let chaptersReadKey = "chaptersRead"
     private let maxHistoryItems = 100
     
     private let highlightManager = HighlightManager.shared
@@ -18,6 +21,8 @@ class UserDataManager: ObservableObject {
     private init() {
         loadHistory()
         loadNotes()
+        loadLastReadVerse()
+        loadChaptersRead()
     }
     
     func addToHistory(_ reference: VerseReference) {
@@ -28,8 +33,6 @@ class UserDataManager: ObservableObject {
         }
         saveHistory()
     }
-    
-    
     
     func saveNote(_ text: String, for reference: VerseReference) {
         notes[reference.id] = text
@@ -54,6 +57,51 @@ class UserDataManager: ObservableObject {
         highlightManager.toggleHighlight(reference)
     }
     
+    // Add methods to update and load lastReadVerse
+    func updateLastReadVerse(_ reference: VerseReference) {
+        lastReadVerse = reference
+        saveLastReadVerse()
+    }
+    
+    private func loadLastReadVerse() {
+        if let data = UserDefaults.standard.data(forKey: lastReadVerseKey),
+           let decoded = try? JSONDecoder().decode(VerseReference.self, from: data) {
+            lastReadVerse = decoded
+        }
+    }
+    
+    private func saveLastReadVerse() {
+        if let reference = lastReadVerse,
+           let encoded = try? JSONEncoder().encode(reference) {
+            UserDefaults.standard.set(encoded, forKey: lastReadVerseKey)
+        }
+    }
+    
+    // Add methods to track read chapters
+    func markChapterAsRead(book: String, chapter: Int) {
+        let chapterKey = "\(book)_\(chapter)"
+        chaptersRead.insert(chapterKey)
+        saveChaptersRead()
+    }
+    
+    func isChapterRead(book: String, chapter: Int) -> Bool {
+        let chapterKey = "\(book)_\(chapter)"
+        return chaptersRead.contains(chapterKey)
+    }
+    
+    private func loadChaptersRead() {
+        if let data = UserDefaults.standard.data(forKey: chaptersReadKey),
+           let decoded = try? JSONDecoder().decode(Set<String>.self, from: data) {
+            chaptersRead = decoded
+        }
+    }
+    
+    private func saveChaptersRead() {
+        if let encoded = try? JSONEncoder().encode(chaptersRead) {
+            UserDefaults.standard.set(encoded, forKey: chaptersReadKey)
+        }
+    }
+    
     private func loadHistory() {
         if let data = UserDefaults.standard.data(forKey: historyKey),
            let decoded = try? JSONDecoder().decode([VerseReference].self, from: data) {
@@ -66,7 +114,6 @@ class UserDataManager: ObservableObject {
             UserDefaults.standard.set(encoded, forKey: historyKey)
         }
     }
-    
     
     private func loadNotes() {
         if let data = UserDefaults.standard.data(forKey: notesKey),
@@ -91,4 +138,8 @@ class UserDataManager: ObservableObject {
         saveNotes()
     }
     
+    func clearChaptersRead() {
+        chaptersRead.removeAll()
+        saveChaptersRead()
+    }
 }

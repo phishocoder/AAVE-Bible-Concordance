@@ -50,7 +50,7 @@ struct MoreView: View {
                         Label("Credits", systemImage: "person.2")
                     }
                     
-                    Link(destination: URL(string: "https://example.com/privacy")!) {
+                    Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
                         HStack {
                             Label("Privacy Policy", systemImage: "lock.shield")
                             Spacer()
