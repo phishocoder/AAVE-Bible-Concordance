@@ -1,0 +1,111 @@
+//
+//  NotificationSettingsView.swift
+//  AAVE Bible Concordance
+//
+//  Created by Phil Shobo on 3/25/25.
+//
+
+import SwiftUI
+
+struct NotificationSettingsView: View {
+    @StateObject private var notificationManager = NotificationManager.shared
+    @State private var showTimePicker = false
+    
+    var body: some View {
+        Form {
+            Section(header: Text("Notifications")) {
+                if !notificationManager.isAuthorized {
+                    Button("Enable Notifications") {
+                        notificationManager.requestAuthorization()
+                    }
+                    .foregroundColor(.blue)
+                }
+                
+                if notificationManager.isAuthorized {
+                    Toggle("Daily Verse", isOn: $notificationManager.dailyVerseNotificationEnabled)
+                        .onChange(of: notificationManager.dailyVerseNotificationEnabled) { _ in
+                            notificationManager.scheduleVerseOfDayNotification()
+                        }
+                    
+                    if notificationManager.dailyVerseNotificationEnabled {
+                        HStack {
+                            Text("Time")
+                            Spacer()
+                            Button(action: {
+                                showTimePicker = true
+                            }) {
+                                Text(timeFormatter.string(from: notificationManager.dailyVerseNotificationTime))
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                    
+                    Toggle("Midweek Motivation", isOn: $notificationManager.midweekMotivationEnabled)
+                        .onChange(of: notificationManager.midweekMotivationEnabled) { _ in
+                            notificationManager.scheduleMidweekMotivation()
+                        }
+                    
+                    Toggle("Weekend Refocus", isOn: $notificationManager.weekendRefocusEnabled)
+                        .onChange(of: notificationManager.weekendRefocusEnabled) { _ in
+                            notificationManager.scheduleWeekendRefocus()
+                        }
+                    
+                    if notificationManager.weekendRefocusEnabled {
+                        Picker("Day", selection: $notificationManager.weekendRefocusDay) {
+                            Text("Saturday").tag("Saturday")
+                            Text("Sunday").tag("Sunday")
+                        }
+                        .onChange(of: notificationManager.weekendRefocusDay) { _ in
+                            notificationManager.scheduleWeekendRefocus()
+                        }
+                    }
+                    
+                    Toggle("Beta Feedback", isOn: $notificationManager.betaFeedbackEnabled)
+                    
+                    Toggle("Feature Discovery", isOn: $notificationManager.featureDiscoveryEnabled)
+                }
+            }
+        }
+        .navigationTitle("Notification Settings")
+        .sheet(isPresented: $showTimePicker) {
+            TimePickerView(selectedTime: $notificationManager.dailyVerseNotificationTime, isPresented: $showTimePicker)
+                .onChange(of: notificationManager.dailyVerseNotificationTime) { _ in
+                    notificationManager.scheduleVerseOfDayNotification()
+                }
+        }
+    }
+    
+    private var timeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }
+}
+
+struct TimePickerView: View {
+    @Binding var selectedTime: Date
+    @Binding var isPresented: Bool
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                    .datePickerStyle(WheelDatePickerStyle())
+                    .labelsHidden()
+            }
+            .navigationTitle("Select Time")
+            .navigationBarItems(
+                leading: Button("Cancel") {
+                    isPresented = false
+                },
+                trailing: Button("Save") {
+                    isPresented = false
+                }
+            )
+        }
+    }
+}
+
+#Preview {
+    NotificationSettingsView()
+}
