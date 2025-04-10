@@ -1,0 +1,42 @@
+# Xcode
+*.xcworkspace
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.xcuserdata/
+DerivedData/
+.idea/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcworkspace/
+
+# User-specific files
+*.swp
+*.lock
+*.DS_Store
+.env
+
+# Crash logs
+*.crash
+*.xccrashpoint
+*.xcresult
+
+# Logs
+*.log
+
+# Bundle artifacts
+*.app
+
+# Ignore Pods if using CocoaPods (comment out if not)
+# Pods/
+
+# Ignore Carthage (comment out if not using)
+# Carthage/
+
+# Ignore Firebase-generated .plist (if added manually)
+GoogleService-Info.plist
