@@ -176,11 +176,11 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("Help others discover the AAVE Bible translation.")
+            Text("Already part of the 144? If you know somebody who would vibe with this too—someone who’d love seeing Scripture in our voice—send them our way. We’re still building, still testing, and every fresh eye helps. Tell ’em to hit you up so you can pass the blessing. You got the invite—now you can extend it.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            Text("Visit officialaavebible.com to learn more about our mission.")
+            Text("Visit officialaavebible.com to learn more.")
                 .font(.body)
                 .padding(.top, 4)
             
@@ -189,7 +189,7 @@ struct HomeView: View {
                     shareApp()
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Label("Share App", systemImage: "square.and.arrow.up")
+                    Label("Invite to the 144", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
@@ -470,7 +470,7 @@ struct HomeView: View {
     
     // Function to share the app
     func shareApp() {
-        let text = "Check out the AAVE Bible app! Experience scripture in African American Vernacular English. Visit officialaavebible.com to learn more."
+        let text = "Yo! I’m part of the AAVE Bible App beta (first 144 testers). It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link <officialaavebible.com> and let me know. Let’s make history with this."
         
         let activityVC = UIActivityViewController(
             activityItems: [text],
