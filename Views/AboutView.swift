@@ -42,19 +42,6 @@ struct AboutView: View {
                         FeatureRow(icon: "magnifyingglass", text: "Search across translations")
                     }
                 }
-                
-                // Icons Guide Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Understanding Icons")
-                        .font(.title2)
-                        .bold()
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        IconGuideRow(icon: "lightbulb.fill", color: .yellow, text: "Cultural commentary available")
-                        IconGuideRow(icon: "bookmark.fill", color: .blue, text: "Bookmarked verses")
-                    }
-                }
-                
                 Spacer(minLength: 30)
                 
                 // Footer

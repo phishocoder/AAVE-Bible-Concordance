@@ -92,8 +92,6 @@ struct HomeView: View {
                     // Bible Completion Section
                     bibleCompletionSection
                     
-                    // Progress Tracker
-                    progressTrackerBar
                     
                     // Jesus Said (Red Letter Verse)
                     if let verse = redLetterVerse {
@@ -266,16 +264,18 @@ struct HomeView: View {
         .cornerRadius(12)
     }
     
-    // Red letter verse card
+    // Remove the progressTrackerBar view
+    // And change the "Jesus Said..." text to be red in the redLetterVerseCard function
+
     func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Jesus Said...")
                     .font(.headline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.red)
                 
                 Image(systemName: "quote.bubble")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.red)
                 
                 Spacer()
                 
@@ -321,45 +321,6 @@ struct HomeView: View {
         .cornerRadius(12)
     }
     
-    // Progress tracker bar
-    var progressTrackerBar: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Bible Reading Progress")
-                .font(.headline)
-                .fontWeight(.bold)
-            
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .frame(width: geometry.size.width, height: 20)
-                        .foregroundColor(Color(.systemGray5))
-                        .cornerRadius(10)
-                    
-                    Rectangle()
-                        .frame(width: min(CGFloat(userDataManager.chaptersRead.count) / 1189.0 * geometry.size.width, geometry.size.width), height: 20)
-                        .foregroundColor(.blue)
-                        .cornerRadius(10)
-                }
-            }
-            .frame(height: 20)
-            
-            // OT/NT breakdown
-            HStack {
-                Text("OT: \(getOTCompletedChapters())/929")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                Text("NT: \(getNTCompletedChapters())/260")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
     
     // Generate red letter verse
     func generateRedLetterVerse() {
