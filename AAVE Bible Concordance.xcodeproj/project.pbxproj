@@ -38,6 +38,7 @@
 		E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */; };
 		E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */; };
 		E040971D2D8C9CF40054BA3A /* HighlightColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */; };
+		E043E6CF2DB0065E002A114F /* VerseImageCreatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */; };
 		E04A93A32D7D2AA6006AC6E6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */; };
 		E04E0F9C2D93396D004C44A2 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E0F9B2D933967004C44A2 /* NotificationManager.swift */; };
 		E04E0F9E2D933985004C44A2 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E0F9D2D93397F004C44A2 /* NotificationSettingsView.swift */; };
@@ -128,6 +129,7 @@
 		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
+		E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseImageCreatorView.swift; sourceTree = "<group>"; };
 		E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AAVE Bible Concordance.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E04E0F9B2D933967004C44A2 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */,
 				E0914E9C2DA8736B00C463DB /* ConfettiView.swift */,
 				E04E0F9D2D93397F004C44A2 /* NotificationSettingsView.swift */,
 				E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */,
@@ -541,6 +544,7 @@
 				E0054FB12D7C1CB300A26A71 /* Bookmarks.swift in Sources */,
 				E05A4D852D7D0E270091AA66 /* UserDataManager.swift in Sources */,
 				E04E172D2D87DC62002EDE4A /* VerseListViewModel.swift in Sources */,
+				E043E6CF2DB0065E002A114F /* VerseImageCreatorView.swift in Sources */,
 				E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */,
 				E04E15E12D86059C002EDE4A /* NavigationModels.swift in Sources */,
 				E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */,

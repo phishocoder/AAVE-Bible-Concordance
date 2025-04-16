@@ -29,6 +29,7 @@ class VerseListViewModel: ObservableObject {
     @Published var showCommentary = false
     @Published var commentaryVerse: Verse? = nil
     @Published var commentaryReference: VerseReference? = nil
+    @Published var showingImageOptions = false
     
     private var translationService = TranslationService.shared
     private var verseManager = VerseManager.shared
@@ -284,6 +285,7 @@ class VerseListViewModel: ObservableObject {
     // Show image generator/picker
     func showImageOptions() {
         guard let verse = selectedVerse else { return }
+        showingImageOptions = true
         // Implementation depends on your app's navigation structure
         // This could post a notification or set a state variable
         // that triggers a sheet or navigation

@@ -192,6 +192,13 @@ struct UnifiedBottomToolbar: View {
                         impactFeedback.impactOccurred()
                     }
                 )
+                // Move the sheet modifier outside of the ToolbarButton
+                .sheet(isPresented: $showingImageOptions) {
+                    if let verse = viewModel.selectedVerse {
+                        VerseImageCreatorView(verse: verse)
+                    }
+                }
+                
                 
                 Spacer()
                 
