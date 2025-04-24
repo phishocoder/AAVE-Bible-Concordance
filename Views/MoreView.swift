@@ -10,46 +10,42 @@ import SwiftUI
 struct MoreView: View {
     @State private var showingSettings = false
     @ObservedObject private var userDataManager = UserDataManager.shared
-    
-    struct WordOfTheDayView: View {
-        var body: some View {
-            VStack {
-                Text("Random Verse Generator")
-                    .font(.headline)
-                // Add your implementation here
-            }
-            .navigationTitle("Random Verse Generator")
-        }
-    }
-    
+
     var body: some View {
         NavigationView {
             List {
+                // MARK: - Bible Study Tools
                 Section(header: Text("Bible Study")) {
                     NavigationLink(destination: BookmarkView()) {
                         Label("Bookmarks", systemImage: "bookmark")
                     }
-                    
+
                     NavigationLink(destination: NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))) {
                         Label("Notes", systemImage: "note.text")
                     }
+
+                    NavigationLink(destination: LeaderboardView()) {
+                        Label("Leaderboard", systemImage: "list.number")
+                    }
                 }
-                
+
+                // MARK: - Daily Inspiration
                 Section(header: Text("Daily Content")) {
                     NavigationLink(destination: VerseOfDaySettingsView()) {
                         Label("Random Verse Generator", systemImage: "die.face.5")
                     }
                 }
-                
+
+                // MARK: - About the App
                 Section(header: Text("About")) {
                     NavigationLink(destination: AboutView()) {
                         Label("About This App", systemImage: "info.circle")
                     }
-                    
+
                     NavigationLink(destination: CreditsView()) {
                         Label("Credits", systemImage: "person.2")
                     }
-                    
+
                     Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
                         HStack {
                             Label("Privacy Policy", systemImage: "lock.shield")
@@ -59,7 +55,8 @@ struct MoreView: View {
                         }
                     }
                 }
-                
+
+                // MARK: - App Settings
                 Section(header: Text("App")) {
                     Button(action: { showingSettings = true }) {
                         Label("Settings", systemImage: "gear")
@@ -72,10 +69,13 @@ struct MoreView: View {
             }
         }
     }
-    
+}
+
+// MARK: - Notes Archive View (Nested)
+extension MoreView {
     struct MoreNotesView: View {
         @ObservedObject private var userDataManager = UserDataManager.shared
-        
+
         var body: some View {
             List {
                 if userDataManager.notes.isEmpty {

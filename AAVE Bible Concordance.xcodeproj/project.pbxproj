@@ -65,6 +65,15 @@
 		E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */; };
 		E05A4D872D7D0E270091AA66 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D812D7D0E270091AA66 /* APIConfig.swift */; };
 		E077B9632DB9E13E0072C19F /* JesusQuotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9622DB9E1360072C19F /* JesusQuotes.swift */; };
+		E077B9682DB9F32B0072C19F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E077B9672DB9F32B0072C19F /* FirebaseAnalytics */; };
+		E077B96A2DB9F5BA0072C19F /* FirebaseAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9692DB9F5B40072C19F /* FirebaseAuthManager.swift */; };
+		E077B96C2DB9F5D50072C19F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */; };
+		E077B96F2DB9F8F40072C19F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E077B96E2DB9F8F40072C19F /* FirebaseAuth */; };
+		E077B9712DB9F9210072C19F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E077B9702DB9F9210072C19F /* FirebaseFirestore */; };
+		E077B9732DB9F9520072C19F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E077B9722DB9F9520072C19F /* FirebaseCore */; };
+		E077B9752DB9F9B70072C19F /* QuizScoreLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */; };
+		E077B9772DB9F9EC0072C19F /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9762DB9F9E50072C19F /* LeaderboardService.swift */; };
+		E077B9792DB9FA0B0072C19F /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9782DB9FA060072C19F /* LeaderboardView.swift */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
@@ -158,6 +167,11 @@
 		E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleAPIService.swift; sourceTree = "<group>"; };
 		E05A4D832D7D0E270091AA66 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
 		E077B9622DB9E1360072C19F /* JesusQuotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JesusQuotes.swift; sourceTree = "<group>"; };
+		E077B9692DB9F5B40072C19F /* FirebaseAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthManager.swift; sourceTree = "<group>"; };
+		E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
+		E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizScoreLogger.swift; sourceTree = "<group>"; };
+		E077B9762DB9F9E50072C19F /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
+		E077B9782DB9FA060072C19F /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
@@ -228,6 +242,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E077B9682DB9F32B0072C19F /* FirebaseAnalytics in Frameworks */,
+				E077B96F2DB9F8F40072C19F /* FirebaseAuth in Frameworks */,
+				E077B9732DB9F9520072C19F /* FirebaseCore in Frameworks */,
+				E077B9712DB9F9210072C19F /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +273,9 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E077B9782DB9FA060072C19F /* LeaderboardView.swift */,
+				E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */,
+				E077B9692DB9F5B40072C19F /* FirebaseAuthManager.swift */,
 				E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */,
 				E0914E9C2DA8736B00C463DB /* ConfettiView.swift */,
 				E04E0F9D2D93397F004C44A2 /* NotificationSettingsView.swift */,
@@ -343,6 +364,7 @@
 				E0054FB92D7C202800A26A71 /* Models */,
 				E04B082D2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCF2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
+				E077B96D2DB9F8F40072C19F /* Frameworks */,
 				E04B082C2D7A69990022E2DB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -359,6 +381,8 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E077B9762DB9F9E50072C19F /* LeaderboardService.swift */,
+				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
 				E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */,
 				E04E0F9B2D933967004C44A2 /* NotificationManager.swift */,
 				E00962742D82862A007677BD /* HighlightManager.swift */,
@@ -370,6 +394,13 @@
 				E0054FA02D7BFDF700A26A71 /* TranslationService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		E077B96D2DB9F8F40072C19F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -417,6 +448,10 @@
 			);
 			name = "AAVE Bible Concordance";
 			packageProductDependencies = (
+				E077B9672DB9F32B0072C19F /* FirebaseAnalytics */,
+				E077B96E2DB9F8F40072C19F /* FirebaseAuth */,
+				E077B9702DB9F9210072C19F /* FirebaseFirestore */,
+				E077B9722DB9F9520072C19F /* FirebaseCore */,
 			);
 			productName = "AAVE Bible Concordance";
 			productReference = E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */;
@@ -450,6 +485,9 @@
 			);
 			mainGroup = E04B08222D7A69990022E2DB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E04B082C2D7A69990022E2DB /* Products */;
 			projectDirPath = "";
@@ -503,6 +541,7 @@
 				E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */,
 				E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */,
 				E0054F952D7BB55100A26A71 /* ContentView.swift in Sources */,
+				E077B9772DB9F9EC0072C19F /* LeaderboardService.swift in Sources */,
 				E04E15D32D85D938002EDE4A /* MoreView.swift in Sources */,
 				E0DCC5212D7E020F0061F222 /* BibleModels.swift in Sources */,
 				E0054FDE2D7CC71F00A26A71 /* DownloadManagerView.swift in Sources */,
@@ -538,8 +577,10 @@
 				E04E15DF2D85F567002EDE4A /* TranslationsView.swift in Sources */,
 				E04E171A2D87C57E002EDE4A /* MultiVerseActionsOverlay.swift in Sources */,
 				E0054FB32D7C1CCB00A26A71 /* History.swift in Sources */,
+				E077B96A2DB9F5BA0072C19F /* FirebaseAuthManager.swift in Sources */,
 				E0054FB82D7C1E2100A26A71 /* Extensions-Date+Time.swift in Sources */,
 				E0DCC5312D7E16CD0061F222 /* ChapterButton.swift in Sources */,
+				E077B96C2DB9F5D50072C19F /* FirestoreService.swift in Sources */,
 				E009628C2D8358FF007677BD /* NavigationManager.swift in Sources */,
 				E0054F972D7BB55100A26A71 /* SettingsView.swift in Sources */,
 				E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */,
@@ -567,6 +608,8 @@
 				E04E0F9C2D93396D004C44A2 /* NotificationManager.swift in Sources */,
 				E04E0FA22D933C64004C44A2 /* AppState.swift in Sources */,
 				E0DCC5252D7E06240061F222 /* ShareSheet.swift in Sources */,
+				E077B9752DB9F9B70072C19F /* QuizScoreLogger.swift in Sources */,
+				E077B9792DB9FA0B0072C19F /* LeaderboardView.swift in Sources */,
 				E04E15DD2D85F470002EDE4A /* ToolButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -832,6 +875,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E077B9672DB9F32B0072C19F /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		E077B96E2DB9F8F40072C19F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		E077B9702DB9F9210072C19F /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		E077B9722DB9F9520072C19F /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E04B08232D7A69990022E2DB /* Project object */;
 }

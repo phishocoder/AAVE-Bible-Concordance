@@ -5,9 +5,9 @@ struct ContentView: View {
     @State private var selectedTab: Int = 0
     @State private var isLoading = true
     @State private var error: Error? = nil
-    
+
     private let translationService = TranslationService.shared
-    
+
     // Environment values for navigation
     private var navigationBook: Binding<String> {
         Binding(
@@ -15,14 +15,14 @@ struct ContentView: View {
             set: { navigationManager.currentBook = $0 }
         )
     }
-    
+
     private var navigationChapter: Binding<Int> {
         Binding(
             get: { navigationManager.currentChapter },
             set: { navigationManager.currentChapter = $0 }
         )
     }
-    
+
     var body: some View {
         Group {
             if isLoading {
@@ -34,7 +34,7 @@ struct ContentView: View {
                             Label("Home", systemImage: "house.fill")
                         }
                         .tag(0)
-                    
+
                     NavigationStack {
                         BookListView()
                             .environmentObject(navigationManager)
@@ -43,13 +43,13 @@ struct ContentView: View {
                         Label("Bible", systemImage: "book.fill")
                     }
                     .tag(1)
-                    
+
                     SearchView()
                         .tabItem {
                             Label("Search", systemImage: "magnifyingglass")
                         }
                         .tag(2)
-                    
+
                     MoreView()
                         .tabItem {
                             Label("More", systemImage: "ellipsis.circle.fill")
@@ -58,16 +58,15 @@ struct ContentView: View {
                 }
                 .onReceive(navigationManager.$navigationRequest) { request in
                     guard let request = request else { return }
-                    
+
                     print("ContentView: Received navigation request to \(request.book) \(request.chapter):\(request.verse ?? 0)")
-                    
+
                     // First switch to Bible tab
                     selectedTab = 1
-                    
+
                     // Then navigate to the requested location
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         if let verse = request.verse, request.highlightVerse {
-                            // Navigate to chapter and highlight verse
                             NotificationCenter.default.post(
                                 name: Notification.Name("NavigateToVerse"),
                                 object: nil,
@@ -79,7 +78,6 @@ struct ContentView: View {
                                 ]
                             )
                         } else {
-                            // Just navigate to chapter
                             NotificationCenter.default.post(
                                 name: Notification.Name("NavigateToChapter"),
                                 object: nil,
@@ -89,8 +87,7 @@ struct ContentView: View {
                                 ]
                             )
                         }
-                        
-                        // Clear the request after handling it
+
                         navigationManager.clearNavigationRequest()
                     }
                 }
@@ -98,6 +95,9 @@ struct ContentView: View {
         }
         .environmentObject(navigationManager)
         .task {
+            // Sign in anonymously on app launch
+            FirebaseAuthManager.shared.signInAnonymously()
+
             do {
                 try await translationService.loadTranslations()
                 isLoading = false
@@ -110,19 +110,15 @@ struct ContentView: View {
             if let userInfo = notification.userInfo,
                let book = userInfo["book"] as? String,
                let chapter = userInfo["chapter"] as? Int {
-                
-                // Set the selected tab to Bible tab
+
                 selectedTab = 1
-                
-                // Use the navigation manager to navigate
+
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.navigationManager.navigateToChapter(book: book, chapter: chapter)
-                    
-                    // If verse is specified and should be highlighted
+
                     if let verse = userInfo["verse"] as? Int,
                        let shouldHighlight = userInfo["shouldHighlight"] as? Bool,
                        shouldHighlight {
-                        // Post notification to highlight the verse after navigation
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             NotificationCenter.default.post(
                                 name: Notification.Name("HighlightVerse"),
@@ -139,13 +135,14 @@ struct ContentView: View {
             }
         }
     }
-    
-    // Add 'self.' to access the navigationManager property
+
+    // MARK: - External Navigation Utility
     func navigateToVerse(_ reference: VerseReference) {
         self.navigationManager.navigateToChapter(book: reference.book, chapter: reference.chapter)
     }
 }
 
-#Preview {
-    ContentView()
-}
+// MARK: - Preview (optional, remove if it keeps erroring)
+// #Preview {
+//     ContentView()
+// }

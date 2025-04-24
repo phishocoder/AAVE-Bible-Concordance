@@ -7,10 +7,15 @@
 
 import UIKit
 import UserNotifications
+import FirebaseCore
+
+
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Set notification delegate
+        FirebaseApp.configure()
+        print("✅ Firebase is configured!")
         UNUserNotificationCenter.current().delegate = self
         
         return true
