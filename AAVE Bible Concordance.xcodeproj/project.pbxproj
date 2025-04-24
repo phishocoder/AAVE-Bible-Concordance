@@ -64,6 +64,7 @@
 		E05A4D852D7D0E270091AA66 /* UserDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D832D7D0E270091AA66 /* UserDataManager.swift */; };
 		E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */; };
 		E05A4D872D7D0E270091AA66 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D812D7D0E270091AA66 /* APIConfig.swift */; };
+		E077B9632DB9E13E0072C19F /* JesusQuotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9622DB9E1360072C19F /* JesusQuotes.swift */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
@@ -156,6 +157,7 @@
 		E05A4D812D7D0E270091AA66 /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
 		E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleAPIService.swift; sourceTree = "<group>"; };
 		E05A4D832D7D0E270091AA66 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
+		E077B9622DB9E1360072C19F /* JesusQuotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JesusQuotes.swift; sourceTree = "<group>"; };
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 		E0054FB92D7C202800A26A71 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
 				E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */,
 				E04E0FA12D933C60004C44A2 /* AppState.swift */,
 				E04E17352D87E238002EDE4A /* BibleBooks.swift */,
@@ -526,6 +529,7 @@
 				E0054FDA2D7CC57D00A26A71 /* VerseView.swift in Sources */,
 				E04E15D92D85F366002EDE4A /* VerseActionsOverlay.swift in Sources */,
 				E0F415CA2D825FAD000A4C7E /* VerseModels.swift in Sources */,
+				E077B9632DB9E13E0072C19F /* JesusQuotes.swift in Sources */,
 				E0054FA12D7BFDF800A26A71 /* TranslationService.swift in Sources */,
 				E04E171E2D87C5C6002EDE4A /* BookChapterPickerView.swift in Sources */,
 				E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,

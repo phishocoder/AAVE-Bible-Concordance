@@ -21,6 +21,32 @@ struct HomeView: View {
     @State private var hasReadNTChapter = false
     @Environment(\.colorScheme) var colorScheme
     
+    
+    // Get NT completed chapters count
+    func getNTCompletedChapters() -> Int {
+        // List of NT books
+        let ntBooks = ["Matthew", "Mark", "Luke", "John", "Acts",
+                      "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
+                      "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+                      "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews",
+                      "James", "1 Peter", "2 Peter", "1 John", "2 John",
+                      "3 John", "Jude", "Revelation"]
+        
+        // Count NT chapters read from UserDataManager
+        let ntChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
+            let components = chapterKey.split(separator: "_")
+            guard components.count == 2, let book = components.first else { return false }
+            return ntBooks.contains(String(book))
+        }
+        
+        return ntChaptersRead.count
+    }
+    
+    // Jesus quotes related properties
+    private let jesusQuoteReferences = HomeView.jesusQuoteReferences  // Initialize from the static property
+    @State private var previousReference: VerseReference?
+    @AppStorage("jesusQuoteGospelFilter") private var gospelFilter: String = "All"
+    
     // Move welcomeSection outside of body
     var welcomeSection: some View {
         VStack(spacing: 12) {
@@ -121,9 +147,6 @@ struct HomeView: View {
                 // Start rotating messages
                 startRotatingMessages()
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("RefreshVerseOfTheDay"))) { _ in
-                generateRedLetterVerse()
-            }
         }
     }
     
@@ -176,14 +199,13 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("Already part of the 144? If you know somebody who would vibe with this too—someone who’d love seeing Scripture in our voice—send them our way. We’re still building, still testing, and every fresh eye helps. Tell ’em to hit you up so you can pass the blessing. You got the invite—now you can extend it.")
+            Text("Already part of the 144? If you know somebody who would vibe with this too—someone who'd love seeing Scripture in our voice—send them our way. We're still building, still testing, and every fresh eye helps. Tell 'em to hit you up so you can pass the blessing. You got the invite—now you can extend it.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
             Text("Visit officialaavebible.com to learn more.")
                 .font(.body)
                 .padding(.top, 4)
-            
             HStack {
                 Button(action: {
                     shareApp()
@@ -217,73 +239,157 @@ struct HomeView: View {
         .background(Color(.systemGray6))
         .cornerRadius(12)
     }
+
+    // Function to share the app
+    func shareApp() {
+        let appURL = "officialaavebible.com" // Replace with your actual App Store URL
+        let shareText = "Yo! I’m part of the AAVE Bible App beta (first 144 testers). It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link and let me know. Let’s make history with this. officialaavebible.com"
+        
+        let activityVC = UIActivityViewController(
+            activityItems: [shareText],
+            applicationActivities: nil
+        )
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(activityVC, animated: true)
+        }
+    }
+
+    // Function to open the website
+    func openWebsite() {
+        if let url = URL(string: "https://officialaavebible.com") {
+            UIApplication.shared.open(url)
+        }
+    }
     
     // Loading card
     var loadingCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Jesus Said...")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                
-                Image(systemName: "quote.bubble")
-                    .foregroundColor(.secondary)
-            }
-            
-            ProgressView()
-                .frame(maxWidth: .infinity, minHeight: 100)
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-    
-    // Error card
-    var errorCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Jesus Said...")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                
-                Image(systemName: "quote.bubble")
-                    .foregroundColor(.secondary)
-            }
-            
-            Text("Could not load verse. Please try again later.")
-                .frame(maxWidth: .infinity, minHeight: 100, alignment: .center)
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-    
-    // Remove the progressTrackerBar view
-    // And change the "Jesus Said..." text to be red in the redLetterVerseCard function
-
-    func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Jesus Said...")
-                    .font(.headline)
-                    .foregroundColor(.red)
-                
-                Image(systemName: "quote.bubble")
-                    .foregroundColor(.red)
+                // Text bubble icon with "Jesus Said" text
+                HStack(spacing: 4) {
+                    Image(systemName: "text.bubble.fill")
+                        .foregroundColor(.red)
+                    Text("Jesus Said")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.red)
+                }
                 
                 Spacer()
                 
                 Button(action: {
-                    showingVerseOfDaySettings = true
+                    generateRedLetterVerse()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(.secondary)
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            HStack {
+                Spacer()
+                ProgressView()
+                    .padding()
+                Spacer()
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+
+    // Error card
+    var errorCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                // Text bubble icon with "Jesus Said" text
+                HStack(spacing: 4) {
+                    Image(systemName: "text.bubble.fill")
+                        .foregroundColor(.red)
+                    Text("Jesus Said")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.red)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    generateRedLetterVerse()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            Text("Could not load verse. Tap refresh to try again.")
+                .foregroundColor(.red)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    // Red Letter Verse Card
+    func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header with title and refresh button
+            HStack {
+                // Text bubble icon with "Jesus Said" text
+                HStack(spacing: 4) {
+                    Image(systemName: "text.bubble.fill")
+                        .foregroundColor(.red)
+                    Text("Jesus Said...")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.red)
+                }
+                
+                Spacer()
+                
+                // Gospel filter button
+                Menu {
+                    Button("All Gospels", action: { gospelFilter = "All" })
+                    Button("Matthew", action: { gospelFilter = "Matthew" })
+                    Button("Mark", action: { gospelFilter = "Mark" })
+                    Button("Luke", action: { gospelFilter = "Luke" })
+                    Button("John", action: { gospelFilter = "John" })
+                } label: {
+                    Label(gospelFilter == "All" ? "All Gospels" : gospelFilter, systemImage: "line.3.horizontal.decrease.circle")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                }
+                
+                Button(action: {
+                    generateRedLetterVerse()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            // Verse reference
+            HStack {
+                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                // Read in context button
+                Button(action: {
+                    navigateToVerse(verse.reference)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }) {
+                    Text("Read in Context")
+                        .font(.caption)
+                        .foregroundColor(.blue)
                 }
                 .sheet(isPresented: $showingVerseOfDaySettings) {
                     VerseOfDaySettingsView()
@@ -298,20 +404,34 @@ struct HomeView: View {
                 .cornerRadius(12)
                 .shadow(radius: 2)
             
-            HStack {
-                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
+            // Add Share and Create Image buttons
+            HStack(spacing: 12) {
                 Button(action: {
-                    navigateToVerse(verse.reference)
+                    shareJesusQuote(verse)
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Text("Read in Context")
+                    Label("Share", systemImage: "square.and.arrow.up")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
+                
+                // Create Verse Image button
+                NavigationLink(destination: VerseImageCreatorView(verse: Verse(
+                    text: verse.text,
+                    translation: settings.verseOfDayTranslation,
+                    reference: verse.reference
+                ))) {
+                    Label("Create Image", systemImage: "photo.on.rectangle")
                         .font(.subheadline)
                         .foregroundColor(.blue)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
                 }
             }
         }
@@ -319,8 +439,50 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemGray6))
         .cornerRadius(12)
+        .transition(.opacity)
+        .id("jesus-quote-\(verse.reference.book)-\(verse.reference.chapter)-\(verse.reference.verse)")
     }
     
+    // Function to get random Jesus quote
+    func getRandomJesusQuote() async throws -> (reference: VerseReference, text: String) {
+        // Filter quotes based on selected gospel if needed
+        let filteredReferences: [VerseReference]
+        if gospelFilter == "All" {
+            filteredReferences = jesusQuoteReferences
+        } else {
+            filteredReferences = jesusQuoteReferences.filter { $0.book == gospelFilter }
+        }
+        
+        guard !filteredReferences.isEmpty else {
+            // Fallback if no quotes match the filter
+            let defaultRef = VerseReference(book: "John", chapter: 14, verse: 6)
+            let text = try await TranslationService.shared.getVerseTranslation(
+                for: defaultRef.book,
+                chapter: defaultRef.chapter,
+                verse: defaultRef.verse,
+                translation: settings.verseOfDayTranslation
+            )
+            return (reference: defaultRef, text: text)
+        }
+        
+        // Avoid showing the same verse twice in a row
+        var newRef: VerseReference
+        repeat {
+            newRef = filteredReferences.randomElement()!
+        } while previousReference == newRef && filteredReferences.count > 1
+        
+        previousReference = newRef
+        
+        // Fetch the actual verse text from TranslationService
+        let text = try await TranslationService.shared.getVerseTranslation(
+            for: newRef.book,
+            chapter: newRef.chapter,
+            verse: newRef.verse,
+            translation: settings.verseOfDayTranslation
+        )
+        
+        return (reference: newRef, text: text)
+    }
     
     // Generate red letter verse
     func generateRedLetterVerse() {
@@ -330,22 +492,11 @@ struct HomeView: View {
         
         Task {
             do {
-                // Get a random red letter verse
-                let reference = await getRandomRedLetterVerse()
-                
-                let text = try await TranslationService.shared.getVerseTranslation(
-                    for: reference.book,
-                    chapter: reference.chapter,
-                    verse: reference.verse,
-                    translation: settings.verseOfDayTranslation
-                )
-                
-                // Remove red tags if present
-                let cleanText = text.replacingOccurrences(of: "<red>", with: "")
-                    .replacingOccurrences(of: "</red>", with: "")
+                // Get a random red letter verse with text from TranslationService
+                let verse = try await getRandomJesusQuote()
                 
                 await MainActor.run {
-                    redLetterVerse = (reference: reference, text: cleanText)
+                    redLetterVerse = verse
                     isLoadingVerse = false
                 }
             } catch {
@@ -356,13 +507,6 @@ struct HomeView: View {
                 }
             }
         }
-    }
-    
-    // Get random red letter verse
-    func getRandomRedLetterVerse() async -> VerseReference {
-        // Simplified for now - just return a hardcoded verse
-        // In a real app, you would fetch this from a service
-        return VerseReference(book: "John", chapter: 3, verse: 16)
     }
     
     // Navigate to verse
@@ -417,25 +561,39 @@ struct HomeView: View {
     // Start rotating messages
     func startRotatingMessages() {
         // Rotate messages every 5 seconds
-        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { timer in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             withAnimation {
                 rotatingMessageIndex = (rotatingMessageIndex + 1) % rotatingMessages.count
             }
+            startRotatingMessages()
         }
     }
     
-    // Get OT completed chapters count
-    func getOTCompletedChapters() -> Int {
+    // Share Jesus quote
+    func shareJesusQuote(_ verse: (reference: VerseReference, text: String)) {
+        let shareText = "\"\(verse.text)\" - \(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse) (AAVE Bible)"
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(activityVC, animated: true)
+        }
+    }
+    
+    // Get OT chapters read count
+    func getOTChaptersReadCount() -> Int {
         // List of OT books
-        let otBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
-                      "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
-                      "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
-                      "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
-                      "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
-                      "Jeremiah", "Lamentations", "Ezekiel", "Daniel",
-                      "Hosea", "Joel", "Amos", "Obadiah", "Jonah",
-                      "Micah", "Nahum", "Habakkuk", "Zephaniah",
-                      "Haggai", "Zechariah", "Malachi"]
+        let otBooks = [
+            "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+            "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
+            "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
+            "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
+            "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
+            "Jeremiah", "Lamentations", "Ezekiel", "Daniel",
+            "Hosea", "Joel", "Amos", "Obadiah", "Jonah",
+            "Micah", "Nahum", "Habakkuk", "Zephaniah",
+            "Haggai", "Zechariah", "Malachi"
+        ]
         
         // Count OT chapters read from UserDataManager
         let otChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
@@ -447,46 +605,14 @@ struct HomeView: View {
         // For now, return 929 (all OT chapters) since OT is complete
         return 929
     }
-    
-    // Get NT completed chapters count
-    func getNTCompletedChapters() -> Int {
-        // List of NT books
-        let ntBooks = ["Matthew", "Mark", "Luke", "John", "Acts",
-                      "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
-                      "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
-                      "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews",
-                      "James", "1 Peter", "2 Peter", "1 John", "2 John",
-                      "3 John", "Jude", "Revelation"]
-        
-        // Count NT chapters read from UserDataManager
-        let ntChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
-            let components = chapterKey.split(separator: "_")
-            guard components.count == 2, let book = components.first else { return false }
-            return ntBooks.contains(String(book))
-        }
-        
-        return ntChaptersRead.count
-    }
-    
-    // Function to share the app
-    func shareApp() {
-        let text = "Yo! I’m part of the AAVE Bible App beta (first 144 testers). It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link <officialaavebible.com> and let me know. Let’s make history with this."
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [text],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
-            rootViewController.present(activityVC, animated: true)
-        }
-    }
-
-    // Function to open the website
-    func openWebsite() {
-        if let url = URL(string: "https://officialaavebible.com") {
-            UIApplication.shared.open(url)
-        }
-    }
 }
+
+
+   
+    
+   
+
+#Preview {
+    HomeView()
+}
+    
