@@ -39,7 +39,7 @@ struct CreditsView: View {
                 HStack {
                     Text("App Version")
                     Spacer()
-                    Text("1.1")
+                    Text("1.2")
                         .foregroundColor(.secondary)
                 }
             }

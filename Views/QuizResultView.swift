@@ -76,8 +76,6 @@ struct QuizResultView: View {
             .padding(.top)
 
             Button(action: {
-                // Go back to play again
-                // This will be handled from QuizView reset
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                     windowScene.windows.first?.rootViewController?.dismiss(animated: true)
                 }
@@ -87,5 +85,10 @@ struct QuizResultView: View {
             }
         }
         .padding()
+        .onAppear {
+            if let userID = FirebaseAuthManager.shared.userID {
+                QuizScoreLogger.shared.logScore(userID: userID, score: score)
+            }
+        }
     }
 }

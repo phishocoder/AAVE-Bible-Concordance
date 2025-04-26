@@ -69,6 +69,20 @@ struct MoreView: View {
                         Label("Settings", systemImage: "gear")
                     }
                 }
+                
+                // MARK: - Developer Tools (Tucked away)
+                Section(header: Text("Developer Tools")) {
+                    Button(action: {
+                        if let userID = FirebaseAuthManager.shared.userID {
+                            QuizScoreLogger.shared.logScore(userID: userID, score: Int.random(in: 1...10))
+                            print("⚡️Manually triggered score save!")
+                        } else {
+                            print("❌ No userID available to log score.")
+                        }
+                    }) {
+                        Label("Test Save Score", systemImage: "bolt.fill")
+                    }
+                }
             }
             .navigationTitle("More")
             .sheet(isPresented: $showingSettings) {

@@ -64,7 +64,6 @@ struct ContentView: View {
                     // First switch to Bible tab
                     selectedTab = 1
 
-                    // Then navigate to the requested location
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         if let verse = request.verse, request.highlightVerse {
                             NotificationCenter.default.post(
@@ -95,16 +94,7 @@ struct ContentView: View {
         }
         .environmentObject(navigationManager)
         .task {
-            // Sign in anonymously on app launch
-            FirebaseAuthManager.shared.signInAnonymously()
-
-            do {
-                try await translationService.loadTranslations()
-                isLoading = false
-            } catch {
-                self.error = error
-                isLoading = false
-            }
+            await initializeApp()
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DirectNavigateToChapter"))) { notification in
             if let userInfo = notification.userInfo,
@@ -140,9 +130,17 @@ struct ContentView: View {
     func navigateToVerse(_ reference: VerseReference) {
         self.navigationManager.navigateToChapter(book: reference.book, chapter: reference.chapter)
     }
-}
 
-// MARK: - Preview (optional, remove if it keeps erroring)
-// #Preview {
-//     ContentView()
-// }
+    // MARK: - Initialize App (split out cleanly)
+    private func initializeApp() async {
+        FirebaseAuthManager.shared.signInAnonymously()
+
+        do {
+            try await translationService.loadTranslations()
+            isLoading = false
+        } catch {
+            self.error = error
+            isLoading = false
+        }
+    }
+}

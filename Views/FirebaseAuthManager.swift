@@ -14,25 +14,28 @@ class FirebaseAuthManager: ObservableObject {
     @Published var userID: String?
 
     private init() {
-        signInAnonymously()
+        // Don’t call signInAnonymously() here.
+        // We'll manually call it on app launch inside ContentView.
     }
 
     func signInAnonymously() {
         if let currentUser = Auth.auth().currentUser {
             self.userID = currentUser.uid
-            print("Already signed in with UID: \(currentUser.uid)")
+            print("✅ Already signed in with UID: \(currentUser.uid)")
             return
         }
 
-        Auth.auth().signInAnonymously { result, error in
+        Auth.auth().signInAnonymously { [weak self] result, error in
             if let error = error {
-                print("❌ Firebase auth error: \(error.localizedDescription)")
+                print("❌ Firebase anonymous auth error: \(error.localizedDescription)")
                 return
             }
 
             if let user = result?.user {
-                self.userID = user.uid
-                print("✅ Signed in anonymously with UID: \(user.uid)")
+                DispatchQueue.main.async {
+                    self?.userID = user.uid
+                    print("✅ Signed in anonymously with UID: \(user.uid)")
+                }
             }
         }
     }

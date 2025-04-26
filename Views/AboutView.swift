@@ -50,7 +50,7 @@ struct AboutView: View {
                     Text("Made with 🖤 by PhiSho Apps")
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                    Text("Version 1.1")
+                    Text("Version 1.2")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
