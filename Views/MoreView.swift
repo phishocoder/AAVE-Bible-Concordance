@@ -19,11 +19,11 @@ struct MoreView: View {
                     NavigationLink(destination: BookmarkView()) {
                         Label("Bookmarks", systemImage: "bookmark")
                     }
-
+                    
                     NavigationLink(destination: NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))) {
                         Label("Notes", systemImage: "note.text")
                     }
-
+                    
                     NavigationLink(destination: LeaderboardView()) {
                         Label("Leaderboard", systemImage: "list.number")
                     }
@@ -35,17 +35,24 @@ struct MoreView: View {
                         Label("Random Verse Generator", systemImage: "die.face.5")
                     }
                 }
-
+                
+                // MARK: - Fun & Games
+                Section(header: Text("Fun & Games")) {
+                    NavigationLink(destination: QuizSplashView()) {
+                        Label("Who Said That?! Quiz", systemImage: "gamecontroller.fill")
+                    }
+                }
+                
                 // MARK: - About the App
                 Section(header: Text("About")) {
                     NavigationLink(destination: AboutView()) {
                         Label("About This App", systemImage: "info.circle")
                     }
-
+                    
                     NavigationLink(destination: CreditsView()) {
                         Label("Credits", systemImage: "person.2")
                     }
-
+                    
                     Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
                         HStack {
                             Label("Privacy Policy", systemImage: "lock.shield")

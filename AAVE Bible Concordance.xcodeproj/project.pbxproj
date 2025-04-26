@@ -74,6 +74,11 @@
 		E077B9752DB9F9B70072C19F /* QuizScoreLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */; };
 		E077B9772DB9F9EC0072C19F /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9762DB9F9E50072C19F /* LeaderboardService.swift */; };
 		E077B9792DB9FA0B0072C19F /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9782DB9FA060072C19F /* LeaderboardView.swift */; };
+		E077B97B2DBD71650072C19F /* QuizQuestionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */; };
+		E077B97D2DBD71D20072C19F /* QuizData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97C2DBD71CE0072C19F /* QuizData.swift */; };
+		E077B97F2DBD71F50072C19F /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97E2DBD71EC0072C19F /* QuizView.swift */; };
+		E077B9812DBD74A00072C19F /* QuizResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9802DBD749B0072C19F /* QuizResultView.swift */; };
+		E077B9832DBD7F530072C19F /* QuizSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
@@ -172,6 +177,11 @@
 		E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizScoreLogger.swift; sourceTree = "<group>"; };
 		E077B9762DB9F9E50072C19F /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
 		E077B9782DB9FA060072C19F /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
+		E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestionModel.swift; sourceTree = "<group>"; };
+		E077B97C2DBD71CE0072C19F /* QuizData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizData.swift; sourceTree = "<group>"; };
+		E077B97E2DBD71EC0072C19F /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
+		E077B9802DBD749B0072C19F /* QuizResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizResultView.swift; sourceTree = "<group>"; };
+		E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizSplashView.swift; sourceTree = "<group>"; };
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
@@ -255,6 +265,7 @@
 		E0054FB92D7C202800A26A71 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */,
 				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
 				E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */,
 				E04E0FA12D933C60004C44A2 /* AppState.swift */,
@@ -273,6 +284,10 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */,
+				E077B9802DBD749B0072C19F /* QuizResultView.swift */,
+				E077B97E2DBD71EC0072C19F /* QuizView.swift */,
+				E077B97C2DBD71CE0072C19F /* QuizData.swift */,
 				E077B9782DB9FA060072C19F /* LeaderboardView.swift */,
 				E077B9742DB9F9B30072C19F /* QuizScoreLogger.swift */,
 				E077B9692DB9F5B40072C19F /* FirebaseAuthManager.swift */,
@@ -536,6 +551,7 @@
 				E0054F942D7BB55100A26A71 /* ConcordanceView.swift in Sources */,
 				E0E071D82D8913EC00BFB93E /* MultiSelectBottomToolbar.swift in Sources */,
 				E04E171C2D87C59A002EDE4A /* BibleNavigationHeader.swift in Sources */,
+				E077B97D2DBD71D20072C19F /* QuizData.swift in Sources */,
 				E0DCC5332D7E18D60061F222 /* HomeView.swift in Sources */,
 				E00962902D835966007677BD /* BibleData.swift in Sources */,
 				E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */,
@@ -552,6 +568,7 @@
 				E009627F2D82C0EF007677BD /* LoadingView.swift in Sources */,
 				E0D29A0F2D8B20CC0057EE2B /* RoundedCorner.swift in Sources */,
 				E04E15DB2D85F37A002EDE4A /* CommentaryOverlay.swift in Sources */,
+				E077B97F2DBD71F50072C19F /* QuizView.swift in Sources */,
 				E0054F962D7BB55100A26A71 /* SearchView.swift in Sources */,
 				E04E15E52D8610E1002EDE4A /* ChapterNavigation.swift in Sources */,
 				E0F415BA2D813630000A4C7E /* CommentaryView.swift in Sources */,
@@ -576,7 +593,9 @@
 				E00962732D827D97007677BD /* NotesView.swift in Sources */,
 				E04E15DF2D85F567002EDE4A /* TranslationsView.swift in Sources */,
 				E04E171A2D87C57E002EDE4A /* MultiVerseActionsOverlay.swift in Sources */,
+				E077B9812DBD74A00072C19F /* QuizResultView.swift in Sources */,
 				E0054FB32D7C1CCB00A26A71 /* History.swift in Sources */,
+				E077B9832DBD7F530072C19F /* QuizSplashView.swift in Sources */,
 				E077B96A2DB9F5BA0072C19F /* FirebaseAuthManager.swift in Sources */,
 				E0054FB82D7C1E2100A26A71 /* Extensions-Date+Time.swift in Sources */,
 				E0DCC5312D7E16CD0061F222 /* ChapterButton.swift in Sources */,
@@ -600,6 +619,7 @@
 				E05A4D872D7D0E270091AA66 /* APIConfig.swift in Sources */,
 				E0DCC52D2D7E0B160061F222 /* LaunchViewModel.swift in Sources */,
 				E04E0F9E2D933985004C44A2 /* NotificationSettingsView.swift in Sources */,
+				E077B97B2DBD71650072C19F /* QuizQuestionModel.swift in Sources */,
 				E0054F982D7BB55100A26A71 /* TaglineCarouselView.swift in Sources */,
 				E04E17362D87E23C002EDE4A /* BibleBooks.swift in Sources */,
 				E0054F9B2D7BB55100A26A71 /* VerseListView.swift in Sources */,
