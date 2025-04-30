@@ -61,6 +61,8 @@
 		E04E172D2D87DC62002EDE4A /* VerseListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E172C2D87DC5D002EDE4A /* VerseListViewModel.swift */; };
 		E04E17332D87E178002EDE4A /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E17322D87E172002EDE4A /* ActionButton.swift */; };
 		E04E17362D87E23C002EDE4A /* BibleBooks.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E17352D87E238002EDE4A /* BibleBooks.swift */; };
+		E0534B672DC2A3FB0038651E /* AppleAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0534B662DC2A3E90038651E /* AppleAuthManager.swift */; };
+		E0534B692DC2A4F10038651E /* UsernamePromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0534B682DC2A4ED0038651E /* UsernamePromptView.swift */; };
 		E05A4D852D7D0E270091AA66 /* UserDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D832D7D0E270091AA66 /* UserDataManager.swift */; };
 		E05A4D862D7D0E270091AA66 /* BibleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */; };
 		E05A4D872D7D0E270091AA66 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05A4D812D7D0E270091AA66 /* APIConfig.swift */; };
@@ -79,6 +81,7 @@
 		E077B97F2DBD71F50072C19F /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97E2DBD71EC0072C19F /* QuizView.swift */; };
 		E077B9812DBD74A00072C19F /* QuizResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9802DBD749B0072C19F /* QuizResultView.swift */; };
 		E077B9832DBD7F530072C19F /* QuizSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */; };
+		E077B9862DC288210072C19F /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E077B9852DC288210072C19F /* FirebaseMessaging */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
@@ -168,6 +171,8 @@
 		E04E172C2D87DC5D002EDE4A /* VerseListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseListViewModel.swift; sourceTree = "<group>"; };
 		E04E17322D87E172002EDE4A /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		E04E17352D87E238002EDE4A /* BibleBooks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleBooks.swift; sourceTree = "<group>"; };
+		E0534B662DC2A3E90038651E /* AppleAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthManager.swift; sourceTree = "<group>"; };
+		E0534B682DC2A4ED0038651E /* UsernamePromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernamePromptView.swift; sourceTree = "<group>"; };
 		E05A4D812D7D0E270091AA66 /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
 		E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleAPIService.swift; sourceTree = "<group>"; };
 		E05A4D832D7D0E270091AA66 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
@@ -254,6 +259,7 @@
 			files = (
 				E077B9682DB9F32B0072C19F /* FirebaseAnalytics in Frameworks */,
 				E077B96F2DB9F8F40072C19F /* FirebaseAuth in Frameworks */,
+				E077B9862DC288210072C19F /* FirebaseMessaging in Frameworks */,
 				E077B9732DB9F9520072C19F /* FirebaseCore in Frameworks */,
 				E077B9712DB9F9210072C19F /* FirebaseFirestore in Frameworks */,
 			);
@@ -284,6 +290,7 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E0534B682DC2A4ED0038651E /* UsernamePromptView.swift */,
 				E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */,
 				E077B9802DBD749B0072C19F /* QuizResultView.swift */,
 				E077B97E2DBD71EC0072C19F /* QuizView.swift */,
@@ -396,6 +403,7 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E0534B662DC2A3E90038651E /* AppleAuthManager.swift */,
 				E077B9762DB9F9E50072C19F /* LeaderboardService.swift */,
 				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
 				E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */,
@@ -467,6 +475,7 @@
 				E077B96E2DB9F8F40072C19F /* FirebaseAuth */,
 				E077B9702DB9F9210072C19F /* FirebaseFirestore */,
 				E077B9722DB9F9520072C19F /* FirebaseCore */,
+				E077B9852DC288210072C19F /* FirebaseMessaging */,
 			);
 			productName = "AAVE Bible Concordance";
 			productReference = E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */;
@@ -557,6 +566,7 @@
 				E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */,
 				E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */,
 				E0054F952D7BB55100A26A71 /* ContentView.swift in Sources */,
+				E0534B672DC2A3FB0038651E /* AppleAuthManager.swift in Sources */,
 				E077B9772DB9F9EC0072C19F /* LeaderboardService.swift in Sources */,
 				E04E15D32D85D938002EDE4A /* MoreView.swift in Sources */,
 				E0DCC5212D7E020F0061F222 /* BibleModels.swift in Sources */,
@@ -591,6 +601,7 @@
 				E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
 				E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,
 				E00962732D827D97007677BD /* NotesView.swift in Sources */,
+				E0534B692DC2A4F10038651E /* UsernamePromptView.swift in Sources */,
 				E04E15DF2D85F567002EDE4A /* TranslationsView.swift in Sources */,
 				E04E171A2D87C57E002EDE4A /* MultiVerseActionsOverlay.swift in Sources */,
 				E077B9812DBD74A00072C19F /* QuizResultView.swift in Sources */,
@@ -805,6 +816,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -814,9 +826,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AAVE Bible Concordance/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app requires permission to save verse images to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to select background images for verse images.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -838,6 +853,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -847,9 +863,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AAVE Bible Concordance/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app requires permission to save verse images to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to select background images for verse images.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -929,6 +948,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		E077B9852DC288210072C19F /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

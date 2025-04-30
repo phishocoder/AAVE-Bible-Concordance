@@ -309,12 +309,14 @@ class NotificationManager: ObservableObject {
             )
             
             // Schedule notification
-            UNUserNotificationCenter.current().add(request) { error in
+            UNUserNotificationCenter.current().add(request) { [weak self] error in
                 if let error = error {
                     print("Error scheduling beta feedback: \(error)")
                 } else {
-                    // Update last feedback request date
-                    self.lastFeedbackRequestDate = currentTime
+                    // Update last feedback request date on the main thread
+                    DispatchQueue.main.async {
+                        self?.lastFeedbackRequestDate = currentTime
+                    }
                 }
             }
         }

@@ -1,31 +1,49 @@
-//
-//  MoreView.swift
-//  AAVE Bible Concordance
-//
-//  Created by Phil Shobo on 3/15/25.
-//
-
 import SwiftUI
+import AuthenticationServices
 
 struct MoreView: View {
     @State private var showingSettings = false
     @ObservedObject private var userDataManager = UserDataManager.shared
+    @StateObject private var authManager = AppleAuthManager.shared
 
     var body: some View {
         NavigationView {
             List {
+                // MARK: - Account
+                Section(header: Text("Account")) {
+                    if authManager.isSignedIn {
+                        HStack {
+                            Label("Signed in as", systemImage: "person.fill")
+                            Spacer()
+                            Text(authManager.displayName ?? "User")
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        SignInWithAppleButton(
+                            .signIn,
+                            onRequest: { request in
+                                request.requestedScopes = [.fullName, .email]
+                            },
+                            onCompletion: { _ in
+                                authManager.startSignInWithAppleFlow()
+                            }
+                        )
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(height: 45)
+                        .cornerRadius(8)
+                        .padding(.vertical, 4)
+                    }
+                }
+
                 // MARK: - Bible Study Tools
                 Section(header: Text("Bible Study")) {
                     NavigationLink(destination: BookmarkView()) {
                         Label("Bookmarks", systemImage: "bookmark")
                     }
-                    
+
                     NavigationLink(destination: NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))) {
                         Label("Notes", systemImage: "note.text")
-                    }
-                    
-                    NavigationLink(destination: LeaderboardView()) {
-                        Label("Leaderboard", systemImage: "list.number")
                     }
                 }
 
@@ -35,24 +53,28 @@ struct MoreView: View {
                         Label("Random Verse Generator", systemImage: "die.face.5")
                     }
                 }
-                
+
                 // MARK: - Fun & Games
                 Section(header: Text("Fun & Games")) {
                     NavigationLink(destination: QuizSplashView()) {
                         Label("Who Said That?! Quiz", systemImage: "gamecontroller.fill")
                     }
+
+                    NavigationLink(destination: LeaderboardView()) {
+                        Label("Leaderboard", systemImage: "list.number")
+                    }
                 }
-                
+
                 // MARK: - About the App
                 Section(header: Text("About")) {
                     NavigationLink(destination: AboutView()) {
                         Label("About This App", systemImage: "info.circle")
                     }
-                    
+
                     NavigationLink(destination: CreditsView()) {
                         Label("Credits", systemImage: "person.2")
                     }
-                    
+
                     Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
                         HStack {
                             Label("Privacy Policy", systemImage: "lock.shield")
@@ -69,66 +91,18 @@ struct MoreView: View {
                         Label("Settings", systemImage: "gear")
                     }
                 }
-                
-                // MARK: - Developer Tools (Tucked away)
-                Section(header: Text("Developer Tools")) {
-                    Button(action: {
-                        if let userID = FirebaseAuthManager.shared.userID {
-                            QuizScoreLogger.shared.logScore(userID: userID, score: Int.random(in: 1...10))
-                            print("⚡️Manually triggered score save!")
-                        } else {
-                            print("❌ No userID available to log score.")
-                        }
-                    }) {
-                        Label("Test Save Score", systemImage: "bolt.fill")
-                    }
-                }
             }
             .navigationTitle("More")
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
-        }
-    }
-}
-
-// MARK: - Notes Archive View (Nested)
-extension MoreView {
-    struct MoreNotesView: View {
-        @ObservedObject private var userDataManager = UserDataManager.shared
-
-        var body: some View {
-            List {
-                if userDataManager.notes.isEmpty {
-                    ContentUnavailableView(
-                        "No Notes",
-                        systemImage: "note.text",
-                        description: Text("Your notes will appear here")
-                    )
+            .sheet(isPresented: $authManager.needsUsernamePrompt) {
+                if let uid = authManager.pendingUserID {
+                    UsernamePromptView(userID: uid)
                 } else {
-                    ForEach(Array(userDataManager.notes.keys), id: \.self) { key in
-                        if let note = userDataManager.notes[key], !note.isEmpty {
-                            NavigationLink {
-                                if let reference = VerseReference.fromKey(key) {
-                                    VerseDetailView(reference: reference)
-                                }
-                            } label: {
-                                VStack(alignment: .leading) {
-                                    if let reference = VerseReference.fromKey(key) {
-                                        Text(reference.displayString)
-                                            .font(.headline)
-                                    }
-                                    Text(note)
-                                        .font(.body)
-                                        .lineLimit(2)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                    }
+                    UsernamePromptView()
                 }
             }
-            .navigationTitle("Notes")
         }
     }
 }

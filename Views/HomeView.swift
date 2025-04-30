@@ -128,6 +128,39 @@ struct HomeView: View {
                         errorCard
                     }
                     
+                    // New Quiz Promo Card
+                    NavigationLink(destination: QuizSplashView()) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "gamecontroller.fill")
+                                    .foregroundColor(.green)
+                                Text("New Game Alert!")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                            }
+
+                            Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 10 seconds each. Think you know the Word like that?")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+
+                            HStack {
+                                Text("Tap to Play")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(Color.green)
+                                    .cornerRadius(8)
+
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                    }
+                    
                     // Share App CTA
                     shareAppCTA
                 }
@@ -187,6 +220,7 @@ struct HomeView: View {
             }
         )
     }
+    
     
     // Share App CTA
     var shareAppCTA: some View {
