@@ -49,32 +49,24 @@ struct SettingsView: View {
                         Text("AAVE").tag("AAVE")
                         Text("NET").tag("NET")
                     }
-                    
-                    Toggle(isOn: $viewModel.showAlternateTranslation) {
-                        Label("Show Alternate Translation", systemImage: "doc.on.doc")
-                    }
                 }
                 
                 Section(header: Text("Saved Content")) {
                     NavigationLink(destination: BookmarkView()) {
                         Label("Bookmarks", systemImage: "bookmark")
                     }
+                    
+                    NavigationLink(destination: HighlightedVersesView()) {
+                        Label("Highlights", systemImage: "highlighter")
+                    }
                 }
                 
-                Section(header: Text("Notifications & Reminders")) {
+                Section(header: Text("Notifications")) {
                     NavigationLink(destination: NotificationSettingsView()) {
                         HStack {
                             Image(systemName: "bell.fill")
                                 .foregroundColor(.blue)
                             Text("Notifications")
-                        }
-                    }
-                    
-                    NavigationLink(destination: VerseOfDaySettingsView()) {
-                        HStack {
-                            Image(systemName: "dice.fill")
-                                .foregroundColor(.orange)
-                            Text("Random Verse")
                         }
                     }
                 }
@@ -102,3 +94,8 @@ struct SettingsView: View {
     }
 }
 
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        SettingsView()
+    }
+}

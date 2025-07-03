@@ -227,12 +227,29 @@ struct VerseListMainContent: View {
         BookChapterPickerView(
             selectedBook: $viewModel.currentBook,
             selectedChapter: $viewModel.currentChapter,
+            selectedVerse: $viewModel.highlightedVerse,
             onSelect: {
                 showingBookPicker = false
+                
+                // If a verse was selected, scroll to it
+                if let verse = viewModel.highlightedVerse {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        NotificationCenter.default.post(
+                            name: Notification.Name("HighlightVerse"),
+                            object: nil,
+                            userInfo: [
+                                "book": viewModel.currentBook,
+                                "chapter": viewModel.currentChapter,
+                                "verse": verse
+                            ]
+                        )
+                    }
+                }
             }
         )
     }
     
+    // Handle highlight notification
     private func handleHighlightNotification(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let book = userInfo["book"] as? String,
@@ -272,7 +289,7 @@ struct VerseListContent: View {
                         }
                     )
                     // Use a more stable ID that doesn't trigger full redraws
-                            .id("verse-\(verse.reference.key)")
+                    .id("verse-\(verse.reference.key)")
                 }
             }
             .padding(.horizontal)
@@ -455,7 +472,5 @@ struct VerseContextMenu: View {
                 text: verse.text
             )
         }
-        
     }
 }
-

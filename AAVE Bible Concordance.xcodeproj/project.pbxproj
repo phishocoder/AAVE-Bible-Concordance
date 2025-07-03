@@ -23,8 +23,9 @@
 		E0054FB82D7C1E2100A26A71 /* Extensions-Date+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054FB72D7C1E1500A26A71 /* Extensions-Date+Time.swift */; };
 		E0054FDA2D7CC57D00A26A71 /* VerseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054FD92D7CC57D00A26A71 /* VerseView.swift */; };
 		E0054FDE2D7CC71F00A26A71 /* DownloadManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */; };
+		E00893152E161977005E0F11 /* HighlightedVersesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893142E161970005E0F11 /* HighlightedVersesView.swift */; };
+		E00893192E161B9B005E0F11 /* HighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893182E161B95005E0F11 /* HighlightManager.swift */; };
 		E00962732D827D97007677BD /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962722D827D94007677BD /* NotesView.swift */; };
-		E00962752D828630007677BD /* HighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962742D82862A007677BD /* HighlightManager.swift */; };
 		E009627F2D82C0EF007677BD /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E009627E2D82C0EC007677BD /* LoadingView.swift */; };
 		E00962812D82C102007677BD /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962802D82C100007677BD /* ErrorView.swift */; };
 		E00962832D83369A007677BD /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962822D833695007677BD /* SearchResult.swift */; };
@@ -132,8 +133,9 @@
 		E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AAVE Bible ConcordanceTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0054FD92D7CC57D00A26A71 /* VerseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseView.swift; sourceTree = "<group>"; };
 		E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerView.swift; sourceTree = "<group>"; };
+		E00893142E161970005E0F11 /* HighlightedVersesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightedVersesView.swift; sourceTree = "<group>"; };
+		E00893182E161B95005E0F11 /* HighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightManager.swift; sourceTree = "<group>"; };
 		E00962722D827D94007677BD /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
-		E00962742D82862A007677BD /* HighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightManager.swift; sourceTree = "<group>"; };
 		E009627E2D82C0EC007677BD /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		E00962802D82C100007677BD /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		E00962822D833695007677BD /* SearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
@@ -290,6 +292,8 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E00893182E161B95005E0F11 /* HighlightManager.swift */,
+				E00893142E161970005E0F11 /* HighlightedVersesView.swift */,
 				E0534B682DC2A4ED0038651E /* UsernamePromptView.swift */,
 				E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */,
 				E077B9802DBD749B0072C19F /* QuizResultView.swift */,
@@ -408,7 +412,6 @@
 				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
 				E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */,
 				E04E0F9B2D933967004C44A2 /* NotificationManager.swift */,
-				E00962742D82862A007677BD /* HighlightManager.swift */,
 				E0DCC51D2D7D76910061F222 /* VerseManager.swift */,
 				E05A4D812D7D0E270091AA66 /* APIConfig.swift */,
 				E05A4D822D7D0E270091AA66 /* BibleAPIService.swift */,
@@ -574,7 +577,6 @@
 				E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */,
 				E0054FA92D7C157000A26A71 /* VerseDetailView.swift in Sources */,
 				E00962852D834ACD007677BD /* PreferenceKeys.swift in Sources */,
-				E00962752D828630007677BD /* HighlightManager.swift in Sources */,
 				E009627F2D82C0EF007677BD /* LoadingView.swift in Sources */,
 				E0D29A0F2D8B20CC0057EE2B /* RoundedCorner.swift in Sources */,
 				E04E15DB2D85F37A002EDE4A /* CommentaryOverlay.swift in Sources */,
@@ -584,6 +586,7 @@
 				E0F415BA2D813630000A4C7E /* CommentaryView.swift in Sources */,
 				E0D74C872D8A291B00A8D279 /* AAVETextView.swift in Sources */,
 				E04E17272D87CBC8002EDE4A /* CreditsView.swift in Sources */,
+				E00893192E161B9B005E0F11 /* HighlightManager.swift in Sources */,
 				E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */,
 				E04E172B2D87DC27002EDE4A /* ChapterNavigationHeader.swift in Sources */,
 				E00962832D83369A007677BD /* SearchResult.swift in Sources */,
@@ -612,6 +615,7 @@
 				E0DCC5312D7E16CD0061F222 /* ChapterButton.swift in Sources */,
 				E077B96C2DB9F5D50072C19F /* FirestoreService.swift in Sources */,
 				E009628C2D8358FF007677BD /* NavigationManager.swift in Sources */,
+				E00893152E161977005E0F11 /* HighlightedVersesView.swift in Sources */,
 				E0054F972D7BB55100A26A71 /* SettingsView.swift in Sources */,
 				E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */,
 				E04E17332D87E178002EDE4A /* ActionButton.swift in Sources */,

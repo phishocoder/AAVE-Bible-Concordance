@@ -150,7 +150,19 @@ struct VerseActionsOverlayView: View {
     func highlightVerse(with color: Color) {
         haptics.impact(.light)
         if let verse = viewModel.selectedVerse {
-            highlightManager.addHighlight(verse.reference, color: color)
+            // Get the verse text to store with highlight
+            let verseText = verse.text
+            
+            // Use withAnimation(nil) to prevent scroll position reset
+            withAnimation(nil) {
+                highlightManager.addHighlight(verse.reference, color: color, text: verseText)
+            }
+            
+            // Post notification to refresh only highlights without scrolling
+            NotificationCenter.default.post(
+                name: Notification.Name("RefreshVerseHighlights"),
+                object: nil
+            )
         }
     }
     

@@ -45,12 +45,9 @@ struct MoreView: View {
                     NavigationLink(destination: NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))) {
                         Label("Notes", systemImage: "note.text")
                     }
-                }
-
-                // MARK: - Daily Inspiration
-                Section(header: Text("Daily Content")) {
-                    NavigationLink(destination: VerseOfDaySettingsView()) {
-                        Label("Random Verse Generator", systemImage: "die.face.5")
+                    
+                    NavigationLink(destination: HighlightedVersesView()) {
+                        Label("Highlights", systemImage: "highlighter")
                     }
                 }
 
