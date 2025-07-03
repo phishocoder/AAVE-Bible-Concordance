@@ -49,13 +49,6 @@ This is more than just translation — it’s a full-stack restoration of voice,
 - **Scalable Architecture** – Built with clean code, modular SwiftUI components, and Firebase for backend scalability.
 - **Human-Centered UX** – Every feature is tested through the lens of cultural relevance and spiritual resonance.
 
----
-
-## Screenshots (Optional)
-
-_Include screenshots or screen recordings here._
-
----
 
 ## Access
 
