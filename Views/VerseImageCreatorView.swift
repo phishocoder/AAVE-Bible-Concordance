@@ -22,6 +22,7 @@ struct VerseImageCreatorView: View {
     @GestureState private var magnifyBy = CGFloat(1.0)
     @State private var showingFontPicker = false
     @State private var selectedFont = "CormorantGaramond-Regular"
+    @State private var showScrollHint = false
 
     @State private var isBold = false
     @State private var isItalic = false
@@ -198,6 +199,40 @@ struct VerseImageCreatorView: View {
                 fontPickerOverlay()
             }
         }
+        .overlay(
+            // First-time scroll hint
+            VStack {
+                Spacer()
+                if showScrollHint {
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("Scroll across for more options")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.black.opacity(0.8))
+                                .cornerRadius(8)
+                            
+                            Image(systemName: "arrow.down")
+                                .foregroundColor(.white)
+                                .font(.title)
+                                .padding(.top, 4)
+                                .scaleEffect(showScrollHint ? 1.2 : 1.0)
+                                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: showScrollHint)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 100)
+                        .transition(.opacity)
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+        )
+        .onAppear {
+            checkForScrollHint()
+        }
     }
 
     private func fontPickerOverlay() -> some View {
@@ -351,6 +386,25 @@ struct VerseImageCreatorView: View {
             showingShareSheet = true
         }
     }
+    
+    private func checkForScrollHint() {
+        let hasSeenScrollHint = UserDefaults.standard.bool(forKey: "hasSeenVerseImageScrollHint")
+        if !hasSeenScrollHint {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showScrollHint = true
+                }
+                
+                // Hide after 4 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showScrollHint = false
+                    }
+                    UserDefaults.standard.set(true, forKey: "hasSeenVerseImageScrollHint")
+                }
+            }
+        }
+    }
 }
 
 // Image picker using UIKit
@@ -395,3 +449,12 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
+
+
+#Preview {
+    VerseImageCreatorView(verse: Verse(
+        text: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
+        translation: "AAVE",
+        reference: VerseReference(book: "John", chapter: 3, verse: 16)
+    ))
+}

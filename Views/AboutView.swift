@@ -40,6 +40,8 @@ struct AboutView: View {
                         FeatureRow(icon: "lightbulb.fill", text: "Cultural commentary and context")
                         FeatureRow(icon: "bookmark.fill", text: "Bookmark favorite verses")
                         FeatureRow(icon: "magnifyingglass", text: "Search across translations")
+                        FeatureRow(icon: "square.and.arrow.up", text: "Share verses and Verse Images")
+                        FeatureRow(icon: "bell.fill", text: "Daily Verse Notifications (via Settings → Notifications)")
                     }
                 }
                 Spacer(minLength: 30)

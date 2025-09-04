@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var selectedTab: Int = 0
     @State private var isLoading = true
     @State private var error: Error? = nil
+    @State private var showOnboarding = false
 
     private let translationService = TranslationService.shared
 
@@ -96,6 +97,12 @@ struct ContentView: View {
         .task {
             await initializeApp()
         }
+        .onAppear {
+            checkForFirstLaunch()
+        }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView(isPresented: $showOnboarding)
+        }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DirectNavigateToChapter"))) { notification in
             if let userInfo = notification.userInfo,
                let book = userInfo["book"] as? String,
@@ -129,6 +136,16 @@ struct ContentView: View {
     // MARK: - External Navigation Utility
     func navigateToVerse(_ reference: VerseReference) {
         self.navigationManager.navigateToChapter(book: reference.book, chapter: reference.chapter)
+    }
+
+    // MARK: - First Launch Check
+    private func checkForFirstLaunch() {
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        if !hasCompletedOnboarding {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showOnboarding = true
+            }
+        }
     }
 
     // MARK: - Initialize App (split out cleanly)
