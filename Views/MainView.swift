@@ -57,6 +57,7 @@ struct MainView: View {
         }
         .environmentObject(navigationManager)
         .id(forceRefreshID)
+        .glassBackground()
         .onReceive(navigationManager.$navigationRequest) { request in
             guard let request = request else { return }
             

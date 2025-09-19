@@ -85,10 +85,8 @@ struct HomeView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
-        .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
     }
     
     let rotatingMessages = [
@@ -112,12 +110,10 @@ struct HomeView: View {
                     ],
                     spacing: 20
                 ) {
-                   
                     welcomeSection
                     
                     // Bible Completion Section
                     bibleCompletionSection
-                    
                     
                     // Jesus Said (Red Letter Verse)
                     if let verse = redLetterVerse {
@@ -138,33 +134,42 @@ struct HomeView: View {
                                     .font(.headline)
                                     .fontWeight(.bold)
                             }
-
+                            
                             Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 10 seconds each. Think you know the Word like that?")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-
+                            
                             HStack {
                                 Text("Tap to Play")
                                     .font(.subheadline)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
-                                    .background(Color.green)
-                                    .cornerRadius(8)
-
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.green.opacity(0.9), Color.mint.opacity(0.9)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .cornerRadius(12)
+                                
                                 Spacer()
                             }
                         }
-                        .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
                     }
+                    .glassCard()
                     
                     // Share App CTA
                     shareAppCTA
+                    
+                    // Discord Community Invite
+                    discordInvite
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.top, 24)
+                .padding(.bottom, 60)
                 .navigationBarItems(trailing: Button(action: { showingSettings = true }) {
                     Image(systemName: "gear")
                 })
@@ -172,6 +177,8 @@ struct HomeView: View {
                     SettingsView()
                 }
             }
+            .scrollIndicators(.hidden)
+            .applyGlassToolbar()
             .onAppear {
                 generateRedLetterVerse()
                 checkNTProgress()
@@ -181,6 +188,7 @@ struct HomeView: View {
                 startRotatingMessages()
             }
         }
+        .glassBackground()
     }
     
     // Bible Completion Section
@@ -207,10 +215,8 @@ struct HomeView: View {
                     .id("rotating-\(rotatingMessageIndex)")
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
         .overlay(
             ZStack {
                 if showConfetti {
@@ -250,8 +256,14 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.blue)
-                        .cornerRadius(8)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.blue.opacity(0.95), Color.cyan.opacity(0.9)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(12)
                 }
                 
                 Button(action: {
@@ -260,20 +272,65 @@ struct HomeView: View {
                 }) {
                     Label("Visit Website", systemImage: "safari")
                         .font(.subheadline)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                        )
                 }
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
     }
-
+    
+    // Discord invite
+    var discordInvite: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Join the Community 💬")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                Spacer()
+            }
+            
+            Text("Tap in with other testers, drop feedback, and see what's cooking in real time. The Discord is where the squad links up.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Button(action: {
+                openDiscord()
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }) {
+                Label("Join Discord", systemImage: "arrow.up.right")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.purple.opacity(0.95), Color.indigo.opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(12)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
+    }
+    
     // Function to share the app
     func shareApp() {
         let appURL = "officialaavebible.com" // Replace with your actual App Store URL
@@ -289,10 +346,17 @@ struct HomeView: View {
             rootViewController.present(activityVC, animated: true)
         }
     }
-
+    
     // Function to open the website
     func openWebsite() {
         if let url = URL(string: "https://officialaavebible.com") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    // Function to open Discord
+    func openDiscord() {
+        if let url = URL(string: "https://discord.gg/9RMEZNCKqB") {
             UIApplication.shared.open(url)
         }
     }
@@ -329,10 +393,8 @@ struct HomeView: View {
                 Spacer()
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
     }
 
     // Error card
@@ -363,15 +425,13 @@ struct HomeView: View {
             Text("Could not load verse. Tap refresh to try again.")
                 .foregroundColor(.red)
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
     }
     
     // Red Letter Verse Card
     func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             // Header with title and refresh button
             HStack {
                 // Text bubble icon with "Jesus Said" text
@@ -434,10 +494,16 @@ struct HomeView: View {
                 .font(.body)
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
-            
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                )
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 6)
+
             // Add Share and Create Image buttons
             HStack(spacing: 12) {
                 Button(action: {
@@ -447,10 +513,16 @@ struct HomeView: View {
                     Label("Share", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
                         .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.blue)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.blue.opacity(0.9), Color.cyan.opacity(0.9)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(12)
                 }
                 
                 // Create Verse Image button
@@ -461,18 +533,22 @@ struct HomeView: View {
                 ))) {
                     Label("Create Image", systemImage: "photo.on.rectangle")
                         .font(.subheadline)
-                        .foregroundColor(.blue)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.purple.opacity(0.85), Color.blue.opacity(0.85)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(12)
                 }
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .glassCard()
         .transition(.opacity)
         .id("jesus-quote-\(verse.reference.book)-\(verse.reference.chapter)-\(verse.reference.verse)")
     }
