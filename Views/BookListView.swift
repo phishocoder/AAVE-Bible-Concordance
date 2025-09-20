@@ -19,22 +19,42 @@ struct BookListView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List {
-                ForEach(filteredBooks) { book in
-                    NavigationLink(value: book) {
-                        BookRow(book: book, verseManager: verseManager)
+            ScrollView {
+                VStack(spacing: 24) {
+                    filtersCard
+
+                    if filteredBooks.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "book")
+                                .font(.largeTitle)
+                                .foregroundStyle(Color.accentColor)
+                            Text("No books found")
+                                .font(.headline)
+                            Text("Try adjusting the testament filter or search term.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .glassCard()
+                    } else {
+                        LazyVStack(spacing: 16) {
+                            ForEach(filteredBooks) { book in
+                                NavigationLink(value: book) {
+                                    BookTile(book: book)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 32)
             }
+            .scrollIndicators(.hidden)
+            .glassBackground()
             .searchable(text: $searchText, prompt: "Search books")
             .navigationTitle("Bible Books")
             .refreshable {
                 await verseManager.refreshAvailableBooks()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    TestamentPicker(selectedTestament: $selectedTestament)
-                }
             }
             .navigationDestination(for: BibleBook.self) { book in
                 ChapterListView(book: book.name)
@@ -56,50 +76,78 @@ struct BookListView: View {
         }
     }
 
-    // MARK: - BookRow
-    struct BookRow: View {
-        let book: BibleBook
-        @ObservedObject var verseManager: VerseManager
-        @ObservedObject private var translationService = TranslationService.shared
-        @ObservedObject private var settings = SettingsViewModel.shared
+    private var filtersCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Browse")
+                .font(.title3)
+                .fontWeight(.semibold)
 
-        var isAvailableInAAVE: Bool {
-            translationService.isAAVEAvailable(for: book.name)
-        }
+            TestamentPicker(selectedTestament: $selectedTestament)
+                .padding(.top, 4)
 
-        var hasAAVEFile: Bool {
-            translationService.hasAAVEFile(for: book.name)
-        }
-
-        var body: some View {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(book.name)
-                        .font(.body)
-
-                    if isAvailableInAAVE {
-                        Text("AVAILABLE IN AAVE")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    } else if hasAAVEFile {
-                        Text("AAVE TRANSLATION COMING SOON")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                    }
-                }
-
-                Spacer()
-
-                if isAvailableInAAVE {
-                    Image(systemName: "doc.text.fill")
-                        .foregroundColor(.green)
-                } else if hasAAVEFile {
-                    Image(systemName: "hourglass")
-                        .foregroundColor(.orange)
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Books Available")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("\(filteredBooks.count) of \(bibleBooks.count)")
+                    .font(.headline)
             }
-            .padding(.vertical, 4)
         }
+        .glassCard()
+    }
+}
+
+private struct BookTile: View {
+    let book: BibleBook
+    @ObservedObject private var translationService = TranslationService.shared
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var availability: (text: String, icon: String, color: Color) {
+        if translationService.isAAVEAvailable(for: book.name) {
+            return ("Available in AAVE", "doc.text.fill", .green)
+        }
+        if translationService.hasAAVEFile(for: book.name) {
+            return ("AAVE translation coming soon", "hourglass", .orange)
+        }
+        return ("Traditional translation", "book", .blue)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(book.name)
+                        .font(.headline)
+                    Text("\(book.chapters) chapters")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: availability.icon)
+                    .foregroundStyle(availability.color)
+            }
+
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(availability.color.opacity(0.2))
+                    .frame(width: 10, height: 10)
+                Text(availability.text)
+                    .font(.caption)
+                    .foregroundStyle(availability.color)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(
+                    colorScheme == .dark ? Color.white.opacity(0.05) : Color.white.opacity(0.7)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.2), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.3 : 0.08), radius: 12, x: 0, y: 10)
     }
 }
 

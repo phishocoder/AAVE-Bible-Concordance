@@ -27,7 +27,7 @@ class AAVETextView: UIView {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        guard let context = UIGraphicsGetCurrentContext() else { return }
+        guard UIGraphicsGetCurrentContext() != nil else { return }
         
         let fontSize = min(bounds.width / 4.5, bounds.height * 0.8)
         let font = UIFont.systemFont(ofSize: fontSize, weight: .bold)

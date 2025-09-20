@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 import SwiftUI
 
+@MainActor
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     
@@ -179,30 +180,29 @@ class NotificationManager: ObservableObject {
                 
                 // Update notification content
                 let center = UNUserNotificationCenter.current()
-                center.getPendingNotificationRequests { requests in
-                    let vodRequests = requests.filter { $0.identifier == "verse-of-day" }
-                    
-                    for request in vodRequests {
-                        let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
-                        updatedContent.title = "AAVE Bible Verse of the Day"
-                        updatedContent.body = "\(reference.book) \(reference.chapter):\(reference.verse) - \(verseText)"
-                        updatedContent.userInfo = [
-                            "book": reference.book,
-                            "chapter": reference.chapter,
-                            "verse": reference.verse
-                        ]
-                        
-                        let updatedRequest = UNNotificationRequest(
-                            identifier: request.identifier,
-                            content: updatedContent,
-                            trigger: request.trigger
-                        )
-                        
-                        center.add(updatedRequest)
-                    }
-                    
-                    completion()
+                let requests = await center.pendingNotificationRequests()
+                let vodRequests = requests.filter { $0.identifier == "verse-of-day" }
+
+                for request in vodRequests {
+                    let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
+                    updatedContent.title = "AAVE Bible Verse of the Day"
+                    updatedContent.body = "\(reference.book) \(reference.chapter):\(reference.verse) - \(verseText)"
+                    updatedContent.userInfo = [
+                        "book": reference.book,
+                        "chapter": reference.chapter,
+                        "verse": reference.verse
+                    ]
+
+                    let updatedRequest = UNNotificationRequest(
+                        identifier: request.identifier,
+                        content: updatedContent,
+                        trigger: request.trigger
+                    )
+
+                    try? await center.add(updatedRequest)
                 }
+
+                completion()
             } catch {
                 print("Error fetching verse for notification: \(error)")
                 completion()

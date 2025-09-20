@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - Core Data Structures
 
-public struct Verse: Codable, Hashable {
+public struct Verse: Codable, Hashable, Sendable {
     public let text: String
     public let translation: String
     public let reference: VerseReference
@@ -22,7 +22,7 @@ public struct Verse: Codable, Hashable {
         self.reference = reference
     }
 }
-public struct VerseReference: Identifiable, Codable, Hashable {
+public struct VerseReference: Identifiable, Codable, Hashable, Sendable {
     public let book: String
     public let chapter: Int
     public let verse: Int
@@ -44,7 +44,7 @@ public struct VerseReference: Identifiable, Codable, Hashable {
     }
 }
 
-public struct VerseRange: Hashable, Codable {
+public struct VerseRange: Hashable, Codable, Sendable {
     public let book: String
     public let chapter: Int
     public let startVerse: Int
@@ -58,7 +58,7 @@ public struct VerseRange: Hashable, Codable {
     }
 }
 
-public struct TraditionalVerse: Codable, Hashable {
+public struct TraditionalVerse: Codable, Hashable, Sendable {
     public let text: String
     public let version: String
     
@@ -68,7 +68,7 @@ public struct TraditionalVerse: Codable, Hashable {
     }
 }
 
-public struct BibleBook: Identifiable, Codable, Hashable {
+public struct BibleBook: Identifiable, Codable, Hashable, Sendable {
     public let name: String
     public let chapters: Int
     public let testament: Testament
@@ -91,7 +91,7 @@ public struct BibleBook: Identifiable, Codable, Hashable {
     }
 }
 
-public enum Testament: String, Codable, CaseIterable {
+public enum Testament: String, Codable, CaseIterable, Sendable {
     case old = "Old Testament"
     case new = "New Testament"
 }
@@ -347,4 +347,3 @@ extension VerseReference {
     }
     
     }
-

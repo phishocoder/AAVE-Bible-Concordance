@@ -7,6 +7,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class Bookmarks: ObservableObject {
     static let shared = Bookmarks()
     

@@ -7,57 +7,64 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct CommentaryOverlay: View {
     let verse: VerseReference
     let onDismiss: () -> Void
     
     @ObservedObject private var translationService = TranslationService.shared
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    onDismiss()
-                }
-            
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text("Commentary")
-                        .font(.headline)
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture(perform: onDismiss)
+
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(spacing: 12) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.title2)
+                        .foregroundStyle(.yellow)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Real Talk Commentary")
+                            .font(.headline)
+                        Text("\(verse.book) \(verse.chapter):\(verse.verse)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
                     Spacer()
+
                     Button(action: onDismiss) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Divider()
+
+                Group {
+                    if let commentary = translationService.getVerseCommentary(
+                        for: verse.book,
+                        chapter: verse.chapter,
+                        verse: verse.verse
+                    ) {
+                        Text(commentary)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text("No commentary available for this verse.")
+                            .italic()
+                            .foregroundStyle(.secondary)
                     }
                 }
-                
-                Divider()
-                
-                Text("\(verse.book) \(verse.chapter):\(verse.verse)")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                
-                if let commentary = translationService.getVerseCommentary(
-                    for: verse.book,
-                    chapter: verse.chapter,
-                    verse: verse.verse
-                ) {
-                    Text(commentary)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Text("No commentary available for this verse.")
-                        .italic()
-                        .foregroundColor(.secondary)
-                }
             }
-            .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(radius: 10)
-            .padding()
+            .glassCard()
+            .padding(.horizontal, 24)
         }
     }
 }
@@ -70,18 +77,12 @@ struct CommentaryOverlayView: View {
         ZStack {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
-                .onTapGesture {
-                    onDismiss()
-                }
-            
-            VStack {
-                CommentaryOverlay(
-                    verse: verse.reference,
-                    onDismiss: onDismiss
-                )
-                .padding()
-            }
-            .padding()
+                .onTapGesture(perform: onDismiss)
+
+            CommentaryOverlay(
+                verse: verse.reference,
+                onDismiss: onDismiss
+            )
         }
         .transition(.opacity)
         .animation(.easeInOut(duration: 0.2), value: true)

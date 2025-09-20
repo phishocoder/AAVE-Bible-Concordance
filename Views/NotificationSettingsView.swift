@@ -23,7 +23,7 @@ struct NotificationSettingsView: View {
                 
                 if notificationManager.isAuthorized {
                     Toggle("Daily Verse", isOn: $notificationManager.dailyVerseNotificationEnabled)
-                        .onChange(of: notificationManager.dailyVerseNotificationEnabled) { _ in
+                        .onChange(of: notificationManager.dailyVerseNotificationEnabled) { _, _ in
                             notificationManager.scheduleVerseOfDayNotification()
                         }
                     
@@ -41,12 +41,12 @@ struct NotificationSettingsView: View {
                     }
                     
                     Toggle("Midweek Motivation", isOn: $notificationManager.midweekMotivationEnabled)
-                        .onChange(of: notificationManager.midweekMotivationEnabled) { _ in
+                        .onChange(of: notificationManager.midweekMotivationEnabled) { _, _ in
                             notificationManager.scheduleMidweekMotivation()
                         }
                     
                     Toggle("Weekend Refocus", isOn: $notificationManager.weekendRefocusEnabled)
-                        .onChange(of: notificationManager.weekendRefocusEnabled) { _ in
+                        .onChange(of: notificationManager.weekendRefocusEnabled) { _, _ in
                             notificationManager.scheduleWeekendRefocus()
                         }
                     
@@ -55,7 +55,7 @@ struct NotificationSettingsView: View {
                             Text("Saturday").tag("Saturday")
                             Text("Sunday").tag("Sunday")
                         }
-                        .onChange(of: notificationManager.weekendRefocusDay) { _ in
+                        .onChange(of: notificationManager.weekendRefocusDay) { _, _ in
                             notificationManager.scheduleWeekendRefocus()
                         }
                     }
@@ -69,7 +69,7 @@ struct NotificationSettingsView: View {
         .navigationTitle("Notification Settings")
         .sheet(isPresented: $showTimePicker) {
             TimePickerView(selectedTime: $notificationManager.dailyVerseNotificationTime, isPresented: $showTimePicker)
-                .onChange(of: notificationManager.dailyVerseNotificationTime) { _ in
+                .onChange(of: notificationManager.dailyVerseNotificationTime) { _, _ in
                     notificationManager.scheduleVerseOfDayNotification()
                 }
         }

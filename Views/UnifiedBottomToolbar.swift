@@ -13,10 +13,9 @@ private struct SafeAreaInsetsKey: EnvironmentKey {
 
 extension EnvironmentValues {
     var safeAreaInsets: EdgeInsets {
-        get { self[SafeAreaInsetsKey.self]}
+        get { self[SafeAreaInsetsKey.self] }
         set { self[SafeAreaInsetsKey.self] = newValue }
     }
-    
 }
 
 struct UnifiedBottomToolbar: View {
@@ -30,214 +29,112 @@ struct UnifiedBottomToolbar: View {
     @ObservedObject private var bookmarks = Bookmarks.shared
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     
-    // Simple vibrant highlight colors
-    private let highlightColors: [Color] = [
-        .yellow, .green, .blue, .pink, .purple, .orange
-    ]
+    private let highlightColors: [Color] = [.yellow, .green, .blue, .pink, .purple, .orange]
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 8) {
             Divider()
-            
-            // Selection count and select all button
+
             if viewModel.isMultiSelectMode {
-                HStack {
+                HStack(spacing: 12) {
                     Text("\(viewModel.selectedVerses.count) verses selected")
                         .font(.caption)
-                        .foregroundColor(.secondary)
-                    
+                        .foregroundStyle(.secondary)
                     Spacer()
-                    
-                    Button(action: {
-                        if areAllVersesSelected() {
-                            // Deselect all except the first one
-                            if let firstVerse = viewModel.selectedVerses.first {
-                                viewModel.selectedVerses = [firstVerse]
-                            }
-                        } else {
-                            selectAllVerses()
-                        }
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }) {
+                    Button(action: toggleSelectAll) {
                         Text(areAllVersesSelected() ? "Deselect All" : "Select All")
                             .font(.caption)
-                            .foregroundColor(.blue)
+                            .fontWeight(.semibold)
                     }
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            
-            // Simple color picker
+
             if showingColorPicker {
                 HStack(spacing: 12) {
                     ForEach(highlightColors, id: \.self) { color in
-                        Button(action: {
-                            highlightVerse(with: color)
-                            showingColorPicker = false
-                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                            impactFeedback.impactOccurred()
-                        }) {
-                            Circle()
-                                .fill(color)
-                                .frame(width: 40, height: 40)
-                                .overlay(Circle().stroke(Color.gray, lineWidth: 1))
-                                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                        Circle()
+                            .fill(color)
+                            .frame(width: 32, height: 32)
+                            .onTapGesture {
+                                highlightVerse(with: color)
+                                showingColorPicker = false
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            }
                     }
-                    
-                    // Remove highlight button
+
                     Button(action: {
                         removeHighlight()
                         showingColorPicker = false
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                        impactFeedback.impactOccurred()
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(.systemBackground))
-                                .overlay(Circle().stroke(Color.gray, lineWidth: 1))
-                                .frame(width: 40, height: 40)
-                                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                            
-                            Image(systemName: "xmark")
-                                .foregroundColor(.red)
-                                .font(.system(size: 20, weight: .bold))
-                        }
+                        Image(systemName: "xmark")
+                            .foregroundColor(.red)
+                            .frame(width: 32, height: 32)
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(.plain)
                 }
-                .padding(.vertical, 10)
-                .padding(.horizontal)
-                .background(
-                    Color(.systemBackground)
-                        .opacity(0.95)
-                        .background(.ultraThinMaterial)
-                )
-                .cornerRadius(20)
-                .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 2)
-                .transition(.move(edge: .bottom))
-                .animation(.spring(), value: showingColorPicker)
+                .padding(.horizontal, 16)
             }
-            
-            // Main toolbar buttons
-            HStack(spacing: 12) {
-                // Copy button
-                ToolbarButton(
-                    icon: "doc.on.doc",
-                    label: "Copy",
-                    action: {
-                        UIPasteboard.general.string = createShareText()
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }
-                )
+
+            HStack(spacing: 20) {
+                ToolbarButton(icon: "doc.on.doc", label: "Copy") {
+                    shareText = createShareText()
+                    UIPasteboard.general.string = shareText
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 
-                // Share button
-                ToolbarButton(
-                    icon: "square.and.arrow.up",
-                    label: "Share",
-                    action: {
-                        shareText = createShareText()
-                        showShareSheet = true
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }
-                )
+                ToolbarButton(icon: "square.and.arrow.up", label: "Share") {
+                    shareText = createShareText()
+                    showShareSheet = true
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 
-                // Bookmark button
-                ToolbarButton(
-                    icon: isBookmarked() ? "bookmark.fill" : "bookmark",
-                    label: "Bookmark",
-                    action: {
-                        toggleBookmark()
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }
-                )
+                ToolbarButton(icon: isBookmarked() ? "bookmark.fill" : "bookmark", label: "Bookmark") {
+                    toggleBookmark()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 
-                // Highlight button
-                ToolbarButton(
-                    icon: "highlighter",
-                    label: "Highlight",
-                    action: {
-                        withAnimation {
-                            showingColorPicker.toggle()
-                        }
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
+                ToolbarButton(icon: "highlighter", label: "Highlight") {
+                    withAnimation(.spring()) {
+                        showingColorPicker.toggle()
                     }
-                )
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 
-                // Compare translations button
-                ToolbarButton(
-                    icon: "doc.text.magnifyingglass",
-                    label: "Compare",
-                    action: {
-                        showingTranslations = true
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }
-                )
+                ToolbarButton(icon: "doc.text.magnifyingglass", label: "Compare") {
+                    showingTranslations = true
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 
-                // Image options button
-                ToolbarButton(
-                    icon: "photo",
-                    label: "Image",
-                    action: {
-                        showingImageOptions = true
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                    }
-                )
-                // Move the sheet modifier outside of the ToolbarButton
+                ToolbarButton(icon: "photo", label: "Image") {
+                    showingImageOptions = true
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
                 .sheet(isPresented: $showingImageOptions) {
                     if let verse = viewModel.selectedVerse {
                         VerseImageCreatorView(verse: verse)
                     }
                 }
                 
-                
-                Spacer()
-                
-                // Cancel button - fixed to prevent wrapping
-                Button(action: {
-                    if viewModel.isMultiSelectMode {
-                        viewModel.isMultiSelectMode = false
-                        viewModel.selectedVerses = []
-                    } else {
-                        viewModel.selectedVerse = nil
-                    }
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
-                }) {
-                    Text("Cancel")
-                        .foregroundColor(.red)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .frame(minWidth: 60)
-                }
+                Spacer(minLength: 12)
+
+                cancelButton
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .padding(.bottom, safeAreaInsets.bottom > 0 ? safeAreaInsets.bottom - 8 : 0)
+            .padding(.horizontal, 16)
+            .padding(.bottom, max(safeAreaInsets.bottom, 6))
         }
         .background(
             Color(.systemBackground)
-                .opacity(0.95)
+                .opacity(0.94)
                 .background(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 3, y: -2)
+                .shadow(color: .black.opacity(0.1), radius: 6, y: -2)
+                .edgesIgnoringSafeArea(.bottom)
         )
         .sheet(isPresented: $showingTranslations) {
-            NavigationView {
-                if viewModel.isMultiSelectMode, let firstVerse = viewModel.selectedVerses.first {
-                    TranslationsView(verse: firstVerse)
-                } else if let verse = viewModel.selectedVerse {
-                    TranslationsView(verse: verse)
-                }
-            }
+            compareSheet
         }
         .sheet(isPresented: $showingImageOptions) {
             Text("Image options coming soon")
@@ -245,26 +142,77 @@ struct UnifiedBottomToolbar: View {
         }
     }
     
-    // Helper component for toolbar buttons
-    private struct ToolbarButton: View {
-        let icon: String
-        let label: String
-        let action: () -> Void
-        
-        var body: some View {
-            Button(action: action) {
-                VStack(spacing: 4) {
-                    Image(systemName: icon)
-                        .font(.system(size: 18))
-                    Text(label)
-                        .font(.caption2)
+    private var cancelButton: some View {
+        Button(action: {
+            if viewModel.isMultiSelectMode {
+                viewModel.isMultiSelectMode = false
+                viewModel.selectedVerses = []
+            } else {
+                viewModel.selectedVerse = nil
+            }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }) {
+            Text("Cancel")
+                .foregroundColor(.red)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 12)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private func toggleSelectAll() {
+        if areAllVersesSelected() {
+            if let firstVerse = viewModel.selectedVerses.first {
+                viewModel.selectedVerses = [firstVerse]
+            }
+        } else {
+            selectAllVerses()
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+    
+    private var compareSheet: some View {
+        Group {
+            if let verse = viewModel.isMultiSelectMode ? viewModel.selectedVerses.first : viewModel.selectedVerse {
+                CompareTranslationsSheet(reference: verse.reference, aave: verse.text)
+            } else {
+                NavigationView {
+                    Text("Select a verse to compare translations.")
+                        .glassCard()
+                        .padding(24)
+                        .glassBackground()
+                        .navigationTitle("Compare")
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showingTranslations = false }
+                            }
+                        }
                 }
-                .frame(minWidth: 44)
             }
         }
     }
     
-    // Add these helper functions
+    private struct ToolbarButton: View {
+        let icon: String
+        let label: String
+        let action: () -> Void
+
+        var body: some View {
+            Button(action: action) {
+                VStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(label)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                }
+                .frame(minWidth: 48)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
     private func areAllVersesSelected() -> Bool {
         guard !viewModel.verses.isEmpty else { return false }
         return viewModel.selectedVerses.count == viewModel.verses.count
@@ -368,7 +316,18 @@ struct UnifiedBottomToolbar: View {
                     verse: verse.reference.verse,
                     text: verse.text
                 )
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
             }
+        }
+    }
+
+    private func toggleHighlight() {
+        if viewModel.isMultiSelectMode {
+            for verse in viewModel.selectedVerses {
+                highlightManager.toggleHighlight(verse.reference)
+            }
+        } else if let verse = viewModel.selectedVerse {
+            highlightManager.toggleHighlight(verse.reference)
         }
     }
 }

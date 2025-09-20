@@ -89,6 +89,7 @@ struct VerseListView: View {
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [shareText])
         }
+        .glassBackground()
         
         .onChange(of: viewModel.selectedVerses.count) { oldValue, newValue in
             showMultiVerseActions = newValue > 0
@@ -110,6 +111,7 @@ struct VerseListMainContent: View {
     @ObservedObject var settings: SettingsViewModel
     @Binding var showingBookPicker: Bool
     @Binding var showTranslationPicker: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         mainContentView
@@ -169,7 +171,7 @@ struct VerseListMainContent: View {
     
     // Break down the body into smaller computed properties
     private var mainContentView: some View {
-        VStack {
+        VStack(spacing: 20) {
             ChapterNavigationHeader(
                 book: viewModel.currentBook,
                 chapter: viewModel.currentChapter,
@@ -179,44 +181,21 @@ struct VerseListMainContent: View {
                 onBookTap: { showingBookPicker = true },
                 onTranslationTap: { showTranslationPicker.toggle() }
             )
-            
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
+
             if showTranslationPicker {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(["AAVE", "NET", "KJV"], id: \.self) { translation in
-                        Button(action: {
-                            settings.preferredTranslation = translation
-                            showTranslationPicker = false
-                        }) {
-                            HStack {
-                                Text(translation)
-                                    .foregroundColor(.primary)
-                                
-                                if settings.preferredTranslation == translation {
-                                    Spacer()
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .padding(.vertical, 8)
-                            .padding(.horizontal)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        if translation != "KJV" {
-                            Divider()
-                        }
-                    }
-                }
-                .background(Color(.systemBackground))
-                .cornerRadius(8)
-                .shadow(radius: 2)
-                .padding(.horizontal)
-                .transition(.opacity)
-                .zIndex(1)
+                translationPickerCard
+                    .padding(.horizontal, 24)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .zIndex(1)
             }
-            
+
             if viewModel.isLoading {
-                ProgressView("Loading verses...").padding()
+                ProgressView("Loading verses...")
+                    .padding()
+                    .glassCard()
+                    .padding(.horizontal, 24)
             } else {
                 VerseListContent(viewModel: viewModel)
             }
@@ -261,6 +240,45 @@ struct VerseListMainContent: View {
         
         viewModel.highlightedVerse = verse
     }
+
+    private var translationPickerCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(["AAVE", "NET", "KJV"], id: \.self) { translation in
+                Button(action: {
+                    settings.preferredTranslation = translation
+                    showTranslationPicker = false
+                }) {
+                    HStack {
+                        Text(translation)
+                            .foregroundColor(.primary)
+
+                        if settings.preferredTranslation == translation {
+                            Spacer()
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(colorScheme == .dark ? Color.white.opacity(0.08) : Color.white.opacity(0.6))
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(colorScheme == .dark ? Color.white.opacity(0.12) : Color.white.opacity(0.75))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.white.opacity(colorScheme == .dark ? 0.2 : 0.3), lineWidth: 1)
+                )
+        )
+        .shadow(radius: 10)
+    }
 }
 
 // MARK: - Verse List Content
@@ -270,7 +288,7 @@ struct VerseListContent: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: 16) {
                 ForEach(viewModel.verses, id: \.reference.id) { verse in
                     VerseRow(
                         verse: verse,
@@ -292,8 +310,8 @@ struct VerseListContent: View {
                     .id("verse-\(verse.reference.key)")
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom, 60)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 80)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 50, coordinateSpace: .local)
@@ -311,93 +329,6 @@ struct VerseListContent: View {
                     }
                 }
         )
-    }
-}
-
-// MARK: - Verse Row View
-struct VerseRow: View {
-    let verse: Verse
-    let isMultiSelectMode: Bool
-    let isSelected: Bool
-    let hasCommentary: Bool
-    let onTap: () -> Void
-    let onLongPress: () -> Void
-    let onCommentaryTap: () -> Void
-    
-    @ObservedObject private var highlightManager = HighlightManager.shared
-    @ObservedObject private var settings = SettingsViewModel.shared
-    
-    var body: some View {
-        Button(action: onTap) {
-            HStack(alignment: .top, spacing: 8) {
-                // Verse number
-                Text("\(verse.reference.verse)")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 30, alignment: .leading)
-                    .padding(.top, 4)
-                
-                // Verse text
-                Text(verse.text)
-                    .font(getFontForFamily(settings.fontFamily, size: settings.fontSize))
-                    .lineSpacing(4)
-                    .foregroundStyle(.primary)
-                    .padding(6)
-                    .background(
-                        highlightManager.getHighlightColor(for: verse.reference) ?? Color.clear
-                    )
-                    .cornerRadius(4)
-                
-                Spacer()
-                
-                // Commentary button on the right side
-                if hasCommentary {
-                    Button(action: onCommentaryTap) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(.yellow)
-                            .padding(.top, 4)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                // Unhighlight button if verse is highlighted
-                if let _ = highlightManager.getHighlightColor(for: verse.reference) {
-                    Button(action: {
-                        highlightManager.removeHighlight(verse.reference)
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 4)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            .padding(.vertical, 8)
-            .background(
-                isSelected ? Color.blue.opacity(0.1) : Color.clear
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PlainButtonStyle())
-        .contextMenu {
-            VerseContextMenu(verse: verse)
-        }
-        .onLongPressGesture {
-            onLongPress()
-        }
-    }
-    
-    func getFontForFamily(_ family: String, size: Double) -> Font {
-        switch family {
-        case "Serif":
-            return Font.custom("Georgia", size: size)
-        case "Sans-serif":
-            return Font.custom("Helvetica Neue", size: size)
-        case "Monospace":
-            return Font.custom("Courier", size: size)
-        default:
-            return Font.system(size: size)
-        }
     }
 }
 

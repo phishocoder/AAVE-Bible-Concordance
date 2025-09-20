@@ -24,89 +24,66 @@ struct SplashView: View {
     let timer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
     
     var body: some View {
+        let background = GlassTheme.backgroundGradient(for: colorScheme)
+
         ZStack {
-            Color(UIColor.dynamicBackground)
+            background
                 .ignoresSafeArea()
-            
-            VStack {
+
+            VStack(spacing: 32) {
                 Spacer()
-                
-                // AAVE Logo and Title
-                VStack(spacing: 5) {
-                    HStack(spacing: 0) {
-                        Text("A")
-                            .font(.system(size: 70, weight: .bold, design: .default))
-                            .foregroundColor(.red)
-                        
-                        Text("A")
-                            .font(.system(size: 70, weight: .bold, design: .default))
-                            .foregroundColor(Color(UIColor.aaveLogoSecondA))
-                            .overlay(
-                                Text("A")
-                                    .font(.system(size: 70, weight: .bold, design: .default))
-                                    .foregroundColor(Color(UIColor.aaveLogoSecondAOutline))
-                                    .opacity(colorScheme == .dark ? 1.0 : 0.0)
-                            )
-                        
-                        Text("V")
-                            .font(.system(size: 70, weight: .bold, design: .default))
-                            .foregroundColor(.yellow)
-                        
-                        Text("E")
-                            .font(.system(size: 70, weight: .bold, design: .default))
-                            .foregroundColor(.green)
-                    }
-                    
+
+                VStack(spacing: 12) {
+                    GlassLogo()
+
                     Text("Bible Concordance")
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .font(.system(size: 26, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.primary)
                 }
-                .padding(.bottom, 30)
-                
-                // Rotating Taglines
-                VStack(spacing: 10) {
+
+                VStack(spacing: 12) {
                     Text(taglines[currentIndex].0)
                         .font(.title2)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 32)
                         .transition(.opacity)
                         .id(currentIndex)
-                    
+
                     Text(taglines[currentIndex].1)
-                        .font(.system(size: 48))
+                        .font(.system(size: 44))
                 }
-                
+
                 Spacer()
-                
-                // Progress and Button
-                VStack(spacing: 16) {
+
+                VStack(spacing: 20) {
                     ProgressView(value: appState.loadingProgress)
                         .progressViewStyle(.linear)
-                        .tint(colorScheme == .dark ? .white : .black)
-                        .padding(.horizontal)
-                    
+                        .tint(.white.opacity(0.9))
+                        .padding(.horizontal, 32)
+
                     if appState.isInitialLoadComplete {
                         Button(action: {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 appState.continueToApp()
                             }
                         }) {
                             Text("Start Reading")
                                 .font(.headline)
-                                .foregroundColor(colorScheme == .dark ? .black : .white)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(colorScheme == .dark ? Color.white : Color.black)
-                                .cornerRadius(12)
+                                .background(
+                                    LinearGradient(colors: [Color.blue.opacity(0.95), Color.indigo.opacity(0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                                .foregroundColor(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 32)
                         .transition(.opacity)
                     }
                 }
+                .padding(.bottom, 48)
             }
-            .padding(.bottom, 40)
-            .padding(.horizontal)
         }
         .opacity(opacity)
         .onAppear {
@@ -119,6 +96,29 @@ struct SplashView: View {
                 currentIndex = (currentIndex + 1) % taglines.count
             }
         }
+    }
+}
+
+private struct GlassLogo: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("A")
+                .foregroundColor(.red)
+            Text("A")
+                .foregroundColor(Color(UIColor.aaveLogoSecondA))
+                .overlay(
+                    Text("A")
+                        .foregroundColor(Color(UIColor.aaveLogoSecondAOutline))
+                        .opacity(colorScheme == .dark ? 1.0 : 0.0)
+                )
+            Text("V")
+                .foregroundColor(.yellow)
+            Text("E")
+                .foregroundColor(.green)
+        }
+        .font(.system(size: 72, weight: .bold, design: .rounded))
     }
 }
 

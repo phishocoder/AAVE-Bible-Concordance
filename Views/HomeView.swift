@@ -333,7 +333,6 @@ struct HomeView: View {
     
     // Function to share the app
     func shareApp() {
-        let appURL = "officialaavebible.com" // Replace with your actual App Store URL
         let shareText = "Yo! I’m part of the AAVE Bible App beta (first 144 testers). It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link and let me know. Let’s make history with this. officialaavebible.com"
         
         let activityVC = UIActivityViewController(
@@ -692,26 +691,6 @@ struct HomeView: View {
     
     // Get OT chapters read count
     func getOTChaptersReadCount() -> Int {
-        // List of OT books
-        let otBooks = [
-            "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
-            "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
-            "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
-            "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
-            "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
-            "Jeremiah", "Lamentations", "Ezekiel", "Daniel",
-            "Hosea", "Joel", "Amos", "Obadiah", "Jonah",
-            "Micah", "Nahum", "Habakkuk", "Zephaniah",
-            "Haggai", "Zechariah", "Malachi"
-        ]
-        
-        // Count OT chapters read from UserDataManager
-        let otChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
-            let components = chapterKey.split(separator: "_")
-            guard components.count == 2, let book = components.first else { return false }
-            return otBooks.contains(String(book))
-        }
-        
         // For now, return 929 (all OT chapters) since OT is complete
         return 929
     }

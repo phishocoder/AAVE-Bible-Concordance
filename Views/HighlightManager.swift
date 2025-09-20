@@ -55,6 +55,7 @@ struct HighlightItem: Identifiable, Codable {
     }
 }
 
+@MainActor
 class HighlightManager: ObservableObject {
     static let shared = HighlightManager()
     

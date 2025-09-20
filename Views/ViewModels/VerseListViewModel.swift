@@ -53,7 +53,7 @@ class VerseListViewModel: ObservableObject {
     }
     
     func loadVerses() async {
-        await MainActor.run { isLoading = true }
+        isLoading = true
         
         do {
             let loadedVerses = try await verseManager.getChapterVerses(
@@ -62,23 +62,19 @@ class VerseListViewModel: ObservableObject {
                 translation: SettingsViewModel.shared.preferredTranslation
             )
             
-            await MainActor.run {
-                self.verses = loadedVerses.map { item in
-                    Verse(
-                        text: item.text,
-                        translation: SettingsViewModel.shared.preferredTranslation,
-                        reference: item.reference
-                    )
-                }
-                self.isLoading = false
-                self.selectedVerses = []
-                self.isMultiSelectMode = false
+            self.verses = loadedVerses.map { item in
+                Verse(
+                    text: item.text,
+                    translation: SettingsViewModel.shared.preferredTranslation,
+                    reference: item.reference
+                )
             }
+            self.isLoading = false
+            self.selectedVerses = []
+            self.isMultiSelectMode = false
         } catch {
-            await MainActor.run {
-                self.verses = []
-                self.isLoading = false
-            }
+            self.verses = []
+            self.isLoading = false
         }
     }
     
@@ -255,7 +251,7 @@ class VerseListViewModel: ObservableObject {
     
     // Compare translations
     func showTranslationComparison() {
-        guard let verse = selectedVerse else { return }
+        guard selectedVerse != nil else { return }
         // Implementation depends on your app's navigation structure
         // This could post a notification or set a state variable
         // that triggers a sheet or navigation
@@ -276,7 +272,7 @@ class VerseListViewModel: ObservableObject {
     
     // Add/edit note
     func showNoteEditor() {
-        guard let verse = selectedVerse else { return }
+        guard selectedVerse != nil else { return }
         // Implementation depends on your app's navigation structure
         // This could post a notification or set a state variable
         // that triggers a sheet or navigation
@@ -284,7 +280,7 @@ class VerseListViewModel: ObservableObject {
     
     // Show image generator/picker
     func showImageOptions() {
-        guard let verse = selectedVerse else { return }
+        guard selectedVerse != nil else { return }
         showingImageOptions = true
         // Implementation depends on your app's navigation structure
         // This could post a notification or set a state variable

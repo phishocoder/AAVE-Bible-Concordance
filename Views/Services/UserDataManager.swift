@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 class UserDataManager: ObservableObject {
     static let shared = UserDataManager()
     
@@ -15,10 +16,12 @@ class UserDataManager: ObservableObject {
     private let chaptersReadKey = "chaptersRead"
     private let maxHistoryItems = 100
     
-    private let highlightManager = HighlightManager.shared
-    private let bookmarks = Bookmarks.shared
-    
+    private let highlightManager: HighlightManager
+    private let bookmarks: Bookmarks
+
     private init() {
+        self.highlightManager = HighlightManager.shared
+        self.bookmarks = Bookmarks.shared
         loadHistory()
         loadNotes()
         loadLastReadVerse()
