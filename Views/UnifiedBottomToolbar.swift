@@ -32,11 +32,11 @@ struct UnifiedBottomToolbar: View {
     private let highlightColors: [Color] = [.yellow, .green, .blue, .pink, .purple, .orange]
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             Divider()
 
-            if viewModel.isMultiSelectMode {
-                HStack(spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                if viewModel.isMultiSelectMode {
                     Text("\(viewModel.selectedVerses.count) verses selected")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -44,20 +44,34 @@ struct UnifiedBottomToolbar: View {
                     Button(action: toggleSelectAll) {
                         Text(areAllVersesSelected() ? "Deselect All" : "Select All")
                             .font(.caption)
-                            .fontWeight(.semibold)
                     }
                     .buttonStyle(.plain)
+                } else {
+                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+
+                Button(action: dismissSelection) {
+                    Text("Cancel")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule().fill(Color.white.opacity(0.12))
+                        )
+                }
+                .buttonStyle(.plain)
             }
+            .padding(.horizontal, 16)
 
             if showingColorPicker {
                 HStack(spacing: 12) {
+                    Spacer(minLength: 0)
                     ForEach(highlightColors, id: \.self) { color in
                         Circle()
                             .fill(color)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 30, height: 30)
                             .onTapGesture {
                                 highlightVerse(with: color)
                                 showingColorPicker = false
@@ -72,44 +86,40 @@ struct UnifiedBottomToolbar: View {
                     }) {
                         Image(systemName: "xmark")
                             .foregroundColor(.red)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 30, height: 30)
                     }
                     .buttonStyle(.plain)
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 40)
             }
 
-            HStack(spacing: 20) {
-                ToolbarButton(icon: "doc.on.doc", label: "Copy") {
+            HStack(spacing: 14) {
+                ToolbarButton(icon: "doc.on.doc") {
                     shareText = createShareText()
                     UIPasteboard.general.string = shareText
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                
-                ToolbarButton(icon: "square.and.arrow.up", label: "Share") {
+                ToolbarButton(icon: "square.and.arrow.up") {
                     shareText = createShareText()
                     showShareSheet = true
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                
-                ToolbarButton(icon: isBookmarked() ? "bookmark.fill" : "bookmark", label: "Bookmark") {
+                ToolbarButton(icon: isBookmarked() ? "bookmark.fill" : "bookmark") {
                     toggleBookmark()
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                
-                ToolbarButton(icon: "highlighter", label: "Highlight") {
+                ToolbarButton(icon: "highlighter") {
                     withAnimation(.spring()) {
                         showingColorPicker.toggle()
                     }
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                
-                ToolbarButton(icon: "doc.text.magnifyingglass", label: "Compare") {
+                ToolbarButton(icon: "doc.text.magnifyingglass") {
                     showingTranslations = true
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                
-                ToolbarButton(icon: "photo", label: "Image") {
+                ToolbarButton(icon: "photo") {
                     showingImageOptions = true
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
@@ -118,12 +128,8 @@ struct UnifiedBottomToolbar: View {
                         VerseImageCreatorView(verse: verse)
                     }
                 }
-                
-                Spacer(minLength: 12)
-
-                cancelButton
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.bottom, max(safeAreaInsets.bottom, 6))
         }
         .background(
@@ -142,22 +148,14 @@ struct UnifiedBottomToolbar: View {
         }
     }
     
-    private var cancelButton: some View {
-        Button(action: {
-            if viewModel.isMultiSelectMode {
-                viewModel.isMultiSelectMode = false
-                viewModel.selectedVerses = []
-            } else {
-                viewModel.selectedVerse = nil
-            }
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        }) {
-            Text("Cancel")
-                .foregroundColor(.red)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 12)
+    private func dismissSelection() {
+        if viewModel.isMultiSelectMode {
+            viewModel.isMultiSelectMode = false
+            viewModel.selectedVerses = []
+        } else {
+            viewModel.selectedVerse = nil
         }
-        .buttonStyle(.plain)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
     
     private func toggleSelectAll() {
@@ -194,20 +192,13 @@ struct UnifiedBottomToolbar: View {
     
     private struct ToolbarButton: View {
         let icon: String
-        let label: String
         let action: () -> Void
 
         var body: some View {
             Button(action: action) {
-                VStack(spacing: 4) {
-                    Image(systemName: icon)
-                        .font(.system(size: 18, weight: .semibold))
-                    Text(label)
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .lineLimit(1)
-                }
-                .frame(minWidth: 48)
+                Image(systemName: icon)
+                    .font(.system(size: 19, weight: .semibold))
+                    .frame(width: 38, height: 38)
             }
             .buttonStyle(.plain)
         }
