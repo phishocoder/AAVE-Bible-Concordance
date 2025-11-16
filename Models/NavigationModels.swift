@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // Navigation models for the app
 struct BookChapterPair: Hashable, Equatable {
@@ -22,12 +23,25 @@ struct BookChapterPair: Hashable, Equatable {
     }
 }
 
-enum NavigationRequest: Equatable {
-    case book(String)
-    case chapter(String, Int)
-    case verse(String, Int, Int)
-    case search(String)
-    case settings
+enum AppRoute: Hashable {
+    case bible(bookID: String, chapter: Int, verse: Int?)
+    case commentary(bookID: String, chapter: Int, verse: Int)
     case bookmarks
-    case home
+}
+
+enum AppTab: Hashable {
+    case bible, home, search, bookmarks, more
+}
+
+final class NavigationRouter: ObservableObject {
+    @Published var path = NavigationPath()
+    
+    func resetAndGoTo(_ route: AppRoute) {
+        path = NavigationPath()
+        path.append(route)
+    }
+    
+    func push(_ route: AppRoute) {
+        path.append(route)
+    }
 }

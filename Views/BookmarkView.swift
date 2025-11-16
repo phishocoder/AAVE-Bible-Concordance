@@ -8,8 +8,18 @@
 import SwiftUI
 
 struct BookmarkView: View {
+    @Binding var selectedTab: AppTab
     @ObservedObject private var bookmarks = Bookmarks.shared
     @State private var searchText = ""
+    @EnvironmentObject private var router: NavigationRouter
+    
+    init(selectedTab: Binding<AppTab>) {
+        _selectedTab = selectedTab
+    }
+    
+    init() {
+        _selectedTab = Binding.constant(AppTab.bible)
+    }
     
     var filteredBookmarks: [Bookmarks.BookmarkItem] {
         if searchText.isEmpty {
@@ -25,11 +35,16 @@ struct BookmarkView: View {
     var body: some View {
         List {
             ForEach(filteredBookmarks) { bookmark in
-                NavigationLink(destination: VerseDetailView(reference: VerseReference(
-                    book: bookmark.book,
-                    chapter: bookmark.chapter,
-                    verse: bookmark.verse
-                ))) {
+                Button {
+                    selectedTab = .bible
+                    router.resetAndGoTo(
+                        .bible(
+                            bookID: bookmark.book,
+                            chapter: bookmark.chapter,
+                            verse: bookmark.verse
+                        )
+                    )
+                } label: {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text(bookmark.displayTitle)
@@ -46,6 +61,7 @@ struct BookmarkView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                .buttonStyle(.plain)
                 .swipeActions {
                     Button(role: .destructive) {
                         bookmarks.removeBookmark(withId: bookmark.id)
@@ -73,4 +89,9 @@ struct BookmarkView: View {
             }
         }
     }
+}
+
+#Preview {
+    BookmarkView(selectedTab: Binding.constant(AppTab.bookmarks))
+        .environmentObject(NavigationRouter())
 }

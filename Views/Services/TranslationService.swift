@@ -76,26 +76,7 @@ class TranslationService: ObservableObject {
     }
     
     private func getShortBookName(_ book: String) -> String {
-        let shortNames = [
-            "Genesis": "Gen", "Exodus": "Exo", "Leviticus": "Lev", "Numbers": "Num",
-            "Deuteronomy": "Deu", "Joshua": "Jos", "Judges": "Judg", "Ruth": "Rut",
-            "1 Samuel": "1Sam", "2 Samuel": "2Sam", "1 Kings": "1Kin", "2 Kings": "2Kin",
-            "1 Chronicles": "1Chr", "2 Chronicles": "2Chr", "Ezra": "Ezr", "Nehemiah": "Neh",
-            "Esther": "Est", "Job": "Job", "Psalms": "Psa", "Proverbs": "Pro",
-            "Ecclesiastes": "Ecc", "Song of Solomon": "Son", "Isaiah": "Isa", "Jeremiah": "Jer",
-            "Lamentations": "Lam", "Ezekiel": "Eze", "Daniel": "Dan", "Hosea": "Hos",
-            "Joel": "Joe", "Amos": "Amo", "Obadiah": "Oba", "Jonah": "Jon",
-            "Micah": "Mic", "Nahum": "Nah", "Habakkuk": "Hab", "Zephaniah": "Zep",
-            "Haggai": "Hag", "Zechariah": "Zec", "Malachi": "Mal", "Matthew": "Mat",
-            "Mark": "Mar", "Luke": "Luk", "John": "Joh", "Acts": "Act",
-            "Romans": "Rom", "1 Corinthians": "1Cor", "2 Corinthians": "2Cor", "Galatians": "Gal",
-            "Ephesians": "Eph", "Philippians": "Phi", "Colossians": "Col", "1 Thessalonians": "1The",
-            "2 Thessalonians": "2The", "1 Timothy": "1Tim", "2 Timothy": "2Tim", "Titus": "Tit",
-            "Philemon": "Phil", "Hebrews": "Heb", "James": "Jam", "1 Peter": "1Pet",
-            "2 Peter": "2Pet", "1 John": "1Joh", "2 John": "2Joh", "3 John": "3Joh",
-            "Jude": "Jud", "Revelation": "Rev"
-        ]
-        return shortNames[book] ?? book
+        return BibleBooks.shortNames[book] ?? book
     }
     
     func loadTranslations() async throws {
@@ -290,44 +271,95 @@ class TranslationService: ObservableObject {
     }
     
     func searchVerses(query: String) async throws -> [SearchResult] {
-        guard !query.isEmpty else { return [] }
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
         
-        var results: [SearchResult] = []
-        
-        for (book, chapters) in aaveTranslations {
-            // Only search in books with actual content
-            if !isAAVEAvailable(for: book) {
-                continue
+        if let reference = SearchQueryParser.parseReference(from: trimmed) {
+            if let specific = try await searchByReference(reference) {
+                return [specific]
+            } else {
+                return []
             }
+        }
+        
+        let normalizedQuery = trimmed.lowercased()
+        let normalizedReferenceNeedle = normalizedQuery.replacingOccurrences(of: " ", with: "")
+        let tokens = normalizedQuery
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map(String.init)
+            .filter { !$0.isEmpty }
+        
+        let translationsSnapshot = aaveTranslations
+        let availableBooks = Set(availableAAVEBooks)
+        
+        let results = await Task.detached(priority: .userInitiated) { () -> [SearchResult] in
+            var matches: [SearchResult] = []
             
-            for (chapterStr, verses) in chapters {
-                guard let chapter = Int(chapterStr) else { continue }
-                
-                for (verseStr, aaveText) in verses {
-                    guard let verse = Int(verseStr) else { continue }
+            for (book, chapters) in translationsSnapshot where availableBooks.contains(book) {
+                for (chapterStr, verses) in chapters {
+                    guard let chapter = Int(chapterStr) else { continue }
                     
-                    if aaveText.localizedCaseInsensitiveContains(query) {
-                        let traditionalText = try await verseManager.getVerse(
-                            book: book,
-                            chapter: chapter,
-                            verse: verse,
-                            translation: "KJV"
-                        )
+                    for (verseStr, aaveText) in verses {
+                        guard let verse = Int(verseStr) else { continue }
+                        
+                        let lowerText = aaveText.lowercased()
+                        let referenceString = "\(book) \(chapter):\(verse)".lowercased()
+                        let normalizedReference = referenceString.replacingOccurrences(of: " ", with: "")
+                        
+                        let matchesPhrase = lowerText.contains(normalizedQuery)
+                        let matchesTokens = !tokens.isEmpty && tokens.allSatisfy { lowerText.contains($0) }
+                        let matchesReference = normalizedReference.contains(normalizedReferenceNeedle)
+                            || referenceString.contains(normalizedQuery)
+                        
+                        guard matchesPhrase || matchesTokens || matchesReference else { continue }
                         
                         let result = SearchResult(
                             book: book,
                             chapter: chapter,
                             verse: verse,
                             aaveText: aaveText,
-                            traditionalText: traditionalText
+                            traditionalText: ""
                         )
-                        results.append(result)
+                        matches.append(result)
                     }
                 }
             }
-        }
+            
+            return matches
+        }.value
         
         return results
+    }
+    
+    private func searchByReference(_ reference: VerseReference) async throws -> SearchResult? {
+        let aaveText: String
+        do {
+            aaveText = try await getVerseTranslation(
+                for: reference.book,
+                chapter: reference.chapter,
+                verse: reference.verse,
+                translation: "AAVE"
+            )
+        } catch BibleError.verseNotFound {
+            aaveText = "Coming Soon - AAVE Translation"
+        } catch {
+            throw error
+        }
+        
+        let traditionalText = try await verseManager.getVerse(
+            book: reference.book,
+            chapter: reference.chapter,
+            verse: reference.verse,
+            translation: "KJV"
+        )
+        
+        return SearchResult(
+            book: reference.book,
+            chapter: reference.chapter,
+            verse: reference.verse,
+            aaveText: aaveText,
+            traditionalText: traditionalText
+        )
     }
     
     // Add this function to your TranslationService class

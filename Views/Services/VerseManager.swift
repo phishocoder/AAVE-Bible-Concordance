@@ -204,13 +204,7 @@ class VerseManager: ObservableObject {
         validateDownloadedBooks()
     }
     func searchVerses(_ query: String, translation: String) async throws -> [SearchResult] {
-        if translation.uppercased() == "AAVE" {
-            return try await TranslationService.shared.searchVerses(query: query)
-        }
-        
-        // Implement online search for other translations
-        // This is a placeholder implementation
-        return []
+        return try await TranslationService.shared.searchVerses(query: query)
     }
     
     func getChapterVerses(book: String, chapter: Int, translation: String) async throws -> [VerseItem] {

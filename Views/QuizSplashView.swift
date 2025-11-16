@@ -23,7 +23,7 @@ struct QuizSplashView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 16) {
-                    Label("⏳ 10 seconds per question", systemImage: "clock")
+                    Label("⏳ 15 seconds per question", systemImage: "clock")
                     Label("✅ Answer fast to rack up your score", systemImage: "checkmark.circle")
                     Label("🏆 Earn a badge based on your final score", systemImage: "star.circle")
                     Label("⚡ Replay to beat your best!", systemImage: "arrow.clockwise.circle")

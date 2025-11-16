@@ -183,12 +183,12 @@ struct BookChapterPickerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             // Set initial testament based on selected book
-            if let book = BibleData.bibleBooks.first(where: { $0.name == selectedBook }) {
+            if let book = BibleData.books.first(where: { $0.name == selectedBook }) {
                 testament = book.testament
             }
             
             // If we have a selected book, show its chapters
-            if !selectedBook.isEmpty, let book = BibleData.bibleBooks.first(where: { $0.name == selectedBook }) {
+            if !selectedBook.isEmpty, let book = BibleData.books.first(where: { $0.name == selectedBook }) {
                 bookForChapters = book
                 showingChapters = true
                 
@@ -203,7 +203,7 @@ struct BookChapterPickerView: View {
     
     // Filter books by testament
     private var filteredBooks: [BibleBook] {
-        return BibleData.bibleBooks.filter { $0.testament == testament }
+        return BibleData.books.filter { $0.testament == testament }
     }
     
     // Get verse count for a book and chapter

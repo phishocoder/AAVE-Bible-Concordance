@@ -1,42 +1,35 @@
-# Xcode
-*.xcworkspace
-*.xcuserstate
-*.xccheckout
+# Xcode user data
+*.xcuserdatad/
 *.xcscmblueprint
-*.xcuserdata/
+*.xccheckout
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+# Derived data and build
 DerivedData/
-.idea/
-*.hmap
+build/
+Build/
 *.ipa
-*.dSYM.zip
 *.dSYM
+*.xcarchive
 
-# Swift Package Manager
-.build/
-.swiftpm/xcode/package.xcworkspace/
-
-# User-specific files
-*.swp
-*.lock
-*.DS_Store
-.env
-
-# Crash logs
-*.crash
-*.xccrashpoint
-*.xcresult
+# SwiftPM
+.swiftpm/
+Packages/
+Package.resolved
 
 # Logs
 *.log
 
-# Bundle artifacts
-*.app
-
-# Ignore Pods if using CocoaPods (comment out if not)
-# Pods/
-
-# Ignore Carthage (comment out if not using)
-# Carthage/
-
-# Ignore Firebase-generated .plist (if added manually)
+# FullStory + Firebase local artifacts (never commit)
+FullStory.json
+**/FullStory.json
 GoogleService-Info.plist
+**/GoogleService-Info.plist
+
+# Secrets & local env
+.env
+*.key
+*.pem
+
+# Misc
+*.DS_Store

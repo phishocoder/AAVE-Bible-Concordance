@@ -7,58 +7,70 @@ struct MoreView: View {
     @StateObject private var authManager = AppleAuthManager.shared
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    accountCard
-                    
-                    sectionCard(title: "Bible Study") {
-                        NavigationLink(destination: BookmarkView()) {
-                            MoreRow(icon: "bookmark.fill", tint: .orange, title: "Bookmarks")
-                        }
-                        NavigationLink(destination: NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))) {
-                            MoreRow(icon: "note.text", tint: .teal, title: "Notes")
-                        }
-                        NavigationLink(destination: HighlightedVersesView()) {
-                            MoreRow(icon: "highlighter", tint: .yellow, title: "Highlights")
-                        }
+        ScrollView {
+            VStack(spacing: 24) {
+                accountCard
+                
+                sectionCard(title: "Bible Study") {
+                    NavigationLink {
+                        BookmarkView()
+                    } label: {
+                        MoreRow(icon: "bookmark.fill", tint: .orange, title: "Bookmarks")
                     }
-                    
-                    sectionCard(title: "Fun & Games") {
-                        NavigationLink(destination: QuizSplashView()) {
-                            MoreRow(icon: "gamecontroller.fill", tint: .purple, title: "Who Said That?! Quiz")
-                        }
-                        NavigationLink(destination: LeaderboardView()) {
-                            MoreRow(icon: "list.number", tint: .pink, title: "Leaderboard")
-                        }
+                    NavigationLink {
+                        NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))
+                    } label: {
+                        MoreRow(icon: "note.text", tint: .teal, title: "Notes")
                     }
-                    
-                    sectionCard(title: "About") {
-                        NavigationLink(destination: AboutView()) {
-                            MoreRow(icon: "info.circle", tint: .blue, title: "About This App")
-                        }
-                        NavigationLink(destination: CreditsView()) {
-                            MoreRow(icon: "person.2", tint: .green, title: "Credits")
-                        }
-                        Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
-                            MoreRow(icon: "lock.shield", tint: .gray, title: "Privacy Policy", trailingSymbol: "arrow.up.right")
-                        }
-                    }
-                    
-                    sectionCard(title: "App") {
-                        Button(action: { showingSettings = true }) {
-                            MoreRow(icon: "gearshape.fill", tint: .indigo, title: "Settings")
-                        }
+                    NavigationLink {
+                        HighlightedVersesView()
+                    } label: {
+                        MoreRow(icon: "highlighter", tint: .yellow, title: "Highlights")
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 32)
+                
+                sectionCard(title: "Fun & Games") {
+                    NavigationLink {
+                        QuizSplashView()
+                    } label: {
+                        MoreRow(icon: "gamecontroller.fill", tint: .purple, title: "Who Said That?! Quiz")
+                    }
+                    NavigationLink {
+                        LeaderboardView()
+                    } label: {
+                        MoreRow(icon: "list.number", tint: .pink, title: "Leaderboard")
+                    }
+                }
+                
+                sectionCard(title: "About") {
+                    NavigationLink {
+                        AboutView()
+                    } label: {
+                        MoreRow(icon: "info.circle", tint: .blue, title: "About This App")
+                    }
+                    NavigationLink {
+                        CreditsView()
+                    } label: {
+                        MoreRow(icon: "person.2", tint: .green, title: "Credits")
+                    }
+                    Link(destination: URL(string: "https://docs.google.com/document/d/19wITcvOSlMepW2D1hXNi4Uf8LS4PrqU7/edit")!) {
+                        MoreRow(icon: "lock.shield", tint: .gray, title: "Privacy Policy", trailingSymbol: "arrow.up.right")
+                    }
+                }
+                
+                sectionCard(title: "App") {
+                    Button(action: { showingSettings = true }) {
+                        MoreRow(icon: "gearshape.fill", tint: .indigo, title: "Settings")
+                    }
+                }
             }
-            .scrollIndicators(.hidden)
-            .glassBackground()
-            .navigationTitle("More")
-            .applyGlassToolbar()
+            .padding(.horizontal, 24)
+            .padding(.vertical, 32)
         }
+        .scrollIndicators(.hidden)
+        .glassBackground()
+        .navigationTitle("More")
+        .applyGlassToolbar()
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }

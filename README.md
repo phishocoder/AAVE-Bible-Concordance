@@ -1,65 +1,30 @@
-# The AAVE Bible App
+# AAVE FS Demo – FullStory Mobile Specialist Challenge
 
-**“Scripture. In Our Voice.”**  
-A culturally-grounded mobile Bible app translating scripture into African American Vernacular English (AAVE), with contextual commentary, Firebase push notifications, and a growing AI-powered feature set.
+This repo contains a minimal iOS SwiftUI demo used to validate the FullStory iOS SDK:
+- **Privacy Rules**: masked and excluded fields; unmasked safe CTAs.
+- **Identity**: `FS.identify()` with custom properties.
+- **Pages**: `FS.page()` for logical journeys.
+- **Events**: `FS.event()` for key actions.
 
----
+## Build
+- Xcode 15+ / iOS 17+ (tested on device)
+- Uses Swift Package Manager (no CocoaPods)
+- FullStory Org ID is **not** committed. Build uses a generated `FullStory.json` (CLI) at runtime.
 
-## Overview
+### Setup (reviewer)
+1. Open `AAVE Bible Concordance.xcodeproj`.
+2. Select scheme: **AAVE FS Demo**.
+3. Ensure the FullStory SPM is resolved (Xcode will fetch).
+4. Place a **placeholder** `FullStory.json` if you don’t have the CLI:
+   - Create `AAVE FS Demo/FullStory.json` with `{ "OrgId": "o-xxxxxx", "SwiftUI": { "Enabled": true, "SelectorVersion": 3, "SelectorPreview": 2 } }`
+   - Or run the FullStory CLI and copy the generated file into the app bundle.
+5. Run on a physical device for best results.
 
-The AAVE Bible App is built for an audience long overlooked by traditional faith-based tech. It reimagines the Bible through a cultural lens — delivering scripture, commentary, and spiritual tools in a way that resonates deeply with Black language, identity, and lived experience.
+## Where to look
+- `AAVE_FS_DemoApp.swift` – demo wiring.
+- `FullStory/FSPrivacyDemo.swift` – sample fields for masking/excluding.
+- `FullStory/FSIdentityAndEvents.swift` – `FS.identify`, `FS.page`, `FS.event`.
+- `FullStory/FSDiagnostics.swift` – logs env and JSON presence.
 
-This is more than just translation — it’s a full-stack restoration of voice, context, and access.
-
----
-
-## Key Features
-
-- **Verse-by-Verse AAVE Translation**  
-  Custom JSON structure enabling line-by-line AAVE scripture.
-
-- **Toggleable Commentary System**  
-  Contextual, culturally relevant explanations per verse.
-
-- **Verse Image Generator**  
-  Users can create shareable verse images with custom fonts, colors, and backgrounds.
-
-- **Firebase Push Notifications**  
-  Integrated Firebase Cloud Messaging (FCM) to support segmented and dynamic outreach.
-
-- **SwiftUI-Based UI**  
-  Clean, fast, and built for scalability using SwiftUI and Apple-native design conventions.
-
----
-
-## Tech Stack
-
-| Layer         | Tools Used                              |
-|---------------|------------------------------------------|
-| Frontend      | SwiftUI, Xcode                          |
-| Backend       | Firebase Cloud Messaging, JSON          |
-| Features      | Custom Verse Renderer, Image Export, Push Notifications |
-| Planned AI    | LLM integration for Q&A, audio overlays |
-
----
-
-## Development Philosophy
-
-- **Cultural-First Design** – Accessibility, voice authenticity, and ethical defaults come first.
-- **Scalable Architecture** – Built with clean code, modular SwiftUI components, and Firebase for backend scalability.
-- **Human-Centered UX** – Every feature is tested through the lens of cultural relevance and spiritual resonance.
-
-
-## Access
-
-This repository is **private**.  
-If you're a recruiter, hiring manager, or collaborator interested in viewing the codebase, please send your GitHub handle or email for access.
-
----
-
-## Author
-
-**Phil Shobo**  
-Founder, Product Lead, & Engineer  
-[philshobo.com](https://philshobo.com)  
-[linkedin.com/in/phil-shobo-0a271545](https://linkedin.com/in/phil-shobo-0a271545)
+## Security / Secrets
+- `FullStory.json` and `GoogleService-Info.plist` are **intentionally ignored** and must never be committed.

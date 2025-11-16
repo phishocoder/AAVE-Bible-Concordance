@@ -36,9 +36,10 @@ class VerseListViewModel: ObservableObject {
     private var userDataManager = UserDataManager.shared
     private var cancellables = Set<AnyCancellable>()
     
-    init(book: String, chapter: Int) {
+    init(book: String, chapter: Int, initialVerse: Int? = nil) {
         self.currentBook = book
         self.currentChapter = chapter
+        self.highlightedVerse = initialVerse
     }
     
     func forceReload() {

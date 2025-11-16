@@ -14,7 +14,7 @@ struct VerseImageCreatorView: View {
     @State private var referenceFontSize: CGFloat = 16
     @State private var textColor: Color = .white
     @State private var textAlignment: TextAlignment = .center
-    @State private var textPosition: CGPoint = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.width / 2.5)
+    @State private var textPositionRatio: CGPoint = CGPoint(x: 0.5, y: 0.45) // normalized, keeps preview/export in sync
     @State private var userImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingShareSheet = false
@@ -28,6 +28,7 @@ struct VerseImageCreatorView: View {
     @State private var isItalic = false
 
     private let watermark = "@officialaavebibleapp"
+    private let exportCanvasSize = CGSize(width: 1080, height: 1350) // 4:5 portrait, Instagram-safe
     
     // Available fonts
     private let availableFonts = [
@@ -93,15 +94,34 @@ struct VerseImageCreatorView: View {
             .background(Color(.systemBackground))
 
             // Canvas
-            ZStack {
-                backgroundView()
-                verseTextView()
-                referenceTextView()
-                watermarkView()
-            }
-            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width) // 1:1 square ratio
+            VerseImageCanvas(
+                verse: verse,
+                userImage: userImage,
+                fontName: dynamicFont,
+                fontSize: fontSize,
+                referenceFontSize: referenceFontSize,
+                textColor: textColor,
+                textAlignment: textAlignment,
+                textPositionRatio: $textPositionRatio,
+                watermark: watermark,
+                allowsInteraction: true,
+                magnification: magnifyBy
+            )
+            // The preview renders at the exact export aspect ratio so the renderer uses identical layout.
+            .aspectRatio(exportCanvasSize, contentMode: .fit)
+            .frame(maxWidth: UIScreen.main.bounds.width)
             .background(Color.black)
             .clipped()
+            .gesture(
+                MagnificationGesture()
+                    .updating($magnifyBy) { currentState, gestureState, _ in
+                        gestureState = currentState
+                    }
+                    .onEnded { value in
+                        self.fontSize = min(72, self.fontSize * value)
+                        self.referenceFontSize = min(40, self.referenceFontSize * value)
+                    }
+            )
 
             // Controls - Fixed scrolling issue with proper content width
             ScrollView(.horizontal, showsIndicators: true) {
@@ -283,64 +303,6 @@ struct VerseImageCreatorView: View {
         )
     }
 
-    private func backgroundView() -> some View {
-        Group {
-            if let image = userImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
-                    .clipped()
-            } else {
-                Image("verse_template_default")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
-                    .clipped()
-            }
-        }
-    }
-
-    private func verseTextView() -> some View {
-        Text(verse.text)
-            .font(.custom(dynamicFont, size: fontSize * magnifyBy))
-            .foregroundColor(textColor)
-            .multilineTextAlignment(textAlignment)
-            .padding()
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(width: UIScreen.main.bounds.width * 0.85)
-            .position(textPosition)
-            .gesture(
-                DragGesture().onChanged { value in
-                    self.textPosition = value.location
-                }
-            )
-            .gesture(
-                MagnificationGesture()
-                    .updating($magnifyBy) { currentState, gestureState, _ in
-                        gestureState = currentState
-                    }
-                    .onEnded { value in
-                        self.fontSize = min(72, self.fontSize * value)
-                        self.referenceFontSize = min(40, self.referenceFontSize * value)
-                    }
-            )
-    }
-
-    private func referenceTextView() -> some View {
-        Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-            .font(.custom(dynamicFont, size: referenceFontSize))
-            .foregroundColor(textColor.opacity(0.8))
-            .position(x: textPosition.x, y: textPosition.y + 100)
-    }
-
-    private func watermarkView() -> some View {
-        Text(watermark)
-            .font(.footnote)
-            .foregroundColor(.white.opacity(0.7))
-            .position(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.width - 20)
-    }
-
     private func controlIcon(_ name: String, label: String) -> some View {
         VStack {
             Image(systemName: name)
@@ -350,36 +312,26 @@ struct VerseImageCreatorView: View {
     }
 
     private func generateFinalImage() {
-        let squareSize = UIScreen.main.bounds.width
-        
+        // Render the exact same canvas used for the preview so exported pixels match what the user saw.
         let renderer = ImageRenderer(content:
-            ZStack {
-                backgroundView()
-                VStack(spacing: 12) {
-                    Text(verse.text)
-                        .font(.custom(dynamicFont, size: fontSize))
-                        .foregroundColor(textColor)
-                        .multilineTextAlignment(textAlignment)
-                        .padding(.horizontal, 20)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(width: squareSize * 0.85)
-                    
-                    Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                        .font(.custom(dynamicFont, size: referenceFontSize))
-                        .foregroundColor(textColor.opacity(0.8))
-                        .padding(.top, 8)
-                    
-                    Spacer()
-                    
-                    Text(watermark)
-                        .font(.footnote)
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 16)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .frame(width: squareSize, height: squareSize) // 1:1 square ratio
+            VerseImageCanvas(
+                verse: verse,
+                userImage: userImage,
+                fontName: dynamicFont,
+                fontSize: fontSize,
+                referenceFontSize: referenceFontSize,
+                textColor: textColor,
+                textAlignment: textAlignment,
+                textPositionRatio: .constant(textPositionRatio),
+                watermark: watermark,
+                allowsInteraction: false,
+                magnification: 1
+            )
+            .frame(width: exportCanvasSize.width, height: exportCanvasSize.height)
         )
+        // The renderer respects the explicit frame so the bitmap is 1080x1350, safe for most social feeds.
+        renderer.proposedSize = ProposedViewSize(exportCanvasSize)
+        renderer.scale = UIScreen.main.scale
         
         if let uiImage = renderer.uiImage {
             finalImage = uiImage
@@ -404,6 +356,107 @@ struct VerseImageCreatorView: View {
                 }
             }
         }
+    }
+}
+
+// Shared canvas between preview and export so layout is guaranteed to match pixel-for-pixel.
+private struct VerseImageCanvas: View {
+    let verse: Verse
+    let userImage: UIImage?
+    let fontName: String
+    let fontSize: CGFloat
+    let referenceFontSize: CGFloat
+    let textColor: Color
+    let textAlignment: TextAlignment
+    @Binding var textPositionRatio: CGPoint
+    let watermark: String
+    let allowsInteraction: Bool
+    let magnification: CGFloat
+    private let safePaddingRatio: CGFloat = 0.08
+    private let referenceOffsetRatio: CGFloat = 0.08
+    private let watermarkBottomPaddingRatio: CGFloat = 0.025
+    
+    var body: some View {
+        GeometryReader { geo in
+            let size = geo.size
+            let safeRect = CGRect(
+                x: size.width * safePaddingRatio,
+                y: size.height * safePaddingRatio,
+                width: size.width * (1 - safePaddingRatio * 2),
+                height: size.height * (1 - safePaddingRatio * 2)
+            )
+            let versePosition = CGPoint(
+                x: safeRect.minX + textPositionRatio.x * safeRect.width,
+                y: safeRect.minY + textPositionRatio.y * safeRect.height
+            )
+            let referenceOffset = size.height * referenceOffsetRatio
+            
+            ZStack {
+                background(size: size)
+                
+                Text(verse.text)
+                    .font(.custom(fontName, size: fontSize * magnification))
+                    .foregroundColor(textColor)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(width: safeRect.width)
+                    .position(versePosition)
+                    .gesture(
+                        DragGesture(minimumDistance: 0, coordinateSpace: .named("VerseCanvas"))
+                            .onChanged { value in
+                                guard allowsInteraction else { return }
+                                updatePosition(with: value.location, safeRect: safeRect)
+                            }
+                    )
+                
+                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
+                    .font(.custom(fontName, size: referenceFontSize))
+                    .foregroundColor(textColor.opacity(0.8))
+                    .position(x: versePosition.x,
+                              y: min(size.height - referenceOffset,
+                                     versePosition.y + referenceOffset))
+                
+                Text(watermark)
+                    .font(.footnote)
+                    .foregroundColor(.white.opacity(0.7))
+                    .position(x: size.width / 2,
+                              y: size.height - size.height * watermarkBottomPaddingRatio)
+            }
+            .frame(width: size.width, height: size.height)
+            .clipped()
+            .background(Color.black)
+            .coordinateSpace(name: "VerseCanvas")
+        }
+    }
+    
+    @ViewBuilder
+    private func background(size: CGSize) -> some View {
+        let base = Group {
+            if let image = userImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image("verse_template_default")
+                    .resizable()
+                    .scaledToFill()
+            }
+        }
+        base
+            .frame(width: size.width, height: size.height)
+            .clipped()
+    }
+    
+    private func updatePosition(with location: CGPoint, safeRect: CGRect) {
+        let normalizedX = ((location.x - safeRect.minX) / safeRect.width).clamped(to: 0...1)
+        let normalizedY = ((location.y - safeRect.minY) / safeRect.height).clamped(to: 0...1)
+        textPositionRatio = CGPoint(x: normalizedX, y: normalizedY)
+    }
+}
+
+private extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
     }
 }
 

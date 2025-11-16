@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct SearchResult: Identifiable {
+struct SearchResult: Identifiable, Sendable {
     let id = UUID()
     let reference: VerseReference
     let aaveText: String
     let traditionalText: String
     
     var text: String {
-        aaveText
+        aaveText.isEmpty ? traditionalText : aaveText
     }
     
     init(book: String, chapter: Int, verse: Int, aaveText: String, traditionalText: String) {

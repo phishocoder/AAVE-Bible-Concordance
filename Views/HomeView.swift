@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var userDataManager = UserDataManager.shared
-    @StateObject private var navigationManager = NavigationManager.shared
+    @EnvironmentObject private var router: NavigationRouter
     @State private var showingSettings = false
     @State private var showingVerseOfDaySettings = false
     @State private var isLoadingVerse = false
@@ -102,92 +102,95 @@ struct HomeView: View {
     let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVGrid(
-                    columns: [
-                        GridItem(.adaptive(minimum: 300, maximum: 600))
-                    ],
-                    spacing: 20
-                ) {
-                    welcomeSection
-                    
-                    // Bible Completion Section
-                    bibleCompletionSection
-                    
-                    // Jesus Said (Red Letter Verse)
-                    if let verse = redLetterVerse {
-                        redLetterVerseCard(verse)
-                    } else if isLoadingVerse {
-                        loadingCard
-                    } else if error != nil {
-                        errorCard
-                    }
-                    
-                    // New Quiz Promo Card
-                    NavigationLink(destination: QuizSplashView()) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "gamecontroller.fill")
-                                    .foregroundColor(.green)
-                                Text("New Game Alert!")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                            }
-                            
-                            Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 10 seconds each. Think you know the Word like that?")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            HStack {
-                                Text("Tap to Play")
-                                    .font(.subheadline)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color.green.opacity(0.9), Color.mint.opacity(0.9)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .cornerRadius(12)
-                                
-                                Spacer()
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .glassCard()
-                    
-                    // Share App CTA
-                    shareAppCTA
-                    
-                    // Discord Community Invite
-                    discordInvite
-                }
-                .padding(.horizontal)
-                .padding(.top, 24)
-                .padding(.bottom, 60)
-                .navigationBarItems(trailing: Button(action: { showingSettings = true }) {
-                    Image(systemName: "gear")
-                })
-                .sheet(isPresented: $showingSettings) {
-                    SettingsView()
-                }
-            }
-            .scrollIndicators(.hidden)
-            .applyGlassToolbar()
-            .onAppear {
-                generateRedLetterVerse()
-                checkNTProgress()
-                checkForConfetti()
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(.adaptive(minimum: 300, maximum: 600))
+                ],
+                spacing: 20
+            ) {
+                welcomeSection
                 
-                // Start rotating messages
-                startRotatingMessages()
+                // Bible Completion Section
+                bibleCompletionSection
+                
+                // Jesus Said (Red Letter Verse)
+                if let verse = redLetterVerse {
+                    redLetterVerseCard(verse)
+                } else if isLoadingVerse {
+                    loadingCard
+                } else if error != nil {
+                    errorCard
+                }
+                
+                // New Quiz Promo Card
+                NavigationLink(destination: QuizSplashView()) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "gamecontroller.fill")
+                                .foregroundColor(.green)
+                            Text("New Game Alert!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                        }
+                        
+                        Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 10 seconds each. Think you know the Word like that?")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        HStack {
+                            Text("Tap to Play")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.green.opacity(0.9), Color.mint.opacity(0.9)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .cornerRadius(12)
+                            
+                            Spacer()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .glassCard()
+                
+                // Share App CTA
+                shareAppCTA
+                
+                // Discord Community Invite
+                discordInvite
+            }
+            .padding(.horizontal)
+            .padding(.top, 24)
+            .padding(.bottom, 60)
+        }
+        .scrollIndicators(.hidden)
+        .applyGlassToolbar()
+        .onAppear {
+            generateRedLetterVerse()
+            checkNTProgress()
+            checkForConfetti()
+            
+            // Start rotating messages
+            startRotatingMessages()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showingSettings = true }) {
+                    Image(systemName: "gear")
+                }
             }
         }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+        }
+        .navigationTitle("Home")
         .glassBackground()
     }
     
@@ -620,23 +623,13 @@ struct HomeView: View {
     
     // Navigate to verse
     func navigateToVerse(_ reference: VerseReference) {
-        navigationManager.navigateToVerse(
-            book: reference.book,
-            chapter: reference.chapter,
-            verse: reference.verse,
-            highlightVerse: true
-        )
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            NotificationCenter.default.post(
-                name: Notification.Name("NavigateToChapterScreen"),
-                object: nil,
-                userInfo: [
-                    "book": reference.book,
-                    "chapter": reference.chapter
-                ]
+        router.resetAndGoTo(
+            .bible(
+                bookID: reference.book,
+                chapter: reference.chapter,
+                verse: reference.verse
             )
-        }
+        )
     }
     
     // Check NT progress
@@ -703,5 +696,6 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+        .environmentObject(NavigationRouter())
 }
     

@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+FullStoryCommandLine mimic
+
+Usage:
+  FullStoryCommandLine configure --orgId <orgId> --output <path>
+  FullStoryCommandLine build --config <path> --output <path>
+EOF
+  exit 1
+}
+
+require_arg() {
+  local name="$1"
+  local value="$2"
+  if [[ -z "${value}" ]]; then
+    echo "Missing required argument: ${name}" >&2
+    usage
+  fi
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+fi
+
+command="$1"
+shift
+
+case "$command" in
+  configure)
+    ORG_ID=""
+    OUTPUT=""
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --orgId)
+          ORG_ID="${2-}"
+          shift 2
+          ;;
+        --output)
+          OUTPUT="${2-}"
+          shift 2
+          ;;
+        *)
+          echo "Unknown option: $1" >&2
+          usage
+          ;;
+      esac
+    done
+    require_arg "--orgId" "$ORG_ID"
+    require_arg "--output" "$OUTPUT"
+    python3 - "$ORG_ID" "$OUTPUT" <<'PY'
+import json
+import pathlib
+import sys
+
+org_id = sys.argv[1]
+output = pathlib.Path(sys.argv[2])
+output.parent.mkdir(parents=True, exist_ok=True)
+config = {
+    "OrgId": org_id,
+    "SwiftUI": {
+        "Enabled": True,
+        "SelectorVersion": 3,
+        "SelectorPreview": 2,
+    }
+}
+with output.open("w", encoding="utf-8") as fh:
+    json.dump(config, fh, indent=2)
+    fh.write("\n")
+print(f"Configured FullStory config for {org_id} -> {output}")
+PY
+    ;;
+  build)
+    CONFIG=""
+    OUTPUT=""
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --config)
+          CONFIG="${2-}"
+          shift 2
+          ;;
+        --output)
+          OUTPUT="${2-}"
+          shift 2
+          ;;
+        *)
+          echo "Unknown option: $1" >&2
+          usage
+          ;;
+      esac
+    done
+    require_arg "--config" "$CONFIG"
+    require_arg "--output" "$OUTPUT"
+    python3 - "$CONFIG" "$OUTPUT" <<'PY'
+import json
+import pathlib
+import sys
+import time
+import uuid
+
+config_path = pathlib.Path(sys.argv[1])
+output_path = pathlib.Path(sys.argv[2])
+if not config_path.exists():
+    raise SystemExit(f"Config not found: {config_path}")
+with config_path.open("r", encoding="utf-8") as fh:
+    data = json.load(fh)
+data["FSBuildID"] = str(uuid.uuid4())
+data["BuiltAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+output_path.parent.mkdir(parents=True, exist_ok=True)
+with output_path.open("w", encoding="utf-8") as fh:
+    json.dump(data, fh, indent=2)
+    fh.write("\n")
+print(f"Embedded FSBuildID into {output_path}")
+PY
+    ;;
+  *)
+    echo "Unknown command: $command" >&2
+    usage
+    ;;
+esac

@@ -25,6 +25,7 @@
 		E0054FDE2D7CC71F00A26A71 /* DownloadManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */; };
 		E00893152E161977005E0F11 /* HighlightedVersesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893142E161970005E0F11 /* HighlightedVersesView.swift */; };
 		E00893192E161B9B005E0F11 /* HighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893182E161B95005E0F11 /* HighlightManager.swift */; };
+		E008931A2E161C00005E0F11 /* SearchQueryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E008931B2E161C00005E0F11 /* SearchQueryParser.swift */; };
 		E00962732D827D97007677BD /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962722D827D94007677BD /* NotesView.swift */; };
 		E009627F2D82C0EF007677BD /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E009627E2D82C0EC007677BD /* LoadingView.swift */; };
 		E00962812D82C102007677BD /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962802D82C100007677BD /* ErrorView.swift */; };
@@ -38,6 +39,12 @@
 		E0196C372D9B3D2000A07E19 /* NotificationMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */; };
 		E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */; };
 		E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */; };
+		E03F55DF2EB9239F00423842 /* FullStory in Frameworks */ = {isa = PBXBuildFile; productRef = E03F55DE2EB9239F00423842 /* FullStory */; };
+		E03F560A2EB924F400423842 /* AAVE_FS_DemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */; };
+		E03F560B2EB924F400423842 /* DemoAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56012EB924F400423842 /* DemoAppDelegate.swift */; };
+		E03F560C2EB924F400423842 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56022EB924F400423842 /* ContentView.swift */; };
+		E03F560D2EB924F400423842 /* DemoDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56032EB924F400423842 /* DemoDiagnostics.swift */; };
+		E03F560E2EB924F400423842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E03F56042EB924F400423842 /* Assets.xcassets */; };
 		E040971D2D8C9CF40054BA3A /* HighlightColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */; };
 		E043E6CF2DB0065E002A114F /* VerseImageCreatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */; };
 		E04A93A32D7D2AA6006AC6E6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */; };
@@ -79,6 +86,8 @@
 		E077B9792DB9FA0B0072C19F /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9782DB9FA060072C19F /* LeaderboardView.swift */; };
 		E077B97B2DBD71650072C19F /* QuizQuestionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */; };
 		E077B97D2DBD71D20072C19F /* QuizData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97C2DBD71CE0072C19F /* QuizData.swift */; };
+		E0FFF0012FFE1234000ABCDE /* QuizQuestionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */; };
+		E0FFF0212FFE4567000ABCDE /* QuizGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */; };
 		E077B97F2DBD71F50072C19F /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B97E2DBD71EC0072C19F /* QuizView.swift */; };
 		E077B9812DBD74A00072C19F /* QuizResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9802DBD749B0072C19F /* QuizResultView.swift */; };
 		E077B9832DBD7F530072C19F /* QuizSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */; };
@@ -86,7 +95,7 @@
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
 		E09A7EC42E69FBB8009BB9F0 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E09A7EC32E69FBA5009BB9F0 /* OnboardingView.swift */; };
-		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
+		E0A3E0472D9257F80022115A /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView.swift */; };
 		E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */; };
 		E0D29A0F2D8B20CC0057EE2B /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */; };
 		E0D74C872D8A291B00A8D279 /* AAVETextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D74C862D8A291400A8D279 /* AAVETextView.swift */; };
@@ -104,6 +113,10 @@
 		E0F415C02D825C1D000A4C7E /* VerseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415BF2D825C19000A4C7E /* VerseCard.swift */; };
 		E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */; };
 		E0F415CA2D825FAD000A4C7E /* VerseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C92D825FA9000A4C7E /* VerseModels.swift */; };
+		E0F4B1102F5C5BB100ABCD01 /* FSBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */; };
+		E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */; };
+		E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */; };
+		E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +149,7 @@
 		E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerView.swift; sourceTree = "<group>"; };
 		E00893142E161970005E0F11 /* HighlightedVersesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightedVersesView.swift; sourceTree = "<group>"; };
 		E00893182E161B95005E0F11 /* HighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightManager.swift; sourceTree = "<group>"; };
+		E008931B2E161C00005E0F11 /* SearchQueryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SearchQueryParser.swift; path = "../Utilities/SearchQueryParser.swift"; sourceTree = "<group>"; };
 		E00962722D827D94007677BD /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		E009627E2D82C0EC007677BD /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		E00962802D82C100007677BD /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
@@ -147,8 +161,19 @@
 		E009628F2D835963007677BD /* BibleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleData.swift; sourceTree = "<group>"; };
 		E00BC61C2D839B7400D3BBCF /* TestamentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestamentPicker.swift; sourceTree = "<group>"; };
 		E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMessages.swift; sourceTree = "<group>"; };
+		E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestionRepository.swift; sourceTree = "<group>"; };
 		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
+		E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizGameViewModel.swift; sourceTree = "<group>"; };
+		E03F55CA2EB9236000423842 /* AAVE FS Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AAVE FS Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAVE_FS_DemoApp.swift; sourceTree = "<group>"; };
+		E03F56012EB924F400423842 /* DemoAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAppDelegate.swift; sourceTree = "<group>"; };
+		E03F56022EB924F400423842 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E03F56032EB924F400423842 /* DemoDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDiagnostics.swift; sourceTree = "<group>"; };
+		E03F56042EB924F400423842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E03F56052EB924F400423842 /* FullStory.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FullStory.json; sourceTree = "<group>"; };
+		E03F56062EB924F400423842 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E03F56072EB924F400423842 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
 		E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseImageCreatorView.swift; sourceTree = "<group>"; };
 		E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -193,7 +218,7 @@
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		E09A7EC32E69FBA5009BB9F0 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
+		E0A3E0462D9257F80022115A /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
 		E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedBottomToolbar.swift; sourceTree = "<group>"; };
 		E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
 		E0D74C862D8A291400A8D279 /* AAVETextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAVETextView.swift; sourceTree = "<group>"; };
@@ -211,6 +236,10 @@
 		E0F415BF2D825C19000A4C7E /* VerseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseCard.swift; sourceTree = "<group>"; };
 		E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseDetailSheet.swift; sourceTree = "<group>"; };
 		E0F415C92D825FA9000A4C7E /* VerseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseModels.swift; sourceTree = "<group>"; };
+		E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FSBridge.swift; sourceTree = "<group>"; };
+		E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -257,6 +286,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E03F55C72EB9236000423842 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E03F55DF2EB9239F00423842 /* FullStory in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E04B08282D7A69990022E2DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -276,6 +313,7 @@
 			isa = PBXGroup;
 			children = (
 				E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */,
+				E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */,
 				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
 				E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */,
 				E04E0FA12D933C60004C44A2 /* AppState.swift */,
@@ -284,6 +322,7 @@
 				E04E15E02D860598002EDE4A /* NavigationModels.swift */,
 				E04E15D42D85DA7E002EDE4A /* VerseReference.swift */,
 				E009628F2D835963007677BD /* BibleData.swift */,
+				E008931B2E161C00005E0F11 /* SearchQueryParser.swift */,
 				E00962822D833695007677BD /* SearchResult.swift */,
 				E0F415C92D825FA9000A4C7E /* VerseModels.swift */,
 				E0DCC5202D7E020F0061F222 /* BibleModels.swift */,
@@ -344,7 +383,7 @@
 				E0DCC5242D7E061F0061F222 /* ShareSheet.swift */,
 				E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */,
 				E0054F832D7BB55100A26A71 /* ContentView.swift */,
-				E0A3E0462D9257F80022115A /* BookmarkView 2.swift */,
+				E0A3E0462D9257F80022115A /* BookmarkView.swift */,
 				E0054FA82D7C157000A26A71 /* VerseDetailView.swift */,
 				E0054F802D7BB55100A26A71 /* BookListView.swift */,
 				E0054F812D7BB55100A26A71 /* ChapterListView.swift */,
@@ -379,8 +418,28 @@
 				E0054FA62D7C0E3300A26A71 /* SettingsViewModel.swift */,
 				E0DCC52C2D7E0B110061F222 /* LaunchViewModel.swift */,
 				E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */,
+				E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E03F55CB2EB9236000423842 /* AAVE FS Demo */ = {
+			isa = PBXGroup;
+			children = (
+				E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */,
+				E03F56012EB924F400423842 /* DemoAppDelegate.swift */,
+				E03F56022EB924F400423842 /* ContentView.swift */,
+				E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */,
+				E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */,
+				E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */,
+				E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */,
+				E03F56032EB924F400423842 /* DemoDiagnostics.swift */,
+				E03F56042EB924F400423842 /* Assets.xcassets */,
+				E03F56052EB924F400423842 /* FullStory.json */,
+				E03F56062EB924F400423842 /* Info.plist */,
+				E03F56072EB924F400423842 /* README.md */,
+			);
+			path = "AAVE FS Demo";
 			sourceTree = "<group>";
 		};
 		E04B08222D7A69990022E2DB = {
@@ -393,6 +452,7 @@
 				E0054FB92D7C202800A26A71 /* Models */,
 				E04B082D2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCF2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
+				E03F55CB2EB9236000423842 /* AAVE FS Demo */,
 				E077B96D2DB9F8F40072C19F /* Frameworks */,
 				E04B082C2D7A69990022E2DB /* Products */,
 			);
@@ -403,6 +463,7 @@
 			children = (
 				E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */,
 				E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */,
+				E03F55CA2EB9236000423842 /* AAVE FS Demo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -458,6 +519,30 @@
 			productReference = E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		E03F55C92EB9236000423842 /* AAVE FS Demo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E03F55D42EB9236300423842 /* Build configuration list for PBXNativeTarget "AAVE FS Demo" */;
+			buildPhases = (
+				E03F55E02EB923CA00423842 /* FullStory CLI Build */,
+				E03F55C62EB9236000423842 /* Sources */,
+				E03F55C72EB9236000423842 /* Frameworks */,
+				E03F55C82EB9236000423842 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E03F55CB2EB9236000423842 /* AAVE FS Demo */,
+			);
+			name = "AAVE FS Demo";
+			packageProductDependencies = (
+				E03F55DE2EB9239F00423842 /* FullStory */,
+			);
+			productName = "AAVE FS Demo";
+			productReference = E03F55CA2EB9236000423842 /* AAVE FS Demo.app */;
+			productType = "com.apple.product-type.application";
+		};
 		E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E04B08392D7A699D0022E2DB /* Build configuration list for PBXNativeTarget "AAVE Bible Concordance" */;
@@ -494,12 +579,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					E0054FCD2D7CC38300A26A71 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = E04B082A2D7A69990022E2DB;
+					};
+					E03F55C92EB9236000423842 = {
+						CreatedOnToolsVersion = 26.0;
 					};
 					E04B082A2D7A69990022E2DB = {
 						CreatedOnToolsVersion = 16.2;
@@ -517,6 +605,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E04B082C2D7A69990022E2DB /* Products */;
@@ -525,6 +614,7 @@
 			targets = (
 				E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCD2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
+				E03F55C92EB9236000423842 /* AAVE FS Demo */,
 			);
 		};
 /* End PBXProject section */
@@ -534,6 +624,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E03F55C82EB9236000423842 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E03F560E2EB924F400423842 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,11 +645,51 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		E03F55E02EB923CA00423842 /* FullStory CLI Build */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Tools/FullStoryCommandLine",
+				"$(SRCROOT)/AAVE FS Demo/FullStory.json",
+			);
+			name = "FullStory CLI Build";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/FullStory.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nFS_CLI=\"${SRCROOT}/Tools/FullStoryCommandLine\"\nFS_CONFIG=\"${SRCROOT}/AAVE FS Demo/FullStory.json\"\nFS_OUTPUT=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}/FullStory.json\"\necho \"📦 FS_CLI: $FS_CLI\"\necho \"🗂️  FS_CONFIG: $FS_CONFIG\"\necho \"🎯 FS_OUTPUT: $FS_OUTPUT\"\nif [ ! -x \"$FS_CLI\" ]; then echo \"❌ Missing CLI\"; exit 1; fi\nif [ ! -f \"$FS_CONFIG\" ]; then echo \"❌ Missing config\"; exit 1; fi\n\"$FS_CLI\" build --config \"$FS_CONFIG\" --output \"$FS_OUTPUT\"\necho \"✅ FullStory CLI build complete: $FS_OUTPUT\"\nif ! /usr/bin/grep -q '\"FSBuildID\"' \"$FS_OUTPUT\"; then\n  echo \"❌ FSBuildID missing\"; cat \"$FS_OUTPUT\"; exit 1\nfi\necho \"🧪 Bundled FullStory.json (first 240 chars):\"; head -c 240 \"$FS_OUTPUT\" || true; echo\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E0054FCA2D7CC38300A26A71 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E03F55C62EB9236000423842 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E03F560A2EB924F400423842 /* AAVE_FS_DemoApp.swift in Sources */,
+				E03F560B2EB924F400423842 /* DemoAppDelegate.swift in Sources */,
+				E03F560C2EB924F400423842 /* ContentView.swift in Sources */,
+				E0F4B1102F5C5BB100ABCD01 /* FSBridge.swift in Sources */,
+				E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */,
+				E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */,
+				E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */,
+				E03F560D2EB924F400423842 /* DemoDiagnostics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,7 +707,7 @@
 				E077B97D2DBD71D20072C19F /* QuizData.swift in Sources */,
 				E0DCC5332D7E18D60061F222 /* HomeView.swift in Sources */,
 				E00962902D835966007677BD /* BibleData.swift in Sources */,
-				E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */,
+				E0A3E0472D9257F80022115A /* BookmarkView.swift in Sources */,
 				E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */,
 				E0054F952D7BB55100A26A71 /* ContentView.swift in Sources */,
 				E0534B672DC2A3FB0038651E /* AppleAuthManager.swift in Sources */,
@@ -593,6 +731,7 @@
 				E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */,
 				E04E172B2D87DC27002EDE4A /* ChapterNavigationHeader.swift in Sources */,
 				E00962832D83369A007677BD /* SearchResult.swift in Sources */,
+				E008931A2E161C00005E0F11 /* SearchQueryParser.swift in Sources */,
 				E04E17222D87C733002EDE4A /* VerseofDaySettingsView.swift in Sources */,
 				E00962812D82C102007677BD /* ErrorView.swift in Sources */,
 				E04E15D52D85DA86002EDE4A /* VerseReference.swift in Sources */,
@@ -601,6 +740,8 @@
 				E0054FDA2D7CC57D00A26A71 /* VerseView.swift in Sources */,
 				E04E15D92D85F366002EDE4A /* VerseActionsOverlay.swift in Sources */,
 				E0F415CA2D825FAD000A4C7E /* VerseModels.swift in Sources */,
+				E0FFF0212FFE4567000ABCDE /* QuizGameViewModel.swift in Sources */,
+				E0FFF0012FFE1234000ABCDE /* QuizQuestionRepository.swift in Sources */,
 				E077B9632DB9E13E0072C19F /* JesusQuotes.swift in Sources */,
 				E0054FA12D7BFDF800A26A71 /* TranslationService.swift in Sources */,
 				E04E171E2D87C5C6002EDE4A /* BookChapterPickerView.swift in Sources */,
@@ -697,6 +838,74 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AAVE Bible Concordance.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AAVE Bible Concordance";
+			};
+			name = Release;
+		};
+		E03F55D22EB9236300423842 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "AAVE FS Demo/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.phisho.aavefsdemo.AAVE-FS-Demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E03F55D32EB9236300423842 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "AAVE FS Demo/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.phisho.aavefsdemo.AAVE-FS-Demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -905,6 +1114,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E03F55D42EB9236300423842 /* Build configuration list for PBXNativeTarget "AAVE FS Demo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E03F55D22EB9236300423842 /* Debug */,
+				E03F55D32EB9236300423842 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -926,6 +1144,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/fullstorydev/fullstory-swift-package-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.65.0;
+			};
+		};
 		E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -937,6 +1163,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E03F55DE2EB9239F00423842 /* FullStory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */;
+			productName = FullStory;
+		};
 		E077B9672DB9F32B0072C19F /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

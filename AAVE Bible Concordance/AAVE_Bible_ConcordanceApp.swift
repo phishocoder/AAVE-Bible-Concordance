@@ -7,6 +7,7 @@ struct AAVE_Bible_ConcordanceApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var router = NavigationRouter()
     
     var body: some Scene {
         WindowGroup {
@@ -21,12 +22,14 @@ struct AAVE_Bible_ConcordanceApp: App {
                         print("Running red text parsing test...")
                         TextParser.testRedTextParsing()
                     }
+                    .environmentObject(router)
             } else {
                 ContentView()
                     .preferredColorScheme(getPreferredColorScheme())
                     .environmentObject(settings)
                     .environmentObject(appState)
                     .environmentObject(networkMonitor)
+                    .environmentObject(router)
                     .onAppear {
                         // Run the test function when the app starts
                         print("Running red text parsing test...")

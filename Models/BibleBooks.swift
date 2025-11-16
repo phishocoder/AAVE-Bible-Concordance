@@ -25,6 +25,26 @@ struct BibleBooks {
         "Jude", "Revelation"
     ]
     
+    static let shortNames: [String: String] = [
+        "Genesis": "Gen", "Exodus": "Exo", "Leviticus": "Lev", "Numbers": "Num",
+        "Deuteronomy": "Deu", "Joshua": "Jos", "Judges": "Judg", "Ruth": "Rut",
+        "1 Samuel": "1Sam", "2 Samuel": "2Sam", "1 Kings": "1Kin", "2 Kings": "2Kin",
+        "1 Chronicles": "1Chr", "2 Chronicles": "2Chr", "Ezra": "Ezr", "Nehemiah": "Neh",
+        "Esther": "Est", "Job": "Job", "Psalms": "Psa", "Proverbs": "Pro",
+        "Ecclesiastes": "Ecc", "Song of Solomon": "Son", "Isaiah": "Isa", "Jeremiah": "Jer",
+        "Lamentations": "Lam", "Ezekiel": "Eze", "Daniel": "Dan", "Hosea": "Hos",
+        "Joel": "Joe", "Amos": "Amo", "Obadiah": "Oba", "Jonah": "Jon",
+        "Micah": "Mic", "Nahum": "Nah", "Habakkuk": "Hab", "Zephaniah": "Zep",
+        "Haggai": "Hag", "Zechariah": "Zec", "Malachi": "Mal", "Matthew": "Mat",
+        "Mark": "Mar", "Luke": "Luk", "John": "Joh", "Acts": "Act",
+        "Romans": "Rom", "1 Corinthians": "1Cor", "2 Corinthians": "2Cor", "Galatians": "Gal",
+        "Ephesians": "Eph", "Philippians": "Phi", "Colossians": "Col", "1 Thessalonians": "1The",
+        "2 Thessalonians": "2The", "1 Timothy": "1Tim", "2 Timothy": "2Tim", "Titus": "Tit",
+        "Philemon": "Phil", "Hebrews": "Heb", "James": "Jam", "1 Peter": "1Pet",
+        "2 Peter": "2Pet", "1 John": "1Joh", "2 John": "2Joh", "3 John": "3Joh",
+        "Jude": "Jud", "Revelation": "Rev"
+    ]
+    
     static let chapterCounts: [String: Int] = [
         "Genesis": 50, "Exodus": 40, "Leviticus": 27, "Numbers": 36, "Deuteronomy": 34,
         "Joshua": 24, "Judges": 21, "Ruth": 4, "1 Samuel": 31, "2 Samuel": 24,

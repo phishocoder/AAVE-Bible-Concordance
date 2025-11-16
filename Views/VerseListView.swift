@@ -24,6 +24,7 @@ struct VerseListView: View {
     // Navigation parameters
     let book: String
     let chapter: Int
+    let initialVerse: Int?
     
     // View model
     @StateObject private var viewModel: VerseListViewModel
@@ -41,10 +42,11 @@ struct VerseListView: View {
         return Color(.systemBackground)
     }
     
-    init(book: String, chapter: Int) {
+    init(book: String, chapter: Int, initialVerse: Int? = nil) {
         self.book = book
         self.chapter = chapter
-        _viewModel = StateObject(wrappedValue: VerseListViewModel(book: book, chapter: chapter))
+        self.initialVerse = initialVerse
+        _viewModel = StateObject(wrappedValue: VerseListViewModel(book: book, chapter: chapter, initialVerse: initialVerse))
     }
     
     var body: some View {
@@ -287,48 +289,95 @@ struct VerseListContent: View {
     @ObservedObject private var translationService = TranslationService.shared
     
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                ForEach(viewModel.verses, id: \.reference.id) { verse in
-                    VerseRow(
-                        verse: verse,
-                        isMultiSelectMode: viewModel.isMultiSelectMode,
-                        isSelected: viewModel.isVerseSelected(verse),
-                        hasCommentary: translationService.hasCommentary(
-                            for: verse.reference.book,
-                            chapter: verse.reference.chapter,
-                            verse: verse.reference.verse
-                        ),
-                        onTap: { viewModel.handleVerseTap(verse) },
-                        onLongPress: { viewModel.handleVerseLongPress(verse) },
-                        onCommentaryTap: {
-                            viewModel.showCommentary = true
-                            viewModel.commentaryReference = verse.reference
-                        }
-                    )
-                    // Use a more stable ID that doesn't trigger full redraws
-                    .id("verse-\(verse.reference.key)")
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 80)
-        }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 50, coordinateSpace: .local)
-                .onEnded { value in
-                    // Only trigger navigation if the drag is primarily horizontal
-                    let horizontalAmount = abs(value.translation.width)
-                    let verticalAmount = abs(value.translation.height)
-                    
-                    if horizontalAmount > verticalAmount && horizontalAmount > 50 {
-                        if value.translation.width > 0 {
-                            viewModel.navigateToPreviousChapter()
-                        } else if value.translation.width < 0 {
-                            viewModel.navigateToNextChapter()
-                        }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    ForEach(viewModel.verses, id: \.reference.id) { verse in
+                        VerseRow(
+                            verse: verse,
+                            isMultiSelectMode: viewModel.isMultiSelectMode,
+                            isSelected: viewModel.isVerseSelected(verse),
+                            hasCommentary: translationService.hasCommentary(
+                                for: verse.reference.book,
+                                chapter: verse.reference.chapter,
+                                verse: verse.reference.verse
+                            ),
+                            onTap: { viewModel.handleVerseTap(verse) },
+                            onLongPress: { viewModel.handleVerseLongPress(verse) },
+                            onCommentaryTap: {
+                                viewModel.showCommentary = true
+                                viewModel.commentaryReference = verse.reference
+                            }
+                        )
+                        // Use a more stable ID that doesn't trigger full redraws
+                        .id(scrollID(for: verse.reference))
                     }
                 }
-        )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 80)
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 50, coordinateSpace: .local)
+                    .onEnded { value in
+                        // Only trigger navigation if the drag is primarily horizontal
+                        let horizontalAmount = abs(value.translation.width)
+                        let verticalAmount = abs(value.translation.height)
+                        
+                        if horizontalAmount > verticalAmount && horizontalAmount > 50 {
+                            if value.translation.width > 0 {
+                                viewModel.navigateToPreviousChapter()
+                            } else if value.translation.width < 0 {
+                                viewModel.navigateToNextChapter()
+                            }
+                        }
+                    }
+            )
+            .onChange(of: viewModel.highlightedVerse) { _, verse in
+                guard let verse else { return }
+                focus(on: verse, proxy: proxy, animated: true)
+            }
+            .onChange(of: viewModel.verses) { _, _ in
+                guard let verse = viewModel.highlightedVerse else { return }
+                focus(on: verse, proxy: proxy, animated: false)
+            }
+            .onAppear {
+                if let verse = viewModel.highlightedVerse {
+                    focus(on: verse, proxy: proxy, animated: false)
+                }
+            }
+        }
+    }
+    
+    private func focus(on verseNumber: Int, proxy: ScrollViewProxy, animated: Bool) {
+        let id = scrollID(forVerse: verseNumber)
+        let scrollAction = {
+            proxy.scrollTo(id, anchor: .center)
+        }
+        
+        if animated {
+            withAnimation(.easeInOut) {
+                scrollAction()
+            }
+        } else {
+            scrollAction()
+        }
+        
+        if let selected = viewModel.verses.first(where: {
+            $0.reference.book == viewModel.currentBook &&
+            $0.reference.chapter == viewModel.currentChapter &&
+            $0.reference.verse == verseNumber
+        }) {
+            viewModel.selectedVerse = selected
+            viewModel.isMultiSelectMode = false
+        }
+    }
+    
+    private func scrollID(for reference: VerseReference) -> String {
+        "verse-\(reference.key)"
+    }
+    
+    private func scrollID(forVerse verse: Int) -> String {
+        "verse-\(viewModel.currentBook)_\(viewModel.currentChapter)_\(verse)"
     }
 }
 

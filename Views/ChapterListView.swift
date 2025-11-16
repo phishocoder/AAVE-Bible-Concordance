@@ -4,6 +4,7 @@ struct ChapterListView: View {
     let book: String
     @StateObject private var translationService = TranslationService.shared
     @State private var error: Error?
+    @EnvironmentObject private var router: NavigationRouter
     
     private var isAAVEAvailable: Bool {
         translationService.isAAVEAvailable(for: book)
@@ -25,9 +26,8 @@ struct ChapterListView: View {
                 } else {
                     LazyVStack(spacing: 16) {
                         ForEach(1...numberOfChapters, id: \.self) { chapter in
-                            NavigationLink {
-                                VerseListView(book: book, chapter: chapter)
-                                    .environmentObject(NavigationManager.shared)
+                            Button {
+                                router.push(.bible(bookID: book, chapter: chapter, verse: nil))
                             } label: {
                                 ChapterRow(number: chapter, availability: availability)
                             }

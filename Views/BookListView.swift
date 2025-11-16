@@ -4,7 +4,6 @@ struct BookListView: View {
     @StateObject private var verseManager = VerseManager.shared
     @State private var selectedTestament: Testament? = .old
     @State private var searchText = ""
-    @State private var navigationPath = NavigationPath()
 
     private var filteredBooks: [BibleBook] {
         let testamentBooks = selectedTestament == nil
@@ -18,61 +17,44 @@ struct BookListView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            ScrollView {
-                VStack(spacing: 24) {
-                    filtersCard
+        ScrollView {
+            VStack(spacing: 24) {
+                filtersCard
 
-                    if filteredBooks.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "book")
-                                .font(.largeTitle)
-                                .foregroundStyle(Color.accentColor)
-                            Text("No books found")
-                                .font(.headline)
-                            Text("Try adjusting the testament filter or search term.")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        .glassCard()
-                    } else {
-                        LazyVStack(spacing: 16) {
-                            ForEach(filteredBooks) { book in
-                                NavigationLink(value: book) {
-                                    BookTile(book: book)
-                                }
-                                .buttonStyle(.plain)
+                if filteredBooks.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "book")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.accentColor)
+                        Text("No books found")
+                            .font(.headline)
+                        Text("Try adjusting the testament filter or search term.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .glassCard()
+                } else {
+                    LazyVStack(spacing: 16) {
+                        ForEach(filteredBooks) { book in
+                            NavigationLink {
+                                ChapterListView(book: book.name)
+                            } label: {
+                                BookTile(book: book)
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 32)
             }
-            .scrollIndicators(.hidden)
-            .glassBackground()
-            .searchable(text: $searchText, prompt: "Search books")
-            .navigationTitle("Bible Books")
-            .refreshable {
-                await verseManager.refreshAvailableBooks()
-            }
-            .navigationDestination(for: BibleBook.self) { book in
-                ChapterListView(book: book.name)
-            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 32)
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NavigateToChapterScreen"))) { notification in
-            guard let userInfo = notification.userInfo,
-                  let bookName = userInfo["book"] as? String,
-                  let chapter = userInfo["chapter"] as? Int,
-                  let matchedBook = bibleBooks.first(where: { $0.name == bookName }) else {
-                return
-            }
-
-            DispatchQueue.main.async {
-                NavigationManager.shared.currentBook = bookName
-                NavigationManager.shared.currentChapter = chapter
-                navigationPath.append(matchedBook)
-            }
+        .scrollIndicators(.hidden)
+        .glassBackground()
+        .searchable(text: $searchText, prompt: "Search books")
+        .navigationTitle("Bible Books")
+        .refreshable {
+            await verseManager.refreshAvailableBooks()
         }
     }
 

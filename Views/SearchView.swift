@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct SearchView: View {
+    @EnvironmentObject private var router: NavigationRouter
+    @Binding var selectedTab: AppTab
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
     @State private var isSearching = false
     @State private var error: BibleError?
+    @State private var searchTask: Task<Void, Never>?
+    @State private var activeQuery: String = ""
     
     @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var translationService = TranslationService.shared
@@ -20,90 +24,123 @@ struct SearchView: View {
     private let haptics = HapticManager.shared
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                SearchBar(text: $searchText, isSearching: $isSearching) {
-                    Task {
-                        await performSearch()
-                    }
-                }
-                
-                if isSearching {
-                    ProgressView("Searching...")
-                        .padding()
-                } else if searchResults.isEmpty && !searchText.isEmpty {
-                    ContentUnavailableView(
-                        "No Results",
-                        systemImage: "magnifyingglass",
-                        description: Text("Try different keywords")
-                    )
-                } else {
-                    List(searchResults) { result in
-                        Button {
-                            haptics.impact(.light)
-                            navigateToVerse(result.reference)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("\(result.reference.book) \(result.reference.chapter):\(result.reference.verse)")
-                                        .font(.headline)
-                                    
-                                    if translationService.hasCommentary(
-                                        for: result.reference.book,
-                                        chapter: result.reference.chapter,
-                                        verse: result.reference.verse
-                                    ) {
-                                        Image(systemName: "lightbulb.fill")
-                                            .foregroundColor(.yellow)
-                                            .font(.system(size: 12))
-                                    }
-                                }
-                                
-                                Text(result.text)
-                                    .font(.body)
-                                    .foregroundColor(.primary)
-                                    .lineLimit(3)
-                            }
-                        }
-                    }
-                    .listStyle(.plain)
+        VStack {
+            SearchBar(text: $searchText, isSearching: $isSearching) {
+                cancelScheduledSearch()
+                Task {
+                    await performSearch(for: searchText)
                 }
             }
-            .navigationTitle("Search")
+            .onChange(of: searchText) { _, newValue in
+                scheduleSearch(for: newValue)
+            }
+            
+            if isSearching {
+                ProgressView("Searching...")
+                    .padding()
+            } else if searchResults.isEmpty && !searchText.isEmpty {
+                ContentUnavailableView(
+                    "No verses found",
+                    systemImage: "magnifyingglass",
+                    description: Text("Try different keywords or another reference.")
+                )
+            } else {
+                List(searchResults) { result in
+                    Button {
+                        haptics.impact(.light)
+                        navigateToVerse(result.reference)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("\(result.reference.book) \(result.reference.chapter):\(result.reference.verse)")
+                                    .font(.headline)
+                                
+                                if translationService.hasCommentary(
+                                    for: result.reference.book,
+                                    chapter: result.reference.chapter,
+                                    verse: result.reference.verse
+                                ) {
+                                    Image(systemName: "lightbulb.fill")
+                                        .foregroundColor(.yellow)
+                                        .font(.system(size: 12))
+                                }
+                            }
+                            
+                            Text(result.text)
+                                .font(.body)
+                                .foregroundColor(.primary)
+                                .lineLimit(3)
+                        }
+                    }
+                }
+                .listStyle(.plain)
+            }
         }
+        .navigationTitle("Search")
     }
     
-    private func performSearch() async {
-        guard !searchText.isEmpty else {
+    @MainActor
+    private func performSearch(for rawQuery: String? = nil) async {
+        let trimmedQuery = (rawQuery ?? searchText).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else {
             searchResults = []
+            isSearching = false
+            error = nil
             return
         }
         
+        activeQuery = trimmedQuery
         isSearching = true
         error = nil
         
         do {
-            searchResults = try await verseManager.searchVerses(
-                searchText,
+            let results = try await verseManager.searchVerses(
+                trimmedQuery,
                 translation: settings.preferredTranslation
             )
+            
+            guard activeQuery == trimmedQuery else { return }
+            searchResults = results
+            isSearching = false
         } catch {
+            guard activeQuery == trimmedQuery else { return }
             self.error = error as? BibleError ?? .unknown
+            searchResults = []
+            isSearching = false
+        }
+    }
+    
+    private func scheduleSearch(for text: String) {
+        searchTask?.cancel()
+        
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            searchResults = []
+            isSearching = false
+            error = nil
+            return
         }
         
-        isSearching = false
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            guard !Task.isCancelled else { return }
+            await performSearch(for: trimmed)
+        }
+    }
+    
+    private func cancelScheduledSearch() {
+        searchTask?.cancel()
+        searchTask = nil
     }
     
     private func navigateToVerse(_ reference: VerseReference) {
-        NotificationCenter.default.post(
-            name: Notification.Name("NavigateToVerse"),
-            object: nil,
-            userInfo: [
-                "book": reference.book,
-                "chapter": reference.chapter,
-                "verse": reference.verse,
-                "showDetail": true
-            ]
+        selectedTab = .bible
+        router.resetAndGoTo(
+            .bible(
+                bookID: reference.book,
+                chapter: reference.chapter,
+                verse: reference.verse
+            )
         )
     }
 }
@@ -135,5 +172,6 @@ private struct SearchBar: View {
 }
 
 #Preview {
-    SearchView()
+    SearchView(selectedTab: Binding.constant(AppTab.bible))
+        .environmentObject(NavigationRouter())
 }

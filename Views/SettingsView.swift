@@ -105,7 +105,9 @@ struct SettingsView: View {
 
     private var savedContentCard: some View {
         SettingsSection(title: "Saved Content") {
-            NavigationLink(destination: BookmarkView()) {
+            NavigationLink {
+                BookmarkView()
+            } label: {
                 SettingsNavigationRow(icon: "bookmark.fill", tint: .orange, title: "Bookmarks")
             }
 
