@@ -10,7 +10,12 @@ import SwiftUI
 struct CreditsView: View {
     private let sections: [CreditSection] = [
         CreditSection(title: "Development", rows: [
-            CreditRow(label: "Developer", value: "Phil Shobo", tint: .blue)
+            CreditRow(
+                label: "Developer",
+                value: "Phil Shobo",
+                tint: .blue,
+                url: URL(string: "https://philshobo.com")
+            )
         ]),
         CreditSection(title: "Content", rows: [
             CreditRow(label: "AAVE Translation", value: "AAVE Bible Project", tint: .purple),
@@ -60,17 +65,25 @@ private struct CreditRow: Identifiable {
     let label: String
     let value: String
     let tint: Color
+    let url: URL?
+
+    init(label: String, value: String, tint: Color, url: URL? = nil) {
+        self.label = label
+        self.value = value
+        self.tint = tint
+        self.url = url
+    }
 }
 
 private struct CreditsRow: View {
     let row: CreditRow
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         let backgroundFill = colorScheme == .dark ? Color.white.opacity(0.04) : Color.white.opacity(0.65)
         let strokeOpacity = colorScheme == .dark ? 0.08 : 0.25
-
-        HStack(spacing: 16) {
+        let content = HStack(spacing: 16) {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(
                     LinearGradient(colors: [row.tint.opacity(0.95), row.tint.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -90,6 +103,17 @@ private struct CreditsRow: View {
             }
 
             Spacer()
+        }
+
+        Group {
+            if let url = row.url {
+                Button(action: { openURL(url) }) {
+                    content
+                }
+                .buttonStyle(.plain)
+            } else {
+                content
+            }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 10)

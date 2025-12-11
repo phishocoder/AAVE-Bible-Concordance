@@ -389,38 +389,48 @@ private struct VerseImageCanvas: View {
                 x: safeRect.minX + textPositionRatio.x * safeRect.width,
                 y: safeRect.minY + textPositionRatio.y * safeRect.height
             )
-            let referenceOffset = size.height * referenceOffsetRatio
             
             ZStack {
+                // Background always stays behind everything else.
                 background(size: size)
+                    .overlay(Color.black.opacity(0.18)) // soften busy photos while keeping text above
+                    .allowsHitTesting(false)
                 
-                Text(verse.text)
-                    .font(.custom(fontName, size: fontSize * magnification))
-                    .foregroundColor(textColor)
-                    .multilineTextAlignment(textAlignment)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: safeRect.width)
-                    .position(versePosition)
-                    .gesture(
-                        DragGesture(minimumDistance: 0, coordinateSpace: .named("VerseCanvas"))
-                            .onChanged { value in
-                                guard allowsInteraction else { return }
-                                updatePosition(with: value.location, safeRect: safeRect)
-                            }
-                    )
-                
-                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                    .font(.custom(fontName, size: referenceFontSize))
-                    .foregroundColor(textColor.opacity(0.8))
-                    .position(x: versePosition.x,
-                              y: min(size.height - referenceOffset,
-                                     versePosition.y + referenceOffset))
+                VStack(spacing: size.height * referenceOffsetRatio) {
+                    Text(verse.text)
+                        .font(.custom(fontName, size: fontSize * magnification))
+                        .foregroundColor(textColor)
+                        .multilineTextAlignment(textAlignment)
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.6)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(width: safeRect.width)
+                    
+                    Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
+                        .font(.custom(fontName, size: referenceFontSize))
+                        .foregroundColor(textColor.opacity(0.85))
+                        .multilineTextAlignment(textAlignment)
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.7)
+                        .frame(width: safeRect.width)
+                }
+                .position(versePosition)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .named("VerseCanvas"))
+                        .onChanged { value in
+                            guard allowsInteraction else { return }
+                            updatePosition(with: value.location, safeRect: safeRect)
+                        }
+                )
+                .zIndex(1) // keep text above any overlays
                 
                 Text(watermark)
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
                     .position(x: size.width / 2,
                               y: size.height - size.height * watermarkBottomPaddingRatio)
+                    .zIndex(1)
             }
             .frame(width: size.width, height: size.height)
             .clipped()

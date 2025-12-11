@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Binding var selectedTab: AppTab
     @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var userDataManager = UserDataManager.shared
     @EnvironmentObject private var router: NavigationRouter
     @State private var showingSettings = false
-    @State private var showingVerseOfDaySettings = false
     @State private var isLoadingVerse = false
     @State private var error: Error?
     @State private var redLetterVerse: (reference: VerseReference, text: String)?
@@ -100,6 +100,10 @@ struct HomeView: View {
     
     // Gospels chapter count
     let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
+
+    init(selectedTab: Binding<AppTab> = .constant(.home)) {
+        _selectedTab = selectedTab
+    }
     
     var body: some View {
         ScrollView {
@@ -134,7 +138,7 @@ struct HomeView: View {
                                 .fontWeight(.bold)
                         }
                         
-                        Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 10 seconds each. Think you know the Word like that?")
+                        Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 15 seconds each. Think you know the Word like that?")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         
@@ -242,7 +246,7 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("Already part of the 144? If you know somebody who would vibe with this too—someone who'd love seeing Scripture in our voice—send them our way. We're still building, still testing, and every fresh eye helps. Tell 'em to hit you up so you can pass the blessing. You got the invite—now you can extend it.")
+            Text("You in early. They next. You already got off the waitlist and into the AAVE Bible beta. If you know somebody who’d love hearing Scripture in our voice, send ’em your link so they can join the waitlist. The more folks on the list, the more we can build, test, and unlock. You got early access. Now you can help your people get in line.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
@@ -254,7 +258,7 @@ struct HomeView: View {
                     shareApp()
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Label("Invite to the 144", systemImage: "square.and.arrow.up")
+                    Label("Invite to the AAVE Bible App Beta", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
@@ -336,7 +340,7 @@ struct HomeView: View {
     
     // Function to share the app
     func shareApp() {
-        let shareText = "Yo! I’m part of the AAVE Bible App beta (first 144 testers). It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link and let me know. Let’s make history with this. officialaavebible.com"
+        let shareText = "Yo! I’m part of the AAVE Bible App beta. It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link and let me know. Let’s make history with this. officialaavebible.com"
         
         let activityVC = UIActivityViewController(
             activityItems: [shareText],
@@ -475,21 +479,6 @@ struct HomeView: View {
                 Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                // Read in context button
-                Button(action: {
-                    navigateToVerse(verse.reference)
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                }) {
-                    Text("Read in Context")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                }
-                .sheet(isPresented: $showingVerseOfDaySettings) {
-                    VerseOfDaySettingsView()
-                }
             }
             
             Text(verse.text)
@@ -623,13 +612,23 @@ struct HomeView: View {
     
     // Navigate to verse
     func navigateToVerse(_ reference: VerseReference) {
-        router.resetAndGoTo(
-            .bible(
-                bookID: reference.book,
-                chapter: reference.chapter,
-                verse: reference.verse
+        selectedTab = .bible
+
+        // Persist the target so the Bible tab restores the exact verse even if the nav stack resets.
+        UserDefaults.standard.set(reference.book, forKey: "lastBook")
+        UserDefaults.standard.set(reference.chapter, forKey: "lastChapter")
+        UserDefaults.standard.set(reference.verse, forKey: "lastVerse")
+
+        // Hop to the Bible tab first, then drive the router on the next run loop.
+        DispatchQueue.main.async {
+            router.resetAndGoTo(
+                .bible(
+                    bookID: reference.book,
+                    chapter: reference.chapter,
+                    verse: reference.verse
+                )
             )
-        )
+        }
     }
     
     // Check NT progress
@@ -695,7 +694,7 @@ struct HomeView: View {
    
 
 #Preview {
-    HomeView()
+    HomeView(selectedTab: .constant(.home))
         .environmentObject(NavigationRouter())
 }
     

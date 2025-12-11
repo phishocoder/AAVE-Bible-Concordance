@@ -3,6 +3,7 @@ import AuthenticationServices
 import FirebaseAuth
 import FirebaseFirestore
 import CryptoKit
+import Security
 
 class AppleAuthManager: NSObject, ObservableObject {
     static let shared = AppleAuthManager()
@@ -15,6 +16,9 @@ class AppleAuthManager: NSObject, ObservableObject {
 
     private let db = Firestore.firestore()
     private var currentNonce: String?
+    private let keychain = KeychainHelper.shared
+    private let keychainService = "AAVEBibleAppleSignIn"
+    private let keychainAccount = "appleUserID"
     
     // Generate a random nonce for authentication
     private func randomNonceString(length: Int = 32) -> String {
@@ -57,6 +61,37 @@ class AppleAuthManager: NSObject, ObservableObject {
         }.joined()
         
         return hashString
+    }
+    
+    /// Attempt to restore a previous Apple sign-in from Keychain and validate credential state.
+    func restorePreviousSignIn() {
+        // If Firebase already has a user session, surface it immediately.
+        if let current = Auth.auth().currentUser {
+            DispatchQueue.main.async {
+                self.userID = current.uid
+                self.displayName = current.displayName
+                self.isSignedIn = true
+            }
+        }
+        
+        guard let savedAppleID = keychain.read(service: keychainService, account: keychainAccount) else { return }
+        
+        ASAuthorizationAppleIDProvider().getCredentialState(forUserID: savedAppleID) { [weak self] state, _ in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                switch state {
+                case .authorized:
+                    self.userID = self.userID ?? savedAppleID
+                    self.isSignedIn = true
+                case .revoked, .notFound, .transferred:
+                    self.keychain.delete(service: self.keychainService, account: self.keychainAccount)
+                    self.isSignedIn = false
+                    self.userID = nil
+                default:
+                    break
+                }
+            }
+        }
     }
 
     func startSignInWithAppleFlow() {
@@ -107,6 +142,10 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate, ASAuthorizationCo
                 guard let user = authResult?.user else { return }
                 let displayName = appleIDCredential.fullName?.givenName ?? "User"
                 let uid = user.uid
+                let appleUserID = appleIDCredential.user
+                
+                // Persist the stable Apple ID so we can rehydrate without prompting every launch.
+                self?.keychain.save(appleUserID, service: self?.keychainService ?? "", account: self?.keychainAccount ?? "")
                 
                 // Update UI properties on the main thread
                 DispatchQueue.main.async {
@@ -150,5 +189,59 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate, ASAuthorizationCo
                 .compactMap { $0 as? UIWindowScene }
                 .first?.windows
                 .filter { $0.isKeyWindow }.first ?? UIWindow()
+    }
+}
+
+/// Lightweight keychain helper to persist the Apple user identifier securely.
+final class KeychainHelper {
+    static let shared = KeychainHelper()
+    private init() {}
+    
+    func save(_ value: String, service: String, account: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(query as CFDictionary)
+        
+        let attributes: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        SecItemAdd(attributes as CFDictionary, nil)
+    }
+    
+    func read(service: String, account: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: kCFBooleanTrue as Any,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return value
+    }
+    
+    func delete(service: String, account: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 }

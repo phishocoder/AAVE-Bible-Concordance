@@ -29,7 +29,7 @@ enum AppRoute: Hashable {
     case bookmarks
 }
 
-enum AppTab: Hashable {
+enum AppTab: String, Hashable {
     case bible, home, search, bookmarks, more
 }
 

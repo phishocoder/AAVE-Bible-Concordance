@@ -11,8 +11,8 @@ import Combine
 @MainActor
 class VerseListViewModel: ObservableObject {
     // Bible data
-    @Published var currentBook: String
-    @Published var currentChapter: Int
+    @Published var currentBook: String { didSet { persistLocation() } }
+    @Published var currentChapter: Int { didSet { persistLocation() } }
     @Published var verses: [Verse] = []
     @Published var isLoading = false
     @Published var refreshID = UUID()
@@ -30,16 +30,38 @@ class VerseListViewModel: ObservableObject {
     @Published var commentaryVerse: Verse? = nil
     @Published var commentaryReference: VerseReference? = nil
     @Published var showingImageOptions = false
+    @Published var lastVisibleVerse: Int? { didSet { persistLocation() } }
     
     private var translationService = TranslationService.shared
     private var verseManager = VerseManager.shared
     private var userDataManager = UserDataManager.shared
     private var cancellables = Set<AnyCancellable>()
+    private let defaults = UserDefaults.standard
+    private let lastBookKey = "lastBook"
+    private let lastChapterKey = "lastChapter"
+    private let lastVerseKey = "lastVerse"
     
     init(book: String, chapter: Int, initialVerse: Int? = nil) {
-        self.currentBook = book
-        self.currentChapter = chapter
-        self.highlightedVerse = initialVerse
+        // Restore last location unless a specific navigation target was provided.
+        let storedBook = defaults.string(forKey: lastBookKey)
+        let storedChapter = defaults.integer(forKey: lastChapterKey)
+        let storedVerse = defaults.integer(forKey: lastVerseKey)
+        
+        let shouldUseProvided = initialVerse != nil
+            || storedBook == nil
+            || storedBook != book
+            || (storedChapter > 0 && storedChapter != chapter)
+        
+        let startBook = shouldUseProvided ? book : (storedBook ?? book)
+        let startChapter = shouldUseProvided ? chapter : (storedChapter > 0 ? storedChapter : chapter)
+        let startVerse = initialVerse ?? (storedVerse > 0 ? storedVerse : nil)
+        
+        self.currentBook = startBook
+        self.currentChapter = startChapter
+        self.highlightedVerse = startVerse
+        self.lastVisibleVerse = startVerse
+        
+        persistLocation()
     }
     
     func forceReload() {
@@ -304,5 +326,18 @@ class VerseListViewModel: ObservableObject {
         // Select all verses
         isMultiSelectMode = true
         selectedVerses = verses
+    }
+    
+    func markLastVisibleVerse(_ verseNumber: Int) {
+        lastVisibleVerse = verseNumber
+    }
+    
+    private func persistLocation() {
+        defaults.set(currentBook, forKey: lastBookKey)
+        defaults.set(currentChapter, forKey: lastChapterKey)
+        
+        if let lastVerse = lastVisibleVerse ?? highlightedVerse {
+            defaults.set(lastVerse, forKey: lastVerseKey)
+        }
     }
 }

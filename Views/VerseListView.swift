@@ -311,6 +311,10 @@ struct VerseListContent: View {
                         )
                         // Use a more stable ID that doesn't trigger full redraws
                         .id(scrollID(for: verse.reference))
+                        .onAppear {
+                            // Track the last visible verse to restore position on relaunch.
+                            viewModel.markLastVisibleVerse(verse.reference.verse)
+                        }
                     }
                 }
                 .padding(.horizontal, 24)
@@ -319,16 +323,21 @@ struct VerseListContent: View {
             .simultaneousGesture(
                 DragGesture(minimumDistance: 50, coordinateSpace: .local)
                     .onEnded { value in
-                        // Only trigger navigation if the drag is primarily horizontal
-                        let horizontalAmount = abs(value.translation.width)
-                        let verticalAmount = abs(value.translation.height)
-                        
-                        if horizontalAmount > verticalAmount && horizontalAmount > 50 {
-                            if value.translation.width > 0 {
-                                viewModel.navigateToPreviousChapter()
-                            } else if value.translation.width < 0 {
-                                viewModel.navigateToNextChapter()
-                            }
+                        // Require a clear, intentional horizontal swipe that beats vertical movement.
+                        let horizontal = value.translation.width
+                        let vertical = value.translation.height
+                        let horizontalMagnitude = abs(horizontal)
+                        let verticalMagnitude = abs(vertical)
+                        let dominanceRatio: CGFloat = 1.25
+                        let minTravel: CGFloat = 80
+
+                        guard horizontalMagnitude > minTravel,
+                              horizontalMagnitude > verticalMagnitude * dominanceRatio else { return }
+
+                        if horizontal < 0 {
+                            viewModel.navigateToNextChapter()
+                        } else {
+                            viewModel.navigateToPreviousChapter()
                         }
                     }
             )

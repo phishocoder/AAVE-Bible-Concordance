@@ -8,6 +8,7 @@ struct AAVE_Bible_ConcordanceApp: App {
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var router = NavigationRouter()
+    @StateObject private var appleAuthManager = AppleAuthManager.shared
     
     var body: some Scene {
         WindowGroup {
@@ -16,6 +17,7 @@ struct AAVE_Bible_ConcordanceApp: App {
                     .environmentObject(appState)
                     .environmentObject(settings)
                     .environmentObject(networkMonitor)
+                    .environmentObject(appleAuthManager)
                     .preferredColorScheme(getPreferredColorScheme())
                     .onAppear {
                         // Run the test function when the app starts
@@ -30,6 +32,7 @@ struct AAVE_Bible_ConcordanceApp: App {
                     .environmentObject(appState)
                     .environmentObject(networkMonitor)
                     .environmentObject(router)
+                    .environmentObject(appleAuthManager)
                     .onAppear {
                         // Run the test function when the app starts
                         print("Running red text parsing test...")
@@ -38,6 +41,9 @@ struct AAVE_Bible_ConcordanceApp: App {
                         notificationManager.incrementAppLaunchCount()
                         // Schedule notifications if enabled
                         notificationManager.scheduleVerseOfDayNotification()
+                        
+                        // Attempt to restore Sign in with Apple without prompting the user again.
+                        appleAuthManager.restorePreviousSignIn()
                         
                         // Update verse of day content for today's notification
                         notificationManager.updateVerseOfDayContent {
