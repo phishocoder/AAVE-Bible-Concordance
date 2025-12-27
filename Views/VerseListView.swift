@@ -36,6 +36,9 @@ struct VerseListView: View {
     @State private var showMultiVerseActions = false
     @State private var showShareSheet = false
     @State private var shareText = ""
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @AppStorage("hasSeenVerseActionsLongPressHint") private var hasSeenLongPressHint = false
     
     private var backgroundColor: Color {
         // Your color logic here
@@ -86,6 +89,10 @@ struct VerseListView: View {
             }
             .opacity(viewModel.isNavigating ? 0 : 1) // Extra layer of control to prevent flashing
         }
+        .overlay(alignment: .bottom) {
+            ToastView(message: toastMessage, isShowing: $showToast)
+                .padding(.bottom, viewModel.selectedVerse != nil || !viewModel.selectedVerses.isEmpty ? 96 : 20)
+        }
 
        
         .sheet(isPresented: $showShareSheet) {
@@ -100,6 +107,15 @@ struct VerseListView: View {
             if let reference = notification.userInfo?["reference"] as? VerseReference {
                 viewModel.showCommentary = true
                 viewModel.commentaryReference = reference
+            }
+        }
+        .onAppear {
+            guard !hasSeenLongPressHint else { return }
+            toastMessage = "Tip: long-press a verse to open actions."
+            showToast = true
+            hasSeenLongPressHint = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+                showToast = false
             }
         }
     }
@@ -128,7 +144,6 @@ struct VerseListMainContent: View {
             .onChange(of: viewModel.currentChapter) { oldValue, newValue in
                 Task { await viewModel.loadVerses() }
             }
-            .id(viewModel.refreshID)
             .toolbar {
                 if viewModel.isMultiSelectMode {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -165,9 +180,6 @@ struct VerseListMainContent: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("HighlightVerse"))) { notification in
                 handleHighlightNotification(notification)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("RefreshVerseHighlights"))) { _ in
-                viewModel.refreshID = UUID() // Force refresh the view
             }
     }
     
@@ -371,14 +383,6 @@ struct VerseListContent: View {
             scrollAction()
         }
         
-        if let selected = viewModel.verses.first(where: {
-            $0.reference.book == viewModel.currentBook &&
-            $0.reference.chapter == viewModel.currentChapter &&
-            $0.reference.verse == verseNumber
-        }) {
-            viewModel.selectedVerse = selected
-            viewModel.isMultiSelectMode = false
-        }
     }
     
     private func scrollID(for reference: VerseReference) -> String {
@@ -460,6 +464,27 @@ struct VerseContextMenu: View {
                 verse: verse.reference.verse,
                 text: verse.text
             )
+        }
+    }
+}
+
+// Simple toast view for in-app hints.
+struct ToastView: View {
+    let message: String
+    @Binding var isShowing: Bool
+
+    var body: some View {
+        if isShowing {
+            Text(message)
+                .font(.subheadline)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(.systemGray6))
+                .foregroundColor(.primary)
+                .cornerRadius(12)
+                .shadow(radius: 3)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.easeInOut(duration: 0.3), value: isShowing)
         }
     }
 }

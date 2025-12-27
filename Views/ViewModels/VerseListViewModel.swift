@@ -112,36 +112,24 @@ class VerseListViewModel: ObservableObject {
     func handleVerseTap(_ verse: Verse) {
         if isMultiSelectMode {
             toggleVerseSelection(verse)
-        } else if selectedVerse != nil && selectedVerse?.reference.id != verse.reference.id {
-            // If we already have a selected verse and user taps a different verse,
-            // enter multi-select mode with both verses
+        } else if let currentSelected = selectedVerse,
+                  currentSelected.reference.id != verse.reference.id {
+            // Allow tap to extend selection only after a long-press selection exists.
             isMultiSelectMode = true
-            selectedVerses = []
-            
-            // Add the previously selected verse
-            if let prevVerse = selectedVerse {
-                selectedVerses.append(prevVerse)
-            }
-            
-            // Add the newly tapped verse
-            selectedVerses.append(verse)
-            
-            // Clear the single selection
+            selectedVerses = [currentSelected, verse]
             selectedVerse = nil
             showVerseActions = false
         } else {
-            // Normal single verse selection
-            selectedVerse = verse
-            showVerseActions = false
+            // Tap alone should not open the toolbar.
+            return
         }
     }
     
     func handleVerseLongPress(_ verse: Verse) {
         if !isMultiSelectMode {
-            isMultiSelectMode = true
-            selectedVerses = [verse]
-            // Clear any single verse selection when entering multi-select mode
-            selectedVerse = nil
+            selectedVerse = verse
+            isMultiSelectMode = false
+            selectedVerses = []
             showVerseActions = false
         } else {
             toggleVerseSelection(verse)
@@ -182,6 +170,7 @@ class VerseListViewModel: ObservableObject {
             selectedVerse = nil
             selectedVerses = []
             isMultiSelectMode = false
+            highlightedVerse = nil
         }
         
         if currentChapter > 1 {
@@ -209,6 +198,7 @@ class VerseListViewModel: ObservableObject {
             selectedVerse = nil
             selectedVerses = []
             isMultiSelectMode = false
+            highlightedVerse = nil
         }
         
         if let chapterCount = BibleBooks.chapterCounts[currentBook], currentChapter < chapterCount {

@@ -34,7 +34,20 @@ final class QuizGameViewModel: ObservableObject {
     
     func startNewGame() {
         timer?.invalidate()
-        questions = repository.fetchRandomQuestions(count: questionsPerSession)
+        questions = repository.fetchRandomQuestions(count: questionsPerSession).map { question in
+            // Shuffle options while tracking the new correct index
+            let correctAnswer = question.options[question.correctIndex]
+            let shuffledOptions = question.options.shuffled()
+            let newCorrectIndex = shuffledOptions.firstIndex(of: correctAnswer) ?? 0
+            
+            return QuizQuestion(
+                id: question.id,
+                quote: question.quote,
+                options: shuffledOptions,
+                correctIndex: newCorrectIndex,
+                reference: question.reference
+            )
+        }
         currentQuestionIndex = 0
         score = 0
         quizFinished = false

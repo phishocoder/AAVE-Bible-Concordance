@@ -78,19 +78,15 @@ struct VerseDetailSheet: View {
             .sheet(isPresented: $showingNotes) {
                 NotesView(reference: currentVerse.reference)
             }
-            .actionSheet(isPresented: $showingHighlightPicker) {
-                ActionSheet(
-                    title: Text("Choose Highlight Color"),
-                    buttons: [
-                        .default(Text("Yellow")) { highlightVerse(with: .yellow) },
-                        .default(Text("Green")) { highlightVerse(with: .green) },
-                        .default(Text("Blue")) { highlightVerse(with: .blue) },
-                        .default(Text("Pink")) { highlightVerse(with: .pink) },
-                        .default(Text("Purple")) { highlightVerse(with: .purple) },
-                        .destructive(Text("Remove Highlight")) { removeHighlight() },
-                        .cancel()
-                    ]
-                )
+            .confirmationDialog("Choose Highlight Color", isPresented: $showingHighlightPicker, titleVisibility: .visible) {
+                highlightColorButton("Yellow", color: .yellow)
+                highlightColorButton("Green", color: .green)
+                highlightColorButton("Blue", color: .blue)
+                highlightColorButton("Pink", color: .pink)
+                highlightColorButton("Purple", color: .purple)
+                Button(role: .destructive) { removeHighlight() } label: {
+                    Label("Remove Highlight", systemImage: "xmark.circle")
+                }
             }
             .onChange(of: currentVerseIndex) { oldValue, newValue in
                 Task {
@@ -327,5 +323,17 @@ struct VerseDetailSheet: View {
     private func removeHighlight() {
         haptics.impact(UIImpactFeedbackGenerator.FeedbackStyle.light)
         HighlightManager.shared.removeHighlight(currentVerse.reference)
+    }
+
+    @ViewBuilder
+    private func highlightColorButton(_ title: String, color: Color) -> some View {
+        Button {
+            highlightVerse(with: color)
+        } label: {
+            Circle()
+                .fill(color)
+                .frame(width: 20, height: 20)
+                .accessibilityLabel(Text(title))
+        }
     }
 }

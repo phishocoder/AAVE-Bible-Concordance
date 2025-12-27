@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var rotatingMessageIndex = 0
     @State private var hasReadNTChapter = false
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     
     // Get NT completed chapters count
@@ -108,10 +109,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(
-                columns: [
-                    GridItem(.adaptive(minimum: 300, maximum: 600))
-                ],
-                spacing: 20
+                columns: gridColumns,
+                spacing: gridSpacing
             ) {
                 welcomeSection
                 
@@ -170,9 +169,9 @@ struct HomeView: View {
                 // Discord Community Invite
                 discordInvite
             }
-            .padding(.horizontal)
+            .padding(.horizontal, horizontalPadding)
             .padding(.top, 24)
-            .padding(.bottom, 60)
+            .padding(.bottom, 80)
         }
         .scrollIndicators(.hidden)
         .applyGlassToolbar()
@@ -196,6 +195,31 @@ struct HomeView: View {
         }
         .navigationTitle("Home")
         .glassBackground()
+    }
+
+    private var isRegularWidth: Bool {
+        horizontalSizeClass == .regular
+    }
+
+    private var gridColumns: [GridItem] {
+        if isRegularWidth {
+            // Force two balanced columns on iPad to avoid oversized gaps
+            return [
+                GridItem(.adaptive(minimum: 360, maximum: 520), spacing: 18)
+            ]
+        } else {
+            return [
+                GridItem(.adaptive(minimum: 280, maximum: 420), spacing: 16)
+            ]
+        }
+    }
+
+    private var gridSpacing: CGFloat {
+        isRegularWidth ? 18 : 16
+    }
+
+    private var horizontalPadding: CGFloat {
+        isRegularWidth ? 24 : 16
     }
     
     // Bible Completion Section

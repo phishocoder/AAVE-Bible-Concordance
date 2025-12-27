@@ -209,8 +209,6 @@ class HighlightManager: ObservableObject {
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
                 self?.highlightUpdateID = UUID()
-                // Post notification but don't trigger another refresh cycle
-                NotificationCenter.default.post(name: NSNotification.Name("RefreshVerseHighlights"), object: nil)
             }
         }
     }

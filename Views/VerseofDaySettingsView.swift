@@ -93,11 +93,10 @@ struct VerseOfDaySettingsView: View {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 dismiss()
             })
-            .overlay(
+            .overlay(alignment: .bottom) {
                 ToastView(message: toastMessage, isShowing: $showToast)
-                    .padding(.bottom, 20),
-                alignment: .bottom
-            )
+                    .padding(.bottom, 20)
+            }
         }
     }
     
@@ -134,27 +133,6 @@ struct VerseOfDaySettingsView: View {
         // Hide toast after 2 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             showToast = false
-        }
-    }
-}
-
-// Simple toast view
-struct ToastView: View {
-    let message: String
-    @Binding var isShowing: Bool
-    
-    var body: some View {
-        if isShowing {
-            VStack {
-                Text(message)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .foregroundColor(.primary)
-                    .cornerRadius(10)
-                    .shadow(radius: 3)
-            }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .animation(.easeInOut(duration: 0.3), value: isShowing)
         }
     }
 }
