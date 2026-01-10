@@ -1,8 +1,12 @@
 import SwiftUI
+import UIKit
 
 struct MainView: View {
     @EnvironmentObject private var router: NavigationRouter
     @AppStorage("selectedTab") private var selectedTabRawValue: String = AppTab.home.rawValue
+    @StateObject private var achievementService = AchievementService.shared
+    @State private var shareImage: UIImage?
+    @State private var showShareSheet = false
     
     private var selectedTabBinding: Binding<AppTab> {
         Binding<AppTab>(
@@ -48,6 +52,29 @@ struct MainView: View {
                 .tag(AppTab.more)
         }
         .glassBackground()
+        .overlay(alignment: .top) {
+            if let unlock = achievementService.lastUnlocked {
+                AchievementUnlockToastView(
+                    unlock: unlock,
+                    onShare: {
+                        if let image = AchievementShareCardView.renderImage(for: unlock.achievement) {
+                            shareImage = image
+                            showShareSheet = true
+                            achievementService.clearLastUnlocked()
+                        }
+                    },
+                    onDismiss: {
+                        achievementService.clearLastUnlocked()
+                    }
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let shareImage {
+                ShareSheet(items: [shareImage])
+            }
+        }
     }
 }
 
@@ -77,9 +104,6 @@ private struct BibleTabView: View {
         .onChange(of: selectedTab) { _, newTab in
             guard newTab == .bible else { return }
             if let route = router.pendingDeepLink {
-#if DEBUG
-                print("DEBUG Applying pendingDeepLink route=\(route) selectedTab=\(newTab) pathCount=\(router.path.count)")
-#endif
                 router.pendingDeepLink = nil
                 router.resetAndGoTo(route)
             }
@@ -87,9 +111,6 @@ private struct BibleTabView: View {
         .onChange(of: router.pendingDeepLink) { _, newRoute in
             guard selectedTab == .bible else { return }
             if let route = newRoute {
-#if DEBUG
-                print("DEBUG Applying pendingDeepLink route=\(route) selectedTab=\(selectedTab) pathCount=\(router.path.count)")
-#endif
                 router.pendingDeepLink = nil
                 router.resetAndGoTo(route)
             }
@@ -99,7 +120,11 @@ private struct BibleTabView: View {
             if router.pendingDeepLink == nil, router.path.isEmpty, !lastBook.isEmpty {
                 let safeChapter = max(1, lastChapter)
                 let verse = lastVerse > 0 ? lastVerse : nil
-                router.resetAndGoTo(.bible(bookID: lastBook, chapter: safeChapter, verse: verse))
+                let canonicalBook = BookNameNormalizer.canonicalBookName(lastBook) ?? lastBook
+#if DEBUG
+                assertCanonicalBook(canonicalBook, context: "MainView.onAppear")
+#endif
+                router.resetAndGoTo(.bible(bookID: canonicalBook, chapter: safeChapter, verse: verse))
             }
         }
     }

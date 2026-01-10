@@ -176,18 +176,19 @@ struct SearchView: View {
     }
 
     private func navigateToResult(_ result: SearchResult) {
+        let canonicalBook = BookNameNormalizer.canonicalBookName(result.book) ?? result.book
 #if DEBUG
-        print("DEBUG SearchView.navigateToResult kind=\(result.kind) book=\(result.book) chapter=\(String(describing: result.chapter)) verse=\(String(describing: result.verse))")
+        assertCanonicalBook(canonicalBook, context: "SearchView.navigateToResult")
 #endif
         // Request intent first; Bible tab applies this deep link when active.
         switch result.kind {
         case .book:
-            router.requestDeepLink(.bookChapters(bookID: result.book))
+            router.requestDeepLink(.bookChapters(bookID: canonicalBook))
 
         case .chapter:
             router.requestDeepLink(
                 .bible(
-                    bookID: result.book,
+                    bookID: canonicalBook,
                     chapter: result.resolvedChapter,
                     verse: nil
                 )
@@ -197,7 +198,7 @@ struct SearchView: View {
             guard let verse = result.resolvedVerse else { return }
             router.requestDeepLink(
                 .bible(
-                    bookID: result.book,
+                    bookID: canonicalBook,
                     chapter: result.resolvedChapter,
                     verse: verse
                 )

@@ -69,7 +69,12 @@ class AppleAuthManager: NSObject, ObservableObject {
         if let current = Auth.auth().currentUser {
             DispatchQueue.main.async {
                 self.userID = current.uid
-                self.displayName = current.displayName
+                let storedName = UserDefaults.standard.string(forKey: "displayName")?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let storedName, !storedName.isEmpty {
+                    self.displayName = storedName
+                } else {
+                    self.displayName = current.displayName
+                }
                 self.isSignedIn = true
             }
         }
@@ -94,19 +99,123 @@ class AppleAuthManager: NSObject, ObservableObject {
         }
     }
 
-    func startSignInWithAppleFlow() {
+    func configureAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
         let nonce = randomNonceString()
         currentNonce = nonce
-        
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
         request.requestedScopes = [.fullName, .email]
         request.nonce = sha256(nonce)
+    }
+
+    func handleAuthorizationResult(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                handleAppleCredential(appleIDCredential)
+            } else {
+                print("❌ Apple Sign-In returned unexpected credential type.")
+            }
+        case .failure(let error):
+            print("❌ Apple Sign-In failed: \(error.localizedDescription)")
+        }
+    }
+
+    func startSignInWithAppleFlow() {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        configureAppleRequest(request)
 
         let controller = ASAuthorizationController(authorizationRequests: [request])
         controller.delegate = self
         controller.presentationContextProvider = self
         controller.performRequests()
+    }
+
+    func signOut() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("❌ Sign out failed: \(error.localizedDescription)")
+        }
+
+        keychain.delete(service: keychainService, account: keychainAccount)
+        UserDefaults.standard.set("", forKey: "displayName")
+        UserDefaults.standard.set(false, forKey: "didCompleteOnboarding")
+        UserDefaults.standard.set(AppTab.home.rawValue, forKey: "selectedTab")
+
+        DispatchQueue.main.async {
+            self.isSignedIn = false
+            self.displayName = nil
+            self.userID = nil
+            self.needsUsernamePrompt = false
+            self.pendingUserID = nil
+        }
+
+        NotificationCenter.default.post(name: Notification.Name("ShowProfile"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name("ShowOnboarding"), object: nil)
+    }
+
+    private func handleAppleCredential(_ appleIDCredential: ASAuthorizationAppleIDCredential) {
+        guard let nonce = currentNonce else {
+            print("❌ Invalid state: A login callback was received, but no login request was sent.")
+            return
+        }
+
+        guard let identityToken = appleIDCredential.identityToken,
+              let tokenString = String(data: identityToken, encoding: .utf8) else {
+            print("❌ Failed to get identity token from Apple.")
+            return
+        }
+
+        let credential = OAuthProvider.credential(withProviderID: "apple.com",
+                                                   idToken: tokenString,
+                                                   rawNonce: nonce)
+
+        Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
+            if let error = error {
+                print("❌ Firebase sign-in failed: \(error.localizedDescription)")
+                return
+            }
+
+            guard let user = authResult?.user else { return }
+            let givenName = appleIDCredential.fullName?.givenName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let storedName = UserDefaults.standard.string(forKey: "displayName")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !givenName.isEmpty, storedName.isEmpty {
+                UserDefaults.standard.set(givenName, forKey: "displayName")
+            }
+            let resolvedName = !givenName.isEmpty ? givenName : storedName
+            let uid = user.uid
+            let appleUserID = appleIDCredential.user
+
+            // Persist the stable Apple ID so we can rehydrate without prompting every launch.
+            self?.keychain.save(appleUserID, service: self?.keychainService ?? "", account: self?.keychainAccount ?? "")
+
+            // Update UI properties on the main thread
+            DispatchQueue.main.async {
+                self?.displayName = resolvedName.isEmpty ? nil : resolvedName
+                self?.userID = uid
+                self?.isSignedIn = true
+            }
+
+            let userRef = self?.db.collection("users").document(user.uid)
+
+            userRef?.setData([
+                "name": resolvedName,
+                "email": user.email ?? "",
+                "createdAt": Timestamp(date: Date())
+            ], merge: true)
+
+            // Check if a username already exists, if not trigger prompt
+            userRef?.getDocument { snapshot, _ in
+                if let data = snapshot?.data(), data["username"] == nil {
+                    DispatchQueue.main.async {
+                        self?.pendingUserID = uid
+                        self?.needsUsernamePrompt = true
+                    }
+                }
+            }
+
+            print("✅ Signed in with Apple. UID: \(user.uid), Name: \(resolvedName)")
+        }
     }
 }
 
@@ -117,63 +226,7 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate, ASAuthorizationCo
                                   didCompleteWithAuthorization authorization: ASAuthorization) {
 
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-
-            guard let nonce = currentNonce else {
-                print("❌ Invalid state: A login callback was received, but no login request was sent.")
-                return
-            }
-            
-            guard let identityToken = appleIDCredential.identityToken,
-                  let tokenString = String(data: identityToken, encoding: .utf8) else {
-                print("❌ Failed to get identity token from Apple.")
-                return
-            }
-
-            let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                       idToken: tokenString,
-                                                       rawNonce: nonce)
-
-            Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
-                if let error = error {
-                    print("❌ Firebase sign-in failed: \(error.localizedDescription)")
-                    return
-                }
-
-                guard let user = authResult?.user else { return }
-                let displayName = appleIDCredential.fullName?.givenName ?? "User"
-                let uid = user.uid
-                let appleUserID = appleIDCredential.user
-                
-                // Persist the stable Apple ID so we can rehydrate without prompting every launch.
-                self?.keychain.save(appleUserID, service: self?.keychainService ?? "", account: self?.keychainAccount ?? "")
-                
-                // Update UI properties on the main thread
-                DispatchQueue.main.async {
-                    self?.displayName = displayName
-                    self?.userID = uid
-                    self?.isSignedIn = true
-                }
-
-                let userRef = self?.db.collection("users").document(user.uid)
-
-                userRef?.setData([
-                    "name": displayName,
-                    "email": user.email ?? "",
-                    "createdAt": Timestamp(date: Date())
-                ], merge: true)
-
-                // Check if a username already exists, if not trigger prompt
-                userRef?.getDocument { snapshot, error in
-                    if let data = snapshot?.data(), data["username"] == nil {
-                        DispatchQueue.main.async {
-                            self?.pendingUserID = uid
-                            self?.needsUsernamePrompt = true
-                        }
-                    }
-                }
-
-                print("✅ Signed in with Apple. UID: \(user.uid), Name: \(displayName)")
-            }
+            handleAppleCredential(appleIDCredential)
         }
     }
 

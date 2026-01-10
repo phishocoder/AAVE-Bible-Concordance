@@ -18,9 +18,14 @@ struct MoreView: View {
                         MoreRow(icon: "bookmark.fill", tint: .orange, title: "Bookmarks")
                     }
                     NavigationLink {
-                        NotesView(reference: VerseReference(book: "", chapter: 1, verse: 1))
+                        NotesView(reference: VerseReference(book: "Genesis", chapter: 1, verse: 1))
                     } label: {
                         MoreRow(icon: "note.text", tint: .teal, title: "Notes")
+                    }
+                    NavigationLink {
+                        AchievementsView()
+                    } label: {
+                        MoreRow(icon: "trophy.fill", tint: .yellow, title: "Achievements")
                     }
                     NavigationLink {
                         HighlightedVersesView()
@@ -103,7 +108,7 @@ struct MoreView: View {
                         Text("Signed in as")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text(authManager.displayName ?? "User")
+                        Text(authManager.displayName ?? "Friend")
                             .font(.headline)
                     }
                 }
@@ -111,10 +116,10 @@ struct MoreView: View {
                 SignInWithAppleButton(
                     .signIn,
                     onRequest: { request in
-                        request.requestedScopes = [.fullName, .email]
+                        authManager.configureAppleRequest(request)
                     },
-                    onCompletion: { _ in
-                        authManager.startSignInWithAppleFlow()
+                    onCompletion: { result in
+                        authManager.handleAuthorizationResult(result)
                     }
                 )
                 .signInWithAppleButtonStyle(.black)

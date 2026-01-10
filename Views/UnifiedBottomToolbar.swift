@@ -104,6 +104,7 @@ struct UnifiedBottomToolbar: View {
                     shareText = createShareText()
                     showShareSheet = true
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    AchievementService.shared.recordShare()
                 }
                 ToolbarButton(icon: isBookmarked() ? "bookmark.fill" : "bookmark") {
                     toggleBookmark()

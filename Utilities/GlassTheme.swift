@@ -51,6 +51,35 @@ enum GlassTheme {
         }
     }
 
+    struct HomeCardStyle: ViewModifier {
+        @Environment(\.colorScheme) private var colorScheme
+
+        func body(content: Content) -> some View {
+            let strokeOpacity = colorScheme == .dark ? 0.3 : 0.2
+            let shadowColor = colorScheme == .dark ? Color.black.opacity(0.25) : Color.black.opacity(0.08)
+            let material: Material = colorScheme == .dark ? .ultraThinMaterial : .thinMaterial
+
+            return content
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(material)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .strokeBorder(
+                                    LinearGradient(
+                                        colors: [Color.white.opacity(strokeOpacity), Color.white.opacity(0.05)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(color: shadowColor, radius: 14, x: 0, y: 14)
+                )
+        }
+    }
+
     /// Applies a blurred glass surface to toolbars & tab bars.
     struct ToolbarAppearance: ViewModifier {
         @Environment(\.colorScheme) private var colorScheme
@@ -79,6 +108,10 @@ enum GlassTheme {
 extension View {
     func glassCard() -> some View {
         modifier(GlassTheme.CardStyle())
+    }
+
+    func homeCard() -> some View {
+        modifier(GlassTheme.HomeCardStyle())
     }
 
     func applyGlassToolbar() -> some View {

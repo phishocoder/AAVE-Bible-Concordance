@@ -115,6 +115,19 @@
 		E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */; };
 		E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */; };
 		E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */; };
+		E1A0AA012F00000100000011 /* AchievementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000001 /* AchievementService.swift */; };
+		E1A0AA012F00000100000012 /* ReadingProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000002 /* ReadingProgressService.swift */; };
+		E1A0AA012F00000100000013 /* AchievementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000003 /* AchievementsView.swift */; };
+		E1A0AA012F00000100000014 /* StreakCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000004 /* StreakCard.swift */; };
+		E1A0AA012F00000100000015 /* ReadingProgressDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000005 /* ReadingProgressDebugView.swift */; };
+		E1A0AA012F00000100000021 /* UserProfilePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000031 /* UserProfilePreferences.swift */; };
+		E1A0AA012F00000100000022 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000032 /* OnboardingFlowView.swift */; };
+		E1A0AA012F00000100000023 /* OnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000033 /* OnboardingStep.swift */; };
+		E1A0AA012F00000100000024 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000034 /* OnboardingViewModel.swift */; };
+		E1A0AA012F00000100000025 /* OnboardingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000035 /* OnboardingTokens.swift */; };
+		E1A0AA012F00000100000026 /* AchievementShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000036 /* AchievementShareCardView.swift */; };
+		E1A0AA012F00000100000027 /* AchievementUnlockToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000037 /* AchievementUnlockToastView.swift */; };
+		E1B0AA012F10000100000011 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B0AA012F10000100000001 /* ProfileView.swift */; };
 		E0FFF0012FFE1234000ABCDE /* QuizQuestionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */; };
 		E0FFF0212FFE4567000ABCDE /* QuizGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -240,6 +253,19 @@
 		E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestionRepository.swift; sourceTree = "<group>"; };
 		E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizGameViewModel.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000001 /* AchievementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementService.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000002 /* ReadingProgressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingProgressService.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000003 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000004 /* StreakCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCard.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000005 /* ReadingProgressDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingProgressDebugView.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000031 /* UserProfilePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePreferences.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000032 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingFlowView.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000033 /* OnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingStep.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000034 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingViewModel.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000035 /* OnboardingTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingTokens.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000036 /* AchievementShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementShareCardView.swift; sourceTree = "<group>"; };
+		E1A0AA012F00000100000037 /* AchievementUnlockToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementUnlockToastView.swift; sourceTree = "<group>"; };
+		E1B0AA012F10000100000001 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -321,6 +347,7 @@
 				E04E15E42D8610DD002EDE4A /* ChapterNavigation.swift */,
 				E04E15E02D860598002EDE4A /* NavigationModels.swift */,
 				E04E15D42D85DA7E002EDE4A /* VerseReference.swift */,
+				E1A0AA012F00000100000031 /* UserProfilePreferences.swift */,
 				E009628F2D835963007677BD /* BibleData.swift */,
 				E008931B2E161C00005E0F11 /* SearchQueryParser.swift */,
 				E00962822D833695007677BD /* SearchResult.swift */,
@@ -333,6 +360,16 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E1A0AA012F00000100000003 /* AchievementsView.swift */,
+				E1A0AA012F00000100000004 /* StreakCard.swift */,
+				E1A0AA012F00000100000005 /* ReadingProgressDebugView.swift */,
+				E1A0AA012F00000100000036 /* AchievementShareCardView.swift */,
+				E1A0AA012F00000100000037 /* AchievementUnlockToastView.swift */,
+				E1B0AA012F10000100000001 /* ProfileView.swift */,
+				E1A0AA012F00000100000032 /* OnboardingFlowView.swift */,
+				E1A0AA012F00000100000033 /* OnboardingStep.swift */,
+				E1A0AA012F00000100000034 /* OnboardingViewModel.swift */,
+				E1A0AA012F00000100000035 /* OnboardingTokens.swift */,
 				E09A7EC32E69FBA5009BB9F0 /* OnboardingView.swift */,
 				E00893182E161B95005E0F11 /* HighlightManager.swift */,
 				E00893142E161970005E0F11 /* HighlightedVersesView.swift */,
@@ -471,6 +508,8 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E1A0AA012F00000100000001 /* AchievementService.swift */,
+				E1A0AA012F00000100000002 /* ReadingProgressService.swift */,
 				E0534B662DC2A3E90038651E /* AppleAuthManager.swift */,
 				E077B9762DB9F9E50072C19F /* LeaderboardService.swift */,
 				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
@@ -723,6 +762,16 @@
 				E04E15DB2D85F37A002EDE4A /* CommentaryOverlay.swift in Sources */,
 				E077B97F2DBD71F50072C19F /* QuizView.swift in Sources */,
 				E0054F962D7BB55100A26A71 /* SearchView.swift in Sources */,
+				E1A0AA012F00000100000013 /* AchievementsView.swift in Sources */,
+				E1A0AA012F00000100000014 /* StreakCard.swift in Sources */,
+				E1A0AA012F00000100000015 /* ReadingProgressDebugView.swift in Sources */,
+				E1A0AA012F00000100000022 /* OnboardingFlowView.swift in Sources */,
+				E1A0AA012F00000100000023 /* OnboardingStep.swift in Sources */,
+				E1A0AA012F00000100000024 /* OnboardingViewModel.swift in Sources */,
+				E1A0AA012F00000100000025 /* OnboardingTokens.swift in Sources */,
+				E1A0AA012F00000100000026 /* AchievementShareCardView.swift in Sources */,
+				E1A0AA012F00000100000027 /* AchievementUnlockToastView.swift in Sources */,
+				E1B0AA012F10000100000011 /* ProfileView.swift in Sources */,
 				E04E15E52D8610E1002EDE4A /* ChapterNavigation.swift in Sources */,
 				E0F415BA2D813630000A4C7E /* CommentaryView.swift in Sources */,
 				E0D74C872D8A291B00A8D279 /* AAVETextView.swift in Sources */,
@@ -735,6 +784,7 @@
 				E04E17222D87C733002EDE4A /* VerseofDaySettingsView.swift in Sources */,
 				E00962812D82C102007677BD /* ErrorView.swift in Sources */,
 				E04E15D52D85DA86002EDE4A /* VerseReference.swift in Sources */,
+				E1A0AA012F00000100000021 /* UserProfilePreferences.swift in Sources */,
 				E00BC61D2D839B7D00D3BBCF /* TestamentPicker.swift in Sources */,
 				E009628E2D835916007677BD /* MainView.swift in Sources */,
 				E0054FDA2D7CC57D00A26A71 /* VerseView.swift in Sources */,
@@ -744,6 +794,8 @@
 				E0FFF0012FFE1234000ABCDE /* QuizQuestionRepository.swift in Sources */,
 				E077B9632DB9E13E0072C19F /* JesusQuotes.swift in Sources */,
 				E0054FA12D7BFDF800A26A71 /* TranslationService.swift in Sources */,
+				E1A0AA012F00000100000011 /* AchievementService.swift in Sources */,
+				E1A0AA012F00000100000012 /* ReadingProgressService.swift in Sources */,
 				E04E171E2D87C5C6002EDE4A /* BookChapterPickerView.swift in Sources */,
 				E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
 				E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,

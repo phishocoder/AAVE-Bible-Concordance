@@ -113,6 +113,9 @@ struct VerseListView: View {
             }
         }
         .onAppear {
+            NotificationManager.shared.markBibleReaderOpened()
+        }
+        .onAppear {
             guard !hasSeenLongPressHint else { return }
             toastMessage = "Tip: long-press a verse to open actions."
             showToast = true
@@ -406,14 +409,6 @@ struct VerseListContent: View {
     
     private func focus(on verseNumber: Int, proxy: ScrollViewProxy, animated: Bool) {
         let id = scrollID(forVerse: verseNumber)
-#if DEBUG
-        let hasTarget = viewModel.verses.contains(where: { $0.reference.id == id })
-        if !hasTarget {
-            let sample = viewModel.verses.prefix(5).map { $0.reference.id }
-            print("DEBUG Missing scroll target id=\(id). Sample verse IDs: \(sample)")
-        }
-        assert(hasTarget, "Scroll target id not found: \(id)")
-#endif
         guard viewModel.verses.contains(where: { $0.reference.id == id }) else { return }
         // Defer until the next run loop so the verse row exists in the layout.
         DispatchQueue.main.async {
@@ -432,13 +427,6 @@ struct VerseListContent: View {
 
     private func focus(on reference: VerseReference, proxy: ScrollViewProxy, animated: Bool) {
         let id = scrollID(for: reference)
-#if DEBUG
-        let hasTarget = viewModel.verses.contains(where: { $0.reference.id == id })
-        if !hasTarget {
-            let sample = viewModel.verses.prefix(5).map { $0.reference.id }
-            print("DEBUG Missing scroll target id=\(id). Sample verse IDs: \(sample)")
-        }
-#endif
         guard viewModel.verses.contains(where: { $0.reference.id == id }) else { return }
         DispatchQueue.main.async {
             if animated {

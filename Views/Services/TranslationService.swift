@@ -13,26 +13,27 @@ class TranslationService: ObservableObject {
     private var commentary: [String: String] = [:]
     private var searchIndex: [String: Set<VerseReference>] = [:]
     
-    // Books with complete AAVE translations
-    var availableAAVEBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Judges"]
+    // Books with bundled AAVE JSON files
+    private(set) var availableAAVEBooks: [String] = []
 
     var searchCoverageDescription: String {
         "AAVE search covers: \(availableAAVEBooks.count) books"
     }
     
-    // All books that have AAVE files (even if empty/coming soon)
+    // Canonical list of all books (used for commentary loading)
     let allAAVEBooks = bibleBooks.map { $0.name }
     
     private let verseManager = VerseManager.shared
     
     private init() {
+        availableAAVEBooks = discoverAAVEBooks()
         debugSpecificCommentary()
         loadCommentary()
     }
     
     private func loadCommentary() {
         // Load all available commentary files
-        for book in allAAVEBooks {
+        for book in availableAAVEBooks {
             let shortName = getShortBookName(book)
             let possiblePaths = [
                 Bundle.main.url(forResource: "Commentary_\(shortName)", withExtension: "json", subdirectory: "Commentary"),
@@ -81,6 +82,28 @@ class TranslationService: ObservableObject {
     
     private func getShortBookName(_ book: String) -> String {
         return BibleBooks.shortNames[book] ?? book
+    }
+
+    private func discoverAAVEBooks() -> [String] {
+        guard let resourceURL = Bundle.main.resourceURL else { return [] }
+        let fileManager = FileManager.default
+        let suffix = "_AAVE"
+        var found = Set<String>()
+
+        if let enumerator = fileManager.enumerator(at: resourceURL, includingPropertiesForKeys: nil) {
+            for case let url as URL in enumerator {
+                guard url.pathExtension == "json" else { continue }
+                let baseName = url.deletingPathExtension().lastPathComponent
+                guard baseName.hasSuffix(suffix) else { continue }
+                let rawName = String(baseName.dropLast(suffix.count))
+                let canonical = BookNameNormalizer.canonicalBookName(rawName) ?? rawName
+                found.insert(canonical)
+            }
+        }
+
+        let ordered = BibleBooks.all.filter { found.contains($0) }
+        let extras = found.subtracting(ordered)
+        return ordered + extras.sorted()
     }
     
     func loadTranslations() async throws {
@@ -144,21 +167,8 @@ class TranslationService: ObservableObject {
                         let decoder = JSONDecoder()
                         let verses = try decoder.decode([String: [String: String]].self, from: cleanedData)
                         
-                        // Check if the file has actual content or is just an empty structure
-                        let hasContent = verses.values.contains { chapter in
-                            !chapter.isEmpty && chapter.values.contains { verse in
-                                !verse.isEmpty && !verse.contains("Coming Soon")
-                            }
-                        }
-                        
                         aaveTranslations[book] = verses
                         loaded = true
-                        
-                        // If this book has actual content, add it to availableAAVEBooks if not already there
-                        if hasContent && !availableAAVEBooks.contains(book) {
-                            print("DEBUG: \(book) has content but wasn't in availableAAVEBooks")
-                            availableAAVEBooks.append(book)
-                        }
                         
                         break
                     } catch {
@@ -204,12 +214,14 @@ class TranslationService: ObservableObject {
     
     // Check if AAVE translation is available with actual content for a book
     func isAAVEAvailable(for book: String) -> Bool {
-        return availableAAVEBooks.contains(book)
+        let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+        return availableAAVEBooks.contains(canonicalBook)
     }
     
     // Check if a book has an AAVE file (even if it's just a placeholder)
     func hasAAVEFile(for book: String) -> Bool {
-        return aaveTranslations[book] != nil
+        let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+        return availableAAVEBooks.contains(canonicalBook)
     }
     
     func getVerseTranslation(for book: String, chapter: Int, verse: Int, translation: String) async throws -> String {

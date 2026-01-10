@@ -84,12 +84,9 @@ class VerseListViewModel: ObservableObject {
 
     func applyDeepLink(book: String, chapter: Int, verse: Int?) async {
         isNavigating = true
-#if DEBUG
-        print("DEBUG applyDeepLink incoming book=\(book) chapter=\(chapter) verse=\(String(describing: verse))")
-#endif
         let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
 #if DEBUG
-        print("DEBUG applyDeepLink canonicalBook=\(canonicalBook)")
+        assertCanonicalBook(canonicalBook, context: "VerseListViewModel.applyDeepLink")
 #endif
         currentBook = canonicalBook
         currentChapter = chapter
@@ -103,14 +100,11 @@ class VerseListViewModel: ObservableObject {
             pendingFocusReference = nil
             focusedVerseID = nil
         }
+        
 #if DEBUG
-        print("DEBUG applyDeepLink pendingFocusID=\(pendingFocusReference?.id ?? "nil")")
-        print("DEBUG applyDeepLink before loadVerses count=\(verses.count)")
+        print("DEBUG applyDeepLink book=\(book) canonicalBook=\(canonicalBook) chapter=\(chapter) verse=\(String(describing: verse))")
 #endif
         await loadVerses()
-#if DEBUG
-        print("DEBUG applyDeepLink after loadVerses count=\(verses.count)")
-#endif
         isNavigating = false
     }
     
@@ -143,12 +137,6 @@ class VerseListViewModel: ObservableObject {
                     reference: item.reference
                 )
             }
-
-#if DEBUG
-            print("DEBUG VERSES LOADED book=\(currentBook) chapter=\(currentChapter) count=\(verses.count)")
-            if let first = verses.first { print("DEBUG FIRST ID \(first.reference.id)") }
-            if let last = verses.last { print("DEBUG LAST ID \(last.reference.id)") }
-#endif
 
             self.selectedVerses = []
             self.isMultiSelectMode = false

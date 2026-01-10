@@ -22,8 +22,10 @@ class NotificationManager: ObservableObject {
     @AppStorage("weekendRefocusDay") var weekendRefocusDay = "Sunday" // "Saturday" or "Sunday"
     @AppStorage("betaFeedbackEnabled") var betaFeedbackEnabled = true
     @AppStorage("featureDiscoveryEnabled") var featureDiscoveryEnabled = true
+    @AppStorage("hasOpenedBibleReader") var hasOpenedBibleReader = false
     @AppStorage("appLaunchCount") var appLaunchCount = 0
     @AppStorage("lastFeedbackRequestDate") var lastFeedbackRequestDate = Date.distantPast.timeIntervalSince1970
+    @AppStorage("lastReadInContextPromptDate") var lastReadInContextPromptDate = Date.distantPast.timeIntervalSince1970
     
     private init() {
         checkAuthorizationStatus()
@@ -101,12 +103,28 @@ class NotificationManager: ObservableObject {
             options: []
         )
         
+        let streakCategory = UNNotificationCategory(
+            identifier: "STREAK_NUDGE",
+            actions: [readNowAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        let readInContextCategory = UNNotificationCategory(
+            identifier: "READ_IN_CONTEXT",
+            actions: [readNowAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
         UNUserNotificationCenter.current().setNotificationCategories([
             verseOfDayCategory,
             midweekCategory,
             weekendCategory,
             feedbackCategory,
-            featureCategory
+            featureCategory,
+            streakCategory,
+            readInContextCategory
         ])
     }
     
@@ -122,6 +140,7 @@ class NotificationManager: ObservableObject {
         // Create notification content
         let content = UNMutableNotificationContent()
         content.title = "AAVE Bible Verse of the Day"
+        content.body = NotificationMessages.message(for: .dailyVerse)
         content.sound = .default
         content.categoryIdentifier = "VERSE_OF_DAY"
         
@@ -220,7 +239,7 @@ class NotificationManager: ObservableObject {
         // Create notification content
         let content = UNMutableNotificationContent()
         content.title = "Midweek Motivation"
-        content.body = NotificationMessages.randomMessage(from: NotificationMessages.midweekMotivation)
+        content.body = NotificationMessages.message(for: .midweekMotivation)
         content.sound = .default
         content.categoryIdentifier = "MIDWEEK_MOTIVATION"
         
@@ -256,7 +275,7 @@ class NotificationManager: ObservableObject {
         // Create notification content
         let content = UNMutableNotificationContent()
         content.title = "Weekend Refocus"
-        content.body = NotificationMessages.randomMessage(from: NotificationMessages.weekendRefocus)
+        content.body = NotificationMessages.message(for: .weekendRefocus)
         content.sound = .default
         content.categoryIdentifier = "WEEKEND_REFOCUS"
         
@@ -287,14 +306,14 @@ class NotificationManager: ObservableObject {
         guard betaFeedbackEnabled, isAuthorized else { return }
         
         // Only request feedback after 3+ app launches and not more than once every 5 days
-        let fiveDaysInSeconds: TimeInterval = 5 * 24 * 60 * 60
+        let sevenDaysInSeconds: TimeInterval = 7 * 24 * 60 * 60
         let currentTime = Date().timeIntervalSince1970
         
-        if appLaunchCount >= 3 && (currentTime - lastFeedbackRequestDate) > fiveDaysInSeconds {
+        if appLaunchCount >= 3 && (currentTime - lastFeedbackRequestDate) > sevenDaysInSeconds {
             // Create notification content
             let content = UNMutableNotificationContent()
             content.title = "We Value Your Feedback"
-            content.body = NotificationMessages.randomMessage(from: NotificationMessages.betaFeedback)
+            content.body = NotificationMessages.message(for: .betaFeedback)
             content.sound = .default
             content.categoryIdentifier = "BETA_FEEDBACK"
             
@@ -333,7 +352,8 @@ class NotificationManager: ObservableObject {
         if feature == "Commentary" {
             content.body = NotificationMessages.getCommentaryNotification()
         } else {
-            content.body = description
+            let featureLabel = description.isEmpty ? feature : description
+            content.body = NotificationMessages.message(for: .featureDiscovery(feature: featureLabel))
         }
         
         content.sound = .default
@@ -368,6 +388,7 @@ class NotificationManager: ObservableObject {
         scheduleVerseOfDayNotification()
         scheduleMidweekMotivation()
         scheduleWeekendRefocus()
+        scheduleStreakNudge()
         checkAndScheduleBetaFeedback()
     }
     
@@ -377,5 +398,78 @@ class NotificationManager: ObservableObject {
         
         // Check if we should request feedback
         checkAndScheduleBetaFeedback()
+    }
+
+    func scheduleStreakNudge() {
+        guard isAuthorized else {
+            cancelNotifications(withIdentifiers: ["streak-nudge"])
+            return
+        }
+        let streakCount = ReadingProgressService.shared.currentStreak
+        guard streakCount > 0 else {
+            cancelNotifications(withIdentifiers: ["streak-nudge"])
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = "Keep the streak going"
+        content.body = NotificationMessages.message(for: .streakNudge)
+        content.sound = .default
+        content.categoryIdentifier = "STREAK_NUDGE"
+
+        var components = DateComponents()
+        components.hour = 18
+        components.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let request = UNNotificationRequest(
+            identifier: "streak-nudge",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling streak nudge: \(error)")
+            }
+        }
+    }
+
+    func scheduleReadInContextNudge() {
+        guard isAuthorized else { return }
+        guard hasOpenedBibleReader else { return }
+
+        let now = Date().timeIntervalSince1970
+        let oneDay: TimeInterval = 24 * 60 * 60
+        if now - lastReadInContextPromptDate < oneDay {
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = "Read in context"
+        content.body = NotificationMessages.message(for: .readInContext)
+        content.sound = .default
+        content.categoryIdentifier = "READ_IN_CONTEXT"
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2 * 60 * 60, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "read-in-context",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request) { [weak self] error in
+            if let error = error {
+                print("Error scheduling read-in-context: \(error)")
+            } else {
+                DispatchQueue.main.async {
+                    self?.lastReadInContextPromptDate = now
+                }
+            }
+        }
+    }
+
+    func markBibleReaderOpened() {
+        hasOpenedBibleReader = true
     }
 }

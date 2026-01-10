@@ -10,6 +10,7 @@ import SwiftUI
 struct QuizResultView: View {
     let score: Int
     let totalQuestions: Int
+    let onPlayAgain: () -> Void
 
     private var badgeTitle: String {
         let percentage = Double(score) / Double(totalQuestions)
@@ -75,14 +76,12 @@ struct QuizResultView: View {
             }
             .padding(.top)
 
-            Button(action: {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                    windowScene.windows.first?.rootViewController?.dismiss(animated: true)
-                }
-            }) {
-                Text("Play Again")
-                    .padding()
+            Button("Play Again") {
+                onPlayAgain()
             }
+            .buttonStyle(.borderedProminent)
+            .padding(.top, 4)
+
         }
         .padding()
         .onAppear {

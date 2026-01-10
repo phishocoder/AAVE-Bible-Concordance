@@ -8,6 +8,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel.shared
+    @StateObject private var readingProgress = ReadingProgressService.shared
+    @StateObject private var preferences = UserProfilePreferences.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showingAbout = false
     
@@ -16,7 +18,9 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     appearanceCard
+                    readingCard
                     contentCard
+                    onboardingCard
                     savedContentCard
                     notificationsCard
                     aboutCard
@@ -103,6 +107,29 @@ struct SettingsView: View {
         }
     }
 
+    private var readingCard: some View {
+        SettingsSection(title: "Reading") {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Daily Goal: \(readingProgress.dailyGoalVerses) verses")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                Slider(
+                    value: Binding(
+                        get: { Double(readingProgress.dailyGoalVerses) },
+                        set: { readingProgress.dailyGoalVerses = Int($0) }
+                    ),
+                    in: 1...50,
+                    step: 1
+                )
+            }
+#if DEBUG
+            NavigationLink(destination: ReadingProgressDebugView()) {
+                SettingsNavigationRow(icon: "ladybug", tint: .pink, title: "Reading Progress Debug")
+            }
+#endif
+        }
+    }
+
     private var savedContentCard: some View {
         SettingsSection(title: "Saved Content") {
             NavigationLink {
@@ -129,6 +156,17 @@ struct SettingsView: View {
         SettingsSection(title: "Support") {
             Button(action: { showingAbout = true }) {
                 SettingsNavigationRow(icon: "info.circle", tint: .indigo, title: "About")
+            }
+        }
+    }
+
+    private var onboardingCard: some View {
+        SettingsSection(title: "Onboarding") {
+            Button(action: {
+                preferences.resetOnboarding()
+                NotificationCenter.default.post(name: Notification.Name("ShowOnboarding"), object: nil)
+            }) {
+                SettingsNavigationRow(icon: "arrow.counterclockwise", tint: .purple, title: "Reset Onboarding")
             }
         }
     }

@@ -11,8 +11,9 @@ struct HomeView: View {
     @Binding var selectedTab: AppTab
     @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var userDataManager = UserDataManager.shared
+    @StateObject private var preferences = UserProfilePreferences.shared
     @EnvironmentObject private var router: NavigationRouter
-    @State private var showingSettings = false
+    @State private var showingProfile = false
     @State private var isLoadingVerse = false
     @State private var error: Error?
     @State private var redLetterVerse: (reference: VerseReference, text: String)?
@@ -50,7 +51,7 @@ struct HomeView: View {
     
     // Move welcomeSection outside of body
     var welcomeSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             // AAVE Logo and Title
             HStack(spacing: 0) {
                 Text("A")
@@ -85,9 +86,16 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
+
+            Text(personalizedWelcomeLine)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity)
-        .glassCard()
+        .homeCard()
     }
     
     let rotatingMessages = [
@@ -101,6 +109,10 @@ struct HomeView: View {
     
     // Gospels chapter count
     let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
+
+    private var personalizedWelcomeLine: String {
+        "\(preferences.tonePreference.homeLine) \(preferences.faithVibe.shortLine)"
+    }
 
     init(selectedTab: Binding<AppTab> = .constant(.home)) {
         _selectedTab = selectedTab
@@ -116,6 +128,8 @@ struct HomeView: View {
                 
                 // Bible Completion Section
                 bibleCompletionSection
+
+                StreakCard()
                 
                 // Jesus Said (Red Letter Verse)
                 if let verse = redLetterVerse {
@@ -169,8 +183,9 @@ struct HomeView: View {
                 // Discord Community Invite
                 discordInvite
             }
+            .frame(maxWidth: isRegularWidth ? 720 : .infinity)
             .padding(.horizontal, horizontalPadding)
-            .padding(.top, 24)
+            .padding(.top, 12)
             .padding(.bottom, 80)
         }
         .scrollIndicators(.hidden)
@@ -185,13 +200,16 @@ struct HomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingSettings = true }) {
-                    Image(systemName: "gear")
+                Button(action: { showingProfile = true }) {
+                    Image(systemName: "person.circle")
                 }
             }
         }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
+        .sheet(isPresented: $showingProfile) {
+            ProfileView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowProfile"))) { _ in
+            showingProfile = true
         }
         .navigationTitle("Home")
         .glassBackground()
@@ -215,7 +233,7 @@ struct HomeView: View {
     }
 
     private var gridSpacing: CGFloat {
-        isRegularWidth ? 18 : 16
+        isRegularWidth ? 16 : 12
     }
 
     private var horizontalPadding: CGFloat {
@@ -282,7 +300,7 @@ struct HomeView: View {
                     shareApp()
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Label("Invite to the AAVE Bible App Beta", systemImage: "square.and.arrow.up")
+                    Label("Invite to the Beta", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
@@ -343,19 +361,29 @@ struct HomeView: View {
                 openDiscord()
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             }) {
-                Label("Join Discord", systemImage: "arrow.up.right")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.purple.opacity(0.95), Color.indigo.opacity(0.85)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                HStack(spacing: 10) {
+                    Image("logo_discord")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(.white)
+
+                    Text("Join Discord")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    LinearGradient(
+                        colors: [Color.purple.opacity(0.95), Color.indigo.opacity(0.85)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                    .cornerRadius(12)
+                )
+                .cornerRadius(12)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -394,89 +422,124 @@ struct HomeView: View {
     // Loading card
     var loadingCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                // Text bubble icon with "Jesus Said" text
-                HStack(spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                HStack(spacing: 8) {
                     Image(systemName: "text.bubble.fill")
                         .foregroundColor(.red)
-                    Text("Jesus Said")
+                    Text("Jesus Said…")
                         .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                 }
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     generateRedLetterVerse()
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
                     Image(systemName: "arrow.clockwise")
+                        .font(.subheadline)
                         .foregroundColor(.blue)
+                        .padding(6)
                 }
+                .buttonStyle(.plain)
             }
-            
+
             HStack {
                 Spacer()
                 ProgressView()
-                    .padding()
+                    .padding(.vertical, 10)
                 Spacer()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
     }
 
     // Error card
     var errorCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                // Text bubble icon with "Jesus Said" text
-                HStack(spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                HStack(spacing: 8) {
                     Image(systemName: "text.bubble.fill")
                         .foregroundColor(.red)
-                    Text("Jesus Said")
+                    Text("Jesus Said…")
                         .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                 }
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     generateRedLetterVerse()
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
                     Image(systemName: "arrow.clockwise")
+                        .font(.subheadline)
                         .foregroundColor(.blue)
+                        .padding(6)
                 }
+                .buttonStyle(.plain)
             }
-            
+
             Text("Could not load verse. Tap refresh to try again.")
-                .foregroundColor(.red)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
     }
     
     // Red Letter Verse Card
     func redLetterVerseCard(_ verse: (reference: VerseReference, text: String)) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header with title and refresh button
-            HStack {
-                // Text bubble icon with "Jesus Said" text
-                HStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack(alignment: .firstTextBaseline) {
+                HStack(spacing: 8) {
                     Image(systemName: "text.bubble.fill")
                         .foregroundColor(.red)
-                    Text("Jesus Said...")
+                    Text("Jesus Said…")
                         .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                 }
-                
+
                 Spacer()
-                
-                // Gospel filter button
+
+                Button(action: {
+                    generateRedLetterVerse()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                        .padding(6)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Reference + Scope
+            HStack(alignment: .center, spacing: 10) {
+                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(Color.white.opacity(0.08))
+                    )
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .stroke(Color.white.opacity(0.14), lineWidth: 1)
+                    )
+
+                Spacer(minLength: 8)
+
+                // Compact scope control
                 Menu {
                     Button("All Gospels", action: { gospelFilter = "All" })
                     Button("Matthew", action: { gospelFilter = "Matthew" })
@@ -484,42 +547,65 @@ struct HomeView: View {
                     Button("Luke", action: { gospelFilter = "Luke" })
                     Button("John", action: { gospelFilter = "John" })
                 } label: {
-                    Label(gospelFilter == "All" ? "All Gospels" : gospelFilter, systemImage: "line.3.horizontal.decrease.circle")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                }
-                
-                Button(action: {
-                    generateRedLetterVerse()
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.blue)
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                        Text(gospelFilter == "All" ? "All Gospels" : gospelFilter)
+                            .lineLimit(1)
+                    }
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.blue)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(Color.blue.opacity(0.10))
+                    )
                 }
             }
-            
-            // Verse reference
-            HStack {
-                Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            Text(verse.text)
-                .font(.body)
-                .padding()
+
+            // CTA under scope
+            Button(action: {
+                readJesusQuoteInContext(verse.reference)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "book.fill")
+                    Text("Read in context")
+                        .fontWeight(.semibold)
+                }
+                .font(.subheadline)
+                .foregroundColor(.blue)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.blue.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color.blue.opacity(0.18), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+
+            // Quote
+            Text(verse.text)
+                .font(.body)
+                .lineSpacing(5)
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(.ultraThinMaterial)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(Color.white.opacity(0.16), lineWidth: 1)
                         )
                 )
-                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 6)
 
-            // Add Share and Create Image buttons
+            // Actions
             HStack(spacing: 12) {
                 Button(action: {
                     shareJesusQuote(verse)
@@ -527,20 +613,21 @@ struct HomeView: View {
                 }) {
                     Label("Share", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
                         .background(
-                            LinearGradient(
-                                colors: [Color.blue.opacity(0.9), Color.cyan.opacity(0.9)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color.blue.opacity(0.10))
                         )
-                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color.blue.opacity(0.18), lineWidth: 1)
+                        )
                 }
-                
-                // Create Verse Image button
+                .buttonStyle(.plain)
+
                 NavigationLink(destination: VerseImageCreatorView(verse: Verse(
                     text: verse.text,
                     translation: settings.verseOfDayTranslation,
@@ -548,22 +635,23 @@ struct HomeView: View {
                 ))) {
                     Label("Create Image", systemImage: "photo.on.rectangle")
                         .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
                         .background(
-                            LinearGradient(
-                                colors: [Color.purple.opacity(0.85), Color.blue.opacity(0.85)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color.blue.opacity(0.10))
                         )
-                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color.blue.opacity(0.18), lineWidth: 1)
+                        )
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
         .transition(.opacity)
         .id(verse.reference.id)
     }
@@ -636,23 +724,40 @@ struct HomeView: View {
     
     // Navigate to verse
     func navigateToVerse(_ reference: VerseReference) {
-        selectedTab = .bible
+        let canonicalBook = BookNameNormalizer.canonicalBookName(reference.book) ?? reference.book
+        let canonicalRef = VerseReference(book: canonicalBook, chapter: reference.chapter, verse: reference.verse)
 
-        // Persist the target so the Bible tab restores the exact verse even if the nav stack resets.
-        UserDefaults.standard.set(reference.book, forKey: "lastBook")
-        UserDefaults.standard.set(reference.chapter, forKey: "lastChapter")
-        UserDefaults.standard.set(reference.verse, forKey: "lastVerse")
+#if DEBUG
+        assertCanonicalBook(canonicalRef.book, context: "HomeView.navigateToVerse")
+#endif
 
-        // Hop to the Bible tab first, then drive the router on the next run loop.
-        DispatchQueue.main.async {
-            router.resetAndGoTo(
-                .bible(
-                    bookID: reference.book,
-                    chapter: reference.chapter,
-                    verse: reference.verse
-                )
+        // Persist last location for resume behavior
+        UserDefaults.standard.set(canonicalRef.book, forKey: "lastBook")
+        UserDefaults.standard.set(canonicalRef.chapter, forKey: "lastChapter")
+        UserDefaults.standard.set(canonicalRef.verse, forKey: "lastVerse")
+
+        router.requestDeepLink(
+            .bible(
+                bookID: canonicalRef.book,
+                chapter: canonicalRef.chapter,
+                verse: canonicalRef.verse
             )
-        }
+        )
+        selectedTab = .bible
+    }
+
+    func readJesusQuoteInContext(_ reference: VerseReference) {
+        let canonicalBook = BookNameNormalizer.canonicalBookName(reference.book) ?? reference.book
+        let canonicalRef = VerseReference(book: canonicalBook, chapter: reference.chapter, verse: reference.verse)
+        router.requestDeepLink(
+            .bible(
+                bookID: canonicalRef.book,
+                chapter: canonicalRef.chapter,
+                verse: canonicalRef.verse
+            )
+        )
+        selectedTab = .bible
+        NotificationManager.shared.scheduleReadInContextNudge()
     }
     
     // Check NT progress
@@ -703,6 +808,7 @@ struct HomeView: View {
            let rootViewController = windowScene.windows.first?.rootViewController {
             rootViewController.present(activityVC, animated: true)
         }
+        AchievementService.shared.recordShare()
     }
     
     // Get OT chapters read count

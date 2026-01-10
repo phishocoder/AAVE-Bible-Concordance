@@ -313,6 +313,7 @@ struct VerseDetailSheet: View {
            let rootViewController = windowScene.windows.first?.rootViewController {
             rootViewController.present(activityVC, animated: true)
         }
+        AchievementService.shared.recordShare()
     }
     
     private func highlightVerse(with color: Color) {

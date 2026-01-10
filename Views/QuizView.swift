@@ -15,14 +15,13 @@ struct QuizView: View {
         ScrollView {
             VStack(spacing: 24) {
                 if viewModel.quizFinished {
-                    QuizResultView(score: viewModel.score, totalQuestions: viewModel.questions.count)
+                    QuizResultView(
+                        score: viewModel.score,
+                        totalQuestions: viewModel.questions.count,
+                        onPlayAgain: viewModel.startNewGame
+                    )
                         .frame(maxWidth: .infinity)
                         .glassCard()
-                    
-                    Button("Play Again") {
-                        viewModel.startNewGame()
-                    }
-                    .buttonStyle(.borderedProminent)
                 } else if let question = viewModel.currentQuestion {
                     quizCard(for: question)
                 }

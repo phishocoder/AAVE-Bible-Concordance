@@ -27,7 +27,11 @@ struct ChapterListView: View {
                     LazyVStack(spacing: 16) {
                         ForEach(1...numberOfChapters, id: \.self) { chapter in
                             Button {
-                                router.push(.bible(bookID: book, chapter: chapter, verse: nil))
+                                let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+#if DEBUG
+                                assertCanonicalBook(canonicalBook, context: "ChapterListView")
+#endif
+                                router.push(.bible(bookID: canonicalBook, chapter: chapter, verse: nil))
                             } label: {
                                 ChapterRow(number: chapter, availability: availability)
                             }

@@ -336,6 +336,7 @@ struct VerseImageCreatorView: View {
         if let uiImage = renderer.uiImage {
             finalImage = uiImage
             showingShareSheet = true
+            AchievementService.shared.recordShare()
         }
     }
     

@@ -79,6 +79,7 @@ private struct CreditsRow: View {
     let row: CreditRow
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
+    @State private var isPressed = false
 
     var body: some View {
         let backgroundFill = colorScheme == .dark ? Color.white.opacity(0.04) : Color.white.opacity(0.65)
@@ -103,6 +104,21 @@ private struct CreditsRow: View {
             }
 
             Spacer()
+
+            if row.url != nil {
+                VStack(alignment: .trailing, spacing: 4) {
+                    Image(systemName: "arrow.up.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundColor(.secondary)
+                        .opacity(0.55)
+
+                    Text("who dat?")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .opacity(isPressed ? 0.75 : 0.0)
+                }
+                .animation(.easeInOut(duration: 0.15), value: isPressed)
+            }
         }
 
         Group {
@@ -111,6 +127,7 @@ private struct CreditsRow: View {
                     content
                 }
                 .buttonStyle(.plain)
+                .pressEvents(onPress: { isPressed = true }, onRelease: { isPressed = false })
             } else {
                 content
             }
@@ -120,10 +137,21 @@ private struct CreditsRow: View {
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(backgroundFill)
+                .opacity((row.url != nil && isPressed) ? 0.92 : 1.0)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
+        )
+    }
+}
+
+private extension View {
+    func pressEvents(onPress: @escaping () -> Void, onRelease: @escaping () -> Void) -> some View {
+        self.simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in onPress() }
+                .onEnded { _ in onRelease() }
         )
     }
 }

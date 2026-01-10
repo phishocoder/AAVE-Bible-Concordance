@@ -117,6 +117,7 @@ class HighlightManager: ObservableObject {
         highlights.append(highlight)
         saveHighlights()
         scheduleRefresh()
+        AchievementService.shared.recordHighlight()
         
         // If text is empty, try to fetch it asynchronously
         if text.isEmpty {
@@ -160,6 +161,7 @@ class HighlightManager: ObservableObject {
         
         highlights.append(highlight)
         saveHighlights()
+        AchievementService.shared.recordHighlight()
         // No refresh scheduled
     }
     

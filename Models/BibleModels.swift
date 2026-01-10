@@ -37,7 +37,11 @@ public struct VerseReference: Identifiable, Codable, Hashable, Sendable {
     }
     
     public init(book: String, chapter: Int, verse: Int, timestamp: Date = Date()) {
-        self.book = book
+        let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+#if DEBUG
+        assertCanonicalBook(canonicalBook, context: "VerseReference.init")
+#endif
+        self.book = canonicalBook
         self.chapter = chapter
         self.verse = verse
         self.timestamp = timestamp

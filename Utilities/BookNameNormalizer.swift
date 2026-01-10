@@ -71,3 +71,10 @@ enum BookNameNormalizer {
         return "\(normalized) \(remainder)"
     }
 }
+
+#if DEBUG
+func assertCanonicalBook(_ book: String, context: String = "") {
+    let isCanonical = BibleBooks.all.contains(book) || chapterVerseCount.keys.contains(book)
+    assert(isCanonical, "Non-canonical book name '\(book)' \(context)")
+}
+#endif

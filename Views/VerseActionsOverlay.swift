@@ -201,6 +201,7 @@ struct VerseActionsOverlayView: View {
     func shareVerse(_ verse: Verse) {
         haptics.impact(.light)
         showingShareSheet = true
+        AchievementService.shared.recordShare()
     }
     
     func createShareText(_ verse: Verse) -> String {

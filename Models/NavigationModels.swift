@@ -41,7 +41,6 @@ final class NavigationRouter: ObservableObject {
     func resetAndGoTo(_ route: AppRoute) {
 #if DEBUG
         debugValidateBibleRoute(route)
-        print("DEBUG NavigationRouter.resetAndGoTo route=\(route) pathCount=\(path.count)")
 #endif
         path = NavigationPath()
         path.append(route)
@@ -57,7 +56,6 @@ final class NavigationRouter: ObservableObject {
     func requestDeepLink(_ route: AppRoute) {
 #if DEBUG
         debugValidateBibleRoute(route)
-        print("DEBUG NavigationRouter.requestDeepLink route=\(route) pathCount=\(path.count)")
 #endif
         pendingDeepLink = route
     }
@@ -65,11 +63,7 @@ final class NavigationRouter: ObservableObject {
 #if DEBUG
     private func debugValidateBibleRoute(_ route: AppRoute) {
         guard case let .bible(bookID, chapter, verse) = route else { return }
-        let isCanonical = BibleBooks.all.contains(bookID) || chapterVerseCount.keys.contains(bookID)
-        if !isCanonical {
-            print("DEBUG Invalid AppRoute.bible bookID=\(bookID) chapter=\(chapter) verse=\(String(describing: verse))")
-        }
-        assert(isCanonical, "AppRoute.bible uses unknown bookID '\(bookID)'")
+        assertCanonicalBook(bookID, context: "AppRoute.bible bookID=\(bookID) chapter=\(chapter) verse=\(String(describing: verse))")
     }
 #endif
 }

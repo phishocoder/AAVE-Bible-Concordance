@@ -37,9 +37,13 @@ struct BookmarkView: View {
             ForEach(filteredBookmarks) { bookmark in
                 Button {
                     selectedTab = .bible
+                    let canonicalBook = BookNameNormalizer.canonicalBookName(bookmark.book) ?? bookmark.book
+#if DEBUG
+                    assertCanonicalBook(canonicalBook, context: "BookmarkView")
+#endif
                     router.resetAndGoTo(
                         .bible(
-                            bookID: bookmark.book,
+                            bookID: canonicalBook,
                             chapter: bookmark.chapter,
                             verse: bookmark.verse
                         )

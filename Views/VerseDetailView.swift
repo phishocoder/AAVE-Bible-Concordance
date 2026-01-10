@@ -154,6 +154,7 @@ struct VerseDetailView: View {
            let rootViewController = windowScene.windows.first?.rootViewController {
             rootViewController.present(activityVC, animated: true)
         }
+        AchievementService.shared.recordShare()
     }
 }
 

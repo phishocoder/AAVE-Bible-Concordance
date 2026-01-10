@@ -103,8 +103,12 @@ struct SocialLinkRow: View {
             Text(platform.name)
                 .foregroundColor(.primary)
             Spacer()
-            Image(systemName: "arrow.up.right.square")
-                .foregroundStyle(Color.white.opacity(0.6))
+            Image(platform.assetName)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18)
+                .foregroundStyle(Color.white.opacity(0.9))
         }
     }
 }
@@ -112,25 +116,30 @@ struct SocialLinkRow: View {
 struct SocialPlatform: Identifiable {
     let name: String
     let url: URL
+    let assetName: String
 
     var id: String { name }
 
     static let defaultPlatforms: [SocialPlatform] = [
         SocialPlatform(
             name: "TikTok",
-            url: URL(string: "https://www.tiktok.com/@aavebibleapp?_t=ZP-8vcKoQcnPdm&_r=1")!
+            url: URL(string: "https://www.tiktok.com/@aavebibleapp?_t=ZP-8vcKoQcnPdm&_r=1")!,
+            assetName: "logo_tiktok"
         ),
         SocialPlatform(
             name: "Instagram",
-            url: URL(string: "https://instagram.com/officialaavebibleapp")!
+            url: URL(string: "https://instagram.com/officialaavebibleapp")!,
+            assetName: "logo_instagram"
         ),
         SocialPlatform(
             name: "Facebook",
-            url: URL(string: "https://www.facebook.com/share/1BXzGezh2H/?mibextid=wwXIfr")!
+            url: URL(string: "https://www.facebook.com/share/1BXzGezh2H/?mibextid=wwXIfr")!,
+            assetName: "logo_facebook"
         ),
         SocialPlatform(
             name: "X (Twitter)",
-            url: URL(string: "https://x.com/aavebibleapp?s=21")!
+            url: URL(string: "https://x.com/aavebibleapp?s=21")!,
+            assetName: "logo_x"
         )
     ]
 }

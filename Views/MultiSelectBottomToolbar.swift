@@ -77,6 +77,7 @@ struct MultiSelectBottomToolbar: View {
            let rootVC = windowScene.windows.first?.rootViewController {
             rootVC.present(activityVC, animated: true)
         }
+        AchievementService.shared.recordShare()
         
         viewModel.isMultiSelectMode = false
         viewModel.selectedVerses = []
