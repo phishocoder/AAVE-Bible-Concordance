@@ -112,6 +112,24 @@ final class BibleModelsTests: XCTestCase {
         let john = bibleBooks.first { $0.name == "John" }
         XCTAssertEqual(john?.chapters, 21)
     }
+
+    // MARK: - VerseReference Key Tests
+    func testVerseReferenceKeyMatchesID() {
+        let reference = VerseReference(book: "1 Corinthians", chapter: 13, verse: 4)
+        XCTAssertEqual(reference.referenceKey, reference.id)
+        XCTAssertEqual(reference.referenceKey, "1 Corinthians_13_4")
+    }
+
+    func testVerseReferenceKeyRoundTrip() {
+        let reference = VerseReference(book: "Song of Solomon", chapter: 2, verse: 1)
+        let key = reference.referenceKey
+        let decoded = VerseReference.fromKey(key)
+
+        XCTAssertNotNil(decoded)
+        XCTAssertEqual(decoded?.book, reference.book)
+        XCTAssertEqual(decoded?.chapter, reference.chapter)
+        XCTAssertEqual(decoded?.verse, reference.verse)
+    }
     
     // MARK: - BibleError Tests
     func testBibleErrorDescriptions() {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BookListView: View {
+    @EnvironmentObject private var router: NavigationRouter
     @StateObject private var verseManager = VerseManager.shared
     @State private var selectedTestament: Testament? = .old
     @State private var searchText = ""
@@ -36,8 +37,8 @@ struct BookListView: View {
                 } else {
                     LazyVStack(spacing: 16) {
                         ForEach(filteredBooks) { book in
-                            NavigationLink {
-                                ChapterListView(book: book.name)
+                            Button {
+                                router.push(.bookChapters(bookID: book.name))
                             } label: {
                                 BookTile(book: book)
                             }
@@ -138,6 +139,7 @@ private struct BookTile: View {
 struct BookListView_Previews: PreviewProvider {
     static var previews: some View {
         BookListView()
+            .environmentObject(NavigationRouter())
     }
 }
 #endif

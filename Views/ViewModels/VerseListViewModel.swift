@@ -22,6 +22,8 @@ class VerseListViewModel: ObservableObject {
     @Published var selectedVerses: [Verse] = []
     @Published var selectedVerse: Verse? = nil
     @Published var highlightedVerse: Int? = nil
+    @Published var pendingFocusReference: VerseReference? = nil
+    @Published var focusedVerseID: String? = nil
     @Published var isNavigating: Bool = false
     
     // Overlay state
@@ -56,12 +58,60 @@ class VerseListViewModel: ObservableObject {
         let startChapter = shouldUseProvided ? chapter : (storedChapter > 0 ? storedChapter : chapter)
         let startVerse = initialVerse ?? (storedVerse > 0 ? storedVerse : nil)
         
+#if DEBUG
+        print("DEBUG VerseListViewModel.init startBook=\(startBook) startChapter=\(startChapter) startVerse=\(String(describing: startVerse))")
+#endif
+
         self.currentBook = startBook
         self.currentChapter = startChapter
         self.highlightedVerse = startVerse
+        if let startVerse {
+            let ref = VerseReference(book: startBook, chapter: startChapter, verse: startVerse)
+            self.pendingFocusReference = ref
+            self.focusedVerseID = ref.id
+        } else {
+            self.pendingFocusReference = nil
+            self.focusedVerseID = nil
+        }
         self.lastVisibleVerse = startVerse
         
+#if DEBUG
+        print("DEBUG VerseListViewModel.init pendingFocusID=\(pendingFocusReference?.id ?? "nil")")
+#endif
+
         persistLocation()
+    }
+
+    func applyDeepLink(book: String, chapter: Int, verse: Int?) async {
+        isNavigating = true
+#if DEBUG
+        print("DEBUG applyDeepLink incoming book=\(book) chapter=\(chapter) verse=\(String(describing: verse))")
+#endif
+        let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+#if DEBUG
+        print("DEBUG applyDeepLink canonicalBook=\(canonicalBook)")
+#endif
+        currentBook = canonicalBook
+        currentChapter = chapter
+        if let verse, verse > 0 {
+            highlightedVerse = verse
+            let ref = VerseReference(book: canonicalBook, chapter: chapter, verse: verse)
+            pendingFocusReference = ref
+            focusedVerseID = ref.id
+        } else {
+            highlightedVerse = nil
+            pendingFocusReference = nil
+            focusedVerseID = nil
+        }
+#if DEBUG
+        print("DEBUG applyDeepLink pendingFocusID=\(pendingFocusReference?.id ?? "nil")")
+        print("DEBUG applyDeepLink before loadVerses count=\(verses.count)")
+#endif
+        await loadVerses()
+#if DEBUG
+        print("DEBUG applyDeepLink after loadVerses count=\(verses.count)")
+#endif
+        isNavigating = false
     }
     
     func forceReload() {
@@ -77,14 +127,15 @@ class VerseListViewModel: ObservableObject {
     
     func loadVerses() async {
         isLoading = true
-        
+        defer { isLoading = false }
+
         do {
             let loadedVerses = try await verseManager.getChapterVerses(
                 book: currentBook,
                 chapter: currentChapter,
                 translation: SettingsViewModel.shared.preferredTranslation
             )
-            
+
             self.verses = loadedVerses.map { item in
                 Verse(
                     text: item.text,
@@ -92,12 +143,20 @@ class VerseListViewModel: ObservableObject {
                     reference: item.reference
                 )
             }
-            self.isLoading = false
+
+#if DEBUG
+            print("DEBUG VERSES LOADED book=\(currentBook) chapter=\(currentChapter) count=\(verses.count)")
+            if let first = verses.first { print("DEBUG FIRST ID \(first.reference.id)") }
+            if let last = verses.last { print("DEBUG LAST ID \(last.reference.id)") }
+#endif
+
             self.selectedVerses = []
             self.isMultiSelectMode = false
         } catch {
+#if DEBUG
+            print("DEBUG loadVerses FAILED book=\(currentBook) chapter=\(currentChapter) error=\(error)")
+#endif
             self.verses = []
-            self.isLoading = false
         }
     }
     
@@ -183,6 +242,14 @@ class VerseListViewModel: ObservableObject {
                 currentChapter = BibleBooks.chapterCounts[previousBook] ?? 1
             }
         }
+
+        // Reset stored verse so the next chapter starts at the top.
+        lastVisibleVerse = 1
+
+        Task { [weak self] in
+            guard let self else { return }
+            await self.loadVerses()
+        }
         
         // Reset navigation flag after a longer delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
@@ -210,6 +277,14 @@ class VerseListViewModel: ObservableObject {
                 currentBook = nextBook
                 currentChapter = 1
             }
+        }
+
+        // Reset stored verse so the next chapter starts at the top.
+        lastVisibleVerse = 1
+
+        Task { [weak self] in
+            guard let self else { return }
+            await self.loadVerses()
         }
         
         // Reset navigation flag after a longer delay

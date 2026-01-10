@@ -99,6 +99,9 @@ struct VerseListView: View {
             ShareSheet(items: [shareText])
         }
         .glassBackground()
+        .task(id: "\(book)-\(chapter)-\(initialVerse ?? -1)") {
+            await viewModel.applyDeepLink(book: book, chapter: chapter, verse: initialVerse)
+        }
         
         .onChange(of: viewModel.selectedVerses.count) { oldValue, newValue in
             showMultiVerseActions = newValue > 0
@@ -134,14 +137,7 @@ struct VerseListMainContent: View {
     var body: some View {
         mainContentView
             .navigationBarTitleDisplayMode(.inline)
-            .task { await viewModel.loadVerses() }
             .onChange(of: settings.preferredTranslation) { oldValue, newValue in
-                Task { await viewModel.loadVerses() }
-            }
-            .onChange(of: viewModel.currentBook) { oldValue, newValue in
-                Task { await viewModel.loadVerses() }
-            }
-            .onChange(of: viewModel.currentChapter) { oldValue, newValue in
                 Task { await viewModel.loadVerses() }
             }
             .toolbar {
@@ -299,6 +295,8 @@ struct VerseListMainContent: View {
 struct VerseListContent: View {
     @ObservedObject var viewModel: VerseListViewModel
     @ObservedObject private var translationService = TranslationService.shared
+    @State private var shouldScrollToTop = false
+    @State private var isClearingFocus = false
     
     var body: some View {
         ScrollViewReader { proxy in
@@ -309,6 +307,7 @@ struct VerseListContent: View {
                             verse: verse,
                             isMultiSelectMode: viewModel.isMultiSelectMode,
                             isSelected: viewModel.isVerseSelected(verse),
+                            isFocused: verse.reference.id == viewModel.focusedVerseID,
                             hasCommentary: translationService.hasCommentary(
                                 for: verse.reference.book,
                                 chapter: verse.reference.chapter,
@@ -353,17 +352,53 @@ struct VerseListContent: View {
                         }
                     }
             )
+            .onChange(of: viewModel.currentBook) { _, _ in
+                // Chapter context changed; reset to verse 1 once new content is ready.
+                shouldScrollToTop = true
+                if viewModel.pendingFocusReference == nil {
+                    viewModel.focusedVerseID = nil
+                }
+            }
+            .onChange(of: viewModel.currentChapter) { _, _ in
+                // Chapter context changed; reset to verse 1 once new content is ready.
+                shouldScrollToTop = true
+                if viewModel.pendingFocusReference == nil {
+                    viewModel.focusedVerseID = nil
+                }
+            }
             .onChange(of: viewModel.highlightedVerse) { _, verse in
                 guard let verse else { return }
-                focus(on: verse, proxy: proxy, animated: true)
+                shouldScrollToTop = false
+                if viewModel.verses.contains(where: { $0.reference.id == scrollID(forVerse: verse) }) {
+                    focus(on: verse, proxy: proxy, animated: true)
+                } else {
+                    requestFocus(on: verse)
+                }
             }
             .onChange(of: viewModel.verses) { _, _ in
-                guard let verse = viewModel.highlightedVerse else { return }
-                focus(on: verse, proxy: proxy, animated: false)
+                if let ref = viewModel.pendingFocusReference,
+                   !viewModel.verses.isEmpty,
+                   viewModel.verses.contains(where: { $0.reference.id == ref.id }) {
+                    shouldScrollToTop = false
+                    focus(on: ref, proxy: proxy, animated: true)
+                } else if let verse = viewModel.highlightedVerse,
+                          viewModel.verses.contains(where: { $0.reference.id == scrollID(forVerse: verse) }) {
+                    shouldScrollToTop = false
+                    focus(on: verse, proxy: proxy, animated: false)
+                } else if shouldScrollToTop,
+                          viewModel.verses.contains(where: { $0.reference.id == scrollID(forVerse: 1) }) {
+                    focus(on: 1, proxy: proxy, animated: false)
+                    shouldScrollToTop = false
+                }
             }
             .onAppear {
-                if let verse = viewModel.highlightedVerse {
+                if let verse = viewModel.highlightedVerse,
+                   viewModel.verses.contains(where: { $0.reference.id == scrollID(forVerse: verse) }) {
                     focus(on: verse, proxy: proxy, animated: false)
+                } else if shouldScrollToTop,
+                          viewModel.verses.contains(where: { $0.reference.id == scrollID(forVerse: 1) }) {
+                    focus(on: 1, proxy: proxy, animated: false)
+                    shouldScrollToTop = false
                 }
             }
         }
@@ -371,26 +406,76 @@ struct VerseListContent: View {
     
     private func focus(on verseNumber: Int, proxy: ScrollViewProxy, animated: Bool) {
         let id = scrollID(forVerse: verseNumber)
-        let scrollAction = {
-            proxy.scrollTo(id, anchor: .center)
+#if DEBUG
+        let hasTarget = viewModel.verses.contains(where: { $0.reference.id == id })
+        if !hasTarget {
+            let sample = viewModel.verses.prefix(5).map { $0.reference.id }
+            print("DEBUG Missing scroll target id=\(id). Sample verse IDs: \(sample)")
         }
-        
-        if animated {
-            withAnimation(.easeInOut) {
-                scrollAction()
+        assert(hasTarget, "Scroll target id not found: \(id)")
+#endif
+        guard viewModel.verses.contains(where: { $0.reference.id == id }) else { return }
+        // Defer until the next run loop so the verse row exists in the layout.
+        DispatchQueue.main.async {
+            if animated {
+                withAnimation(.easeInOut) {
+                    proxy.scrollTo(id, anchor: .center)
+                }
+            } else {
+                proxy.scrollTo(id, anchor: .center)
             }
-        } else {
-            scrollAction()
+            viewModel.pendingFocusReference = nil
+            viewModel.focusedVerseID = id
+            clearFocusHighlightIfNeeded()
         }
-        
     }
-    
+
+    private func focus(on reference: VerseReference, proxy: ScrollViewProxy, animated: Bool) {
+        let id = scrollID(for: reference)
+#if DEBUG
+        let hasTarget = viewModel.verses.contains(where: { $0.reference.id == id })
+        if !hasTarget {
+            let sample = viewModel.verses.prefix(5).map { $0.reference.id }
+            print("DEBUG Missing scroll target id=\(id). Sample verse IDs: \(sample)")
+        }
+#endif
+        guard viewModel.verses.contains(where: { $0.reference.id == id }) else { return }
+        DispatchQueue.main.async {
+            if animated {
+                withAnimation(.easeInOut) {
+                    proxy.scrollTo(id, anchor: .center)
+                }
+            } else {
+                proxy.scrollTo(id, anchor: .center)
+            }
+            viewModel.pendingFocusReference = nil
+            viewModel.focusedVerseID = id
+            clearFocusHighlightIfNeeded()
+        }
+    }
+
     private func scrollID(for reference: VerseReference) -> String {
-        "verse-\(reference.key)"
+        reference.id
     }
     
     private func scrollID(forVerse verse: Int) -> String {
-        "verse-\(viewModel.currentBook)_\(viewModel.currentChapter)_\(verse)"
+        VerseReference(book: viewModel.currentBook, chapter: viewModel.currentChapter, verse: verse).id
+    }
+
+    private func requestFocus(on verse: Int) {
+        let ref = VerseReference(book: viewModel.currentBook, chapter: viewModel.currentChapter, verse: verse)
+        viewModel.pendingFocusReference = ref
+        viewModel.focusedVerseID = ref.id
+    }
+
+    private func clearFocusHighlightIfNeeded() {
+        guard !isClearingFocus else { return }
+        isClearingFocus = true
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            viewModel.focusedVerseID = nil
+            isClearingFocus = false
+        }
     }
 }
 

@@ -12,6 +12,7 @@ struct VerseRow: View {
     let verse: Verse
     let isMultiSelectMode: Bool
     let isSelected: Bool
+    let isFocused: Bool
     let hasCommentary: Bool
     let onTap: () -> Void
     let onLongPress: () -> Void
@@ -25,6 +26,8 @@ struct VerseRow: View {
         let highlightColor = highlightManager.getHighlightColor(for: verse.reference)
         let cardFill = colorScheme == .dark ? Color.white.opacity(0.05) : Color.white.opacity(0.75)
         let strokeOpacity = colorScheme == .dark ? 0.08 : 0.25
+        let focusFill = colorScheme == .dark ? Color.yellow.opacity(0.18) : Color.yellow.opacity(0.12)
+        let focusStroke = Color.yellow.opacity(colorScheme == .dark ? 0.6 : 0.8)
         
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
@@ -95,6 +98,14 @@ struct VerseRow: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
                         .stroke(Color.white.opacity(strokeOpacity), lineWidth: isSelected ? 2 : 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(focusStroke, lineWidth: isFocused ? 2 : 0)
+                        .background(
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .fill(isFocused ? focusFill : Color.clear)
+                        )
                 )
         )
         .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.08), radius: 12, x: 0, y: 8)

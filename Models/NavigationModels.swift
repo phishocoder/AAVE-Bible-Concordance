@@ -24,6 +24,7 @@ struct BookChapterPair: Hashable, Equatable {
 }
 
 enum AppRoute: Hashable {
+    case bookChapters(bookID: String)
     case bible(bookID: String, chapter: Int, verse: Int?)
     case commentary(bookID: String, chapter: Int, verse: Int)
     case bookmarks
@@ -35,13 +36,40 @@ enum AppTab: String, Hashable {
 
 final class NavigationRouter: ObservableObject {
     @Published var path = NavigationPath()
+    @Published var pendingDeepLink: AppRoute? = nil
     
     func resetAndGoTo(_ route: AppRoute) {
+#if DEBUG
+        debugValidateBibleRoute(route)
+        print("DEBUG NavigationRouter.resetAndGoTo route=\(route) pathCount=\(path.count)")
+#endif
         path = NavigationPath()
         path.append(route)
     }
     
     func push(_ route: AppRoute) {
+#if DEBUG
+        debugValidateBibleRoute(route)
+#endif
         path.append(route)
     }
+    
+    func requestDeepLink(_ route: AppRoute) {
+#if DEBUG
+        debugValidateBibleRoute(route)
+        print("DEBUG NavigationRouter.requestDeepLink route=\(route) pathCount=\(path.count)")
+#endif
+        pendingDeepLink = route
+    }
+
+#if DEBUG
+    private func debugValidateBibleRoute(_ route: AppRoute) {
+        guard case let .bible(bookID, chapter, verse) = route else { return }
+        let isCanonical = BibleBooks.all.contains(bookID) || chapterVerseCount.keys.contains(bookID)
+        if !isCanonical {
+            print("DEBUG Invalid AppRoute.bible bookID=\(bookID) chapter=\(chapter) verse=\(String(describing: verse))")
+        }
+        assert(isCanonical, "AppRoute.bible uses unknown bookID '\(bookID)'")
+    }
+#endif
 }

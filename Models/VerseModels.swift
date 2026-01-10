@@ -8,17 +8,17 @@
 import Foundation
 
 struct VerseItem: Identifiable, Equatable, Hashable {
-    let id = UUID()
+    var id: String { reference.id }
     let number: Int
     let text: String
     var reference: VerseReference
     
     static func == (lhs: VerseItem, rhs: VerseItem) -> Bool {
-        lhs.id == rhs.id
+        lhs.reference.id == rhs.reference.id
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(reference.id)
     }
 }
 

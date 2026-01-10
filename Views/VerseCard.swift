@@ -78,7 +78,7 @@ struct VerseCard: View {
                         highlightManager.getHighlightColor(for: verse.reference) ?? Color.clear
                     )
                     .cornerRadius(4)
-                    .id("verse-\(verse.reference.key)-\(highlightManager.highlightUpdateID)")
+                    .id(verse.reference.id)
             }
             .padding()
             .background {

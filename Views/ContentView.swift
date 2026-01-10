@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var router: NavigationRouter
     @State private var isLoading = true
     @State private var error: Error? = nil
     @State private var showOnboarding = false
@@ -13,6 +14,7 @@ struct ContentView: View {
                 LoadingView()
             } else {
                 MainView()
+                    .environmentObject(router)
             }
         }
         .task {

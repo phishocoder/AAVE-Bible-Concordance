@@ -15,6 +15,10 @@ class TranslationService: ObservableObject {
     
     // Books with complete AAVE translations
     var availableAAVEBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Judges"]
+
+    var searchCoverageDescription: String {
+        "AAVE search covers: \(availableAAVEBooks.count) books"
+    }
     
     // All books that have AAVE files (even if empty/coming soon)
     let allAAVEBooks = bibleBooks.map { $0.name }
@@ -275,11 +279,60 @@ class TranslationService: ObservableObject {
         guard !trimmed.isEmpty else { return [] }
         
         if let reference = SearchQueryParser.parseReference(from: trimmed) {
-            if let specific = try await searchByReference(reference) {
-                return [specific]
-            } else {
+            let canonicalBook = BookNameNormalizer.canonicalBookName(reference.book) ?? reference.book
+            if reference.chapter == nil {
+                return [
+                    SearchResult(
+                        book: canonicalBook,
+                        chapter: nil,
+                        verse: nil,
+                        kind: .book,
+                        aaveText: "",
+                        traditionalText: ""
+                    )
+                ]
+            }
+            guard let chapter = reference.chapter else { return [] }
+            if let verse = reference.verse {
+                let verseReference = VerseReference(
+                    book: canonicalBook,
+                    chapter: chapter,
+                    verse: verse
+                )
+                if let specific = try await searchByReference(verseReference) {
+                    return [specific]
+                }
                 return []
             }
+
+            let chapterKey = String(chapter)
+            if let chapterVerses = aaveTranslations[canonicalBook]?[chapterKey],
+               !chapterVerses.isEmpty {
+                let maxResults = 10
+                let sortedVerses = chapterVerses.keys.compactMap(Int.init).sorted().prefix(maxResults)
+                return sortedVerses.compactMap { verseNumber in
+                    guard let text = chapterVerses[String(verseNumber)] else { return nil }
+                    return SearchResult(
+                        book: canonicalBook,
+                        chapter: chapter,
+                        verse: verseNumber,
+                        kind: .verse,
+                        aaveText: text,
+                        traditionalText: ""
+                    )
+                }
+            }
+
+            return [
+                SearchResult(
+                    book: canonicalBook,
+                    chapter: chapter,
+                    verse: nil,
+                    kind: .chapter,
+                    aaveText: "",
+                    traditionalText: ""
+                )
+            ]
         }
         
         let normalizedQuery = trimmed.lowercased()
@@ -317,6 +370,7 @@ class TranslationService: ObservableObject {
                             book: book,
                             chapter: chapter,
                             verse: verse,
+                            kind: .verse,
                             aaveText: aaveText,
                             traditionalText: ""
                         )
@@ -357,6 +411,7 @@ class TranslationService: ObservableObject {
             book: reference.book,
             chapter: reference.chapter,
             verse: reference.verse,
+            kind: .verse,
             aaveText: aaveText,
             traditionalText: traditionalText
         )

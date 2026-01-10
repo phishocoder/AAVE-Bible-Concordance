@@ -565,7 +565,7 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
         .transition(.opacity)
-        .id("jesus-quote-\(verse.reference.book)-\(verse.reference.chapter)-\(verse.reference.verse)")
+        .id(verse.reference.id)
     }
     
     // Function to get random Jesus quote

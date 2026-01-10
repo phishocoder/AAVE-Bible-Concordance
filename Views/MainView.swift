@@ -63,6 +63,8 @@ private struct BibleTabView: View {
             BookListView()
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
+                    case let .bookChapters(bookID):
+                        ChapterListView(book: bookID)
                     case let .bible(bookID, chapter, verse):
                         VerseListView(book: bookID, chapter: chapter, initialVerse: verse)
                     case let .commentary(bookID, chapter, verse):
@@ -72,9 +74,29 @@ private struct BibleTabView: View {
                     }
                 }
         }
+        .onChange(of: selectedTab) { _, newTab in
+            guard newTab == .bible else { return }
+            if let route = router.pendingDeepLink {
+#if DEBUG
+                print("DEBUG Applying pendingDeepLink route=\(route) selectedTab=\(newTab) pathCount=\(router.path.count)")
+#endif
+                router.pendingDeepLink = nil
+                router.resetAndGoTo(route)
+            }
+        }
+        .onChange(of: router.pendingDeepLink) { _, newRoute in
+            guard selectedTab == .bible else { return }
+            if let route = newRoute {
+#if DEBUG
+                print("DEBUG Applying pendingDeepLink route=\(route) selectedTab=\(selectedTab) pathCount=\(router.path.count)")
+#endif
+                router.pendingDeepLink = nil
+                router.resetAndGoTo(route)
+            }
+        }
         .onAppear {
             // If we have a saved reading location and no active navigation, restore it.
-            if router.path.isEmpty, !lastBook.isEmpty {
+            if router.pendingDeepLink == nil, router.path.isEmpty, !lastBook.isEmpty {
                 let safeChapter = max(1, lastChapter)
                 let verse = lastVerse > 0 ? lastVerse : nil
                 router.resetAndGoTo(.bible(bookID: lastBook, chapter: safeChapter, verse: verse))

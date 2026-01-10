@@ -8,7 +8,7 @@
 import Foundation
 
 extension VerseReference {
-    var referenceKey: String { "\(book)-\(chapter)-\(verse)" }
+    var referenceKey: String { "\(book)_\(chapter)_\(verse)" }
     
     static func fromKey(_ key: String) -> VerseReference? {
         let components = key.split(separator: "_")

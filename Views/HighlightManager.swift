@@ -266,6 +266,6 @@ enum HighlightSortOrder {
 
 extension VerseReference {
     var key: String {
-        "\(book)_\(chapter)_\(verse)"
+        referenceKey
     }
 }
