@@ -70,12 +70,16 @@ struct MoreView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 32)
+            .padding(.top, 0)
+            .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
-        .glassBackground()
         .navigationTitle("More")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(Color.clear, for: .navigationBar)
         .applyGlassToolbar()
+        .glassBackground()
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }

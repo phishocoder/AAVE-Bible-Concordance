@@ -185,7 +185,6 @@ struct HomeView: View {
             }
             .frame(maxWidth: isRegularWidth ? 720 : .infinity)
             .padding(.horizontal, horizontalPadding)
-            .padding(.top, 12)
             .padding(.bottom, 80)
         }
         .scrollIndicators(.hidden)
@@ -212,6 +211,9 @@ struct HomeView: View {
             showingProfile = true
         }
         .navigationTitle("Home")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(Color.clear, for: .navigationBar)
         .glassBackground()
     }
 
@@ -401,6 +403,16 @@ struct HomeView: View {
         
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = rootViewController.view
+                popover.sourceRect = CGRect(
+                    x: rootViewController.view.bounds.midX,
+                    y: rootViewController.view.bounds.midY,
+                    width: 0,
+                    height: 0
+                )
+                popover.permittedArrowDirections = []
+            }
             rootViewController.present(activityVC, animated: true)
         }
     }

@@ -30,6 +30,10 @@ struct StreakCard: View {
         Double(clampedVersesRead) / Double(max(progress.dailyGoalVerses, 1))
     }
 
+    private var shouldShowGracePassNote: Bool {
+        progress.currentStreak > 0 && progress.gracePassesRemaining == 1
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -76,6 +80,12 @@ struct StreakCard: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+            }
+
+            if shouldShowGracePassNote {
+                Text("Grace pass available this month")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
         }
         .homeCard()

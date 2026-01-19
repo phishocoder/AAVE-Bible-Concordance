@@ -95,6 +95,13 @@ struct ProfileView: View {
                     label: "Today",
                     value: readingProgress.currentStreak > 0 ? "Done" : "Not yet"
                 )
+
+                if readingProgress.currentStreak > 0 {
+                    ProfileInfoRow(
+                        label: "Grace Pass",
+                        value: readingProgress.gracePassesRemaining > 0 ? "Available" : "Used"
+                    )
+                }
             }
         }
     }

@@ -66,7 +66,7 @@ struct AboutView: View {
                         Text("Made with 🖤 by PhiSho Apps")
                             .font(.footnote)
                             .foregroundColor(.secondary)
-                        Text("Version 1.2")
+                        Text("Version 1.3")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

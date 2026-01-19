@@ -22,7 +22,7 @@ struct CreditsView: View {
             CreditRow(label: "NET Translation", value: "NET Bible", tint: .teal)
         ]),
         CreditSection(title: "Version", rows: [
-            CreditRow(label: "App Version", value: "1.2", tint: .indigo)
+            CreditRow(label: "App Version", value: "1.3", tint: .indigo)
         ])
     ]
 
