@@ -21,7 +21,7 @@ Beta notes:
 
 Get involved:
 - **Join the beta waitlist:** https://officialAAVEbible.com
-- **Donate to support development:** **[ADD DONATION LINK]**
+- **Donate to support development:** https://cash.app/$aavebibleapp
 
 ## Keywords (draft)
 Bible, scripture, concordance, devotion, study, AAVE, gospel, faith, church, verses, bible game, verse images

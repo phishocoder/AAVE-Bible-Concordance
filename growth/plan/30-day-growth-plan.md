@@ -4,7 +4,7 @@
 Increase beta sign-ups and collect feedback while keeping the experience ad-free.
 
 Primary CTA: **Join waitlist** → https://officialAAVEbible.com
-Secondary CTA: **Donate** → **[ADD DONATION LINK]**
+Secondary CTA: **Donate** → https://cash.app/$aavebibleapp
 
 ---
 

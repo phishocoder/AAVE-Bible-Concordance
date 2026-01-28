@@ -5,7 +5,7 @@
 Read AAVE translations, compare versions, and share verses as images—built for everyday faith.
 
 Primary CTA: **Join the beta waitlist** → https://officialAAVEbible.com
-Secondary CTA: **Donate to keep the beta ad-free** → **[ADD DONATION LINK]**
+Secondary CTA: **Donate to keep the beta ad-free** → https://cash.app/$aavebibleapp
 
 ## What you can do in the beta
 - **Bible knowledge game** (quick and replayable)
@@ -27,4 +27,4 @@ We’re keeping the beta ad-free. Donations help fund development and ship new f
 https://officialAAVEbible.com
 
 ## Footer
-Contact / feedback: **[ADD EMAIL]**
+Contact / feedback: Phishoappreview@gmail.com

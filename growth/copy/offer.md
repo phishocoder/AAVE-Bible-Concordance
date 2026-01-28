@@ -15,7 +15,7 @@
 
 ## Primary CTAs (right now)
 1) **Join the beta waitlist:** https://officialAAVEbible.com
-2) **Donate** (keep the beta ad-free + fund development): **[ADD DONATION LINK]**
+2) **Donate** (keep the beta ad-free + fund development): https://cash.app/$aavebibleapp
 
 ## Why donate (simple promise)
 Donations keep the beta experience clean (no ads) and help ship the next set of features faster.
