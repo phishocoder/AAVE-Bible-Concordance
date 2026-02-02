@@ -25,7 +25,6 @@
 		E0054FDE2D7CC71F00A26A71 /* DownloadManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */; };
 		E00893152E161977005E0F11 /* HighlightedVersesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893142E161970005E0F11 /* HighlightedVersesView.swift */; };
 		E00893192E161B9B005E0F11 /* HighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00893182E161B95005E0F11 /* HighlightManager.swift */; };
-		E008931A2E161C00005E0F11 /* SearchQueryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E008931B2E161C00005E0F11 /* SearchQueryParser.swift */; };
 		E00962732D827D97007677BD /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962722D827D94007677BD /* NotesView.swift */; };
 		E009627F2D82C0EF007677BD /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E009627E2D82C0EC007677BD /* LoadingView.swift */; };
 		E00962812D82C102007677BD /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00962802D82C100007677BD /* ErrorView.swift */; };
@@ -115,6 +114,9 @@
 		E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */; };
 		E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */; };
 		E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */; };
+		E0FAC5252F202B1F00A190AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0FAC5242F202B1F00A190AA /* WidgetKit.framework */; };
+		E0FAC5272F202B1F00A190AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0FAC5262F202B1F00A190AA /* SwiftUI.framework */; };
+		E0FAC5382F202B2000A190AA /* AAVEBibleLiveActivitiesExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E0FFF0012FFE1234000ABCDE /* QuizQuestionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */; };
 		E0FFF0212FFE4567000ABCDE /* QuizGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */; };
 		E1A0AA012F00000100000011 /* AchievementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000001 /* AchievementService.swift */; };
@@ -130,6 +132,13 @@
 		E1A0AA012F00000100000026 /* AchievementShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000036 /* AchievementShareCardView.swift */; };
 		E1A0AA012F00000100000027 /* AchievementUnlockToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0AA012F00000100000037 /* AchievementUnlockToastView.swift */; };
 		E1B0AA012F10000100000011 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B0AA012F10000100000001 /* ProfileView.swift */; };
+		E1C0AA012F20000100000001 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
+		E1C0AA012F20000100000002 /* DailyVerseLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000012 /* DailyVerseLiveActivityManager.swift */; };
+		E1C0AA012F20000100000003 /* VerseOfDayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */; };
+		E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000014 /* LiveActivityDebug.swift */; };
+		E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources (Extension) */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
+		E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000015 /* VerseVersion.swift */; };
+		E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,7 +149,28 @@
 			remoteGlobalIDString = E04B082A2D7A69990022E2DB;
 			remoteInfo = "AAVE Bible Concordance";
 		};
+		E0FAC5362F202B2000A190AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E04B08232D7A69990022E2DB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E0FAC5222F202B1F00A190AA;
+			remoteInfo = AAVEBibleLiveActivitiesExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E0FAC5392F202B2000A190AA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E0FAC5382F202B2000A190AA /* AAVEBibleLiveActivitiesExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E0054F802D7BB55100A26A71 /* BookListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListView.swift; sourceTree = "<group>"; };
@@ -162,7 +192,6 @@
 		E0054FDD2D7CC71F00A26A71 /* DownloadManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerView.swift; sourceTree = "<group>"; };
 		E00893142E161970005E0F11 /* HighlightedVersesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightedVersesView.swift; sourceTree = "<group>"; };
 		E00893182E161B95005E0F11 /* HighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightManager.swift; sourceTree = "<group>"; };
-		E008931B2E161C00005E0F11 /* SearchQueryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SearchQueryParser.swift; path = ../Utilities/SearchQueryParser.swift; sourceTree = "<group>"; };
 		E00962722D827D94007677BD /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		E009627E2D82C0EC007677BD /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		E00962802D82C100007677BD /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
@@ -251,6 +280,9 @@
 		E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AAVEBibleLiveActivitiesExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0FAC5242F202B1F00A190AA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		E0FAC5262F202B1F00A190AA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestionRepository.swift; sourceTree = "<group>"; };
 		E0FFF0202FFE4567000ABCDE /* QuizGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizGameViewModel.swift; sourceTree = "<group>"; };
 		E1A0AA012F00000100000001 /* AchievementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementService.swift; sourceTree = "<group>"; };
@@ -266,6 +298,12 @@
 		E1A0AA012F00000100000036 /* AchievementShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementShareCardView.swift; sourceTree = "<group>"; };
 		E1A0AA012F00000100000037 /* AchievementUnlockToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementUnlockToastView.swift; sourceTree = "<group>"; };
 		E1B0AA012F10000100000001 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseAttributes.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000012 /* DailyVerseLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseLiveActivityManager.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000015 /* VerseVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseVersion.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000016 /* ScriptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -275,6 +313,13 @@
 				Info.plist,
 			);
 			target = E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */;
+		};
+		E0FAC53D2F202B2000A190AA /* Exceptions for "AAVEBibleLiveActivities" folder in "AAVEBibleLiveActivitiesExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E0FAC5222F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -300,6 +345,14 @@
 		E0F415C52D825F66000A4C7E /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		E0FAC5282F202B1F00A190AA /* AAVEBibleLiveActivities */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E0FAC53D2F202B2000A190AA /* Exceptions for "AAVEBibleLiveActivities" folder in "AAVEBibleLiveActivitiesExtension" target */,
+			);
+			path = AAVEBibleLiveActivities;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -332,6 +385,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E0FAC5202F202B1F00A190AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E0FAC5272F202B1F00A190AA /* SwiftUI.framework in Frameworks */,
+				E0FAC5252F202B1F00A190AA /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -342,6 +404,8 @@
 				E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */,
 				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
 				E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */,
+				E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */,
+				E1C0AA012F20000100000015 /* VerseVersion.swift */,
 				E04E0FA12D933C60004C44A2 /* AppState.swift */,
 				E04E17352D87E238002EDE4A /* BibleBooks.swift */,
 				E04E15E42D8610DD002EDE4A /* ChapterNavigation.swift */,
@@ -349,7 +413,6 @@
 				E04E15D42D85DA7E002EDE4A /* VerseReference.swift */,
 				E1A0AA012F00000100000031 /* UserProfilePreferences.swift */,
 				E009628F2D835963007677BD /* BibleData.swift */,
-				E008931B2E161C00005E0F11 /* SearchQueryParser.swift */,
 				E00962822D833695007677BD /* SearchResult.swift */,
 				E0F415C92D825FA9000A4C7E /* VerseModels.swift */,
 				E0DCC5202D7E020F0061F222 /* BibleModels.swift */,
@@ -490,6 +553,7 @@
 				E04B082D2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCF2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
 				E03F55CB2EB9236000423842 /* AAVE FS Demo */,
+				E0FAC5282F202B1F00A190AA /* AAVEBibleLiveActivities */,
 				E077B96D2DB9F8F40072C19F /* Frameworks */,
 				E04B082C2D7A69990022E2DB /* Products */,
 			);
@@ -501,6 +565,7 @@
 				E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */,
 				E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */,
 				E03F55CA2EB9236000423842 /* AAVE FS Demo.app */,
+				E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -510,6 +575,10 @@
 			children = (
 				E1A0AA012F00000100000001 /* AchievementService.swift */,
 				E1A0AA012F00000100000002 /* ReadingProgressService.swift */,
+				E1C0AA012F20000100000012 /* DailyVerseLiveActivityManager.swift */,
+				E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */,
+				E1C0AA012F20000100000014 /* LiveActivityDebug.swift */,
+				E1C0AA012F20000100000016 /* ScriptureStore.swift */,
 				E0534B662DC2A3E90038651E /* AppleAuthManager.swift */,
 				E077B9762DB9F9E50072C19F /* LeaderboardService.swift */,
 				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
@@ -528,6 +597,8 @@
 		E077B96D2DB9F8F40072C19F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E0FAC5242F202B1F00A190AA /* WidgetKit.framework */,
+				E0FAC5262F202B1F00A190AA /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -589,10 +660,12 @@
 				E04B08272D7A69990022E2DB /* Sources */,
 				E04B08282D7A69990022E2DB /* Frameworks */,
 				E04B08292D7A69990022E2DB /* Resources */,
+				E0FAC5392F202B2000A190AA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E0FAC5372F202B2000A190AA /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E04B082D2D7A69990022E2DB /* AAVE Bible Concordance */,
@@ -611,6 +684,28 @@
 			productReference = E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E0FAC5222F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E0FAC53C2F202B2000A190AA /* Build configuration list for PBXNativeTarget "AAVEBibleLiveActivitiesExtension" */;
+			buildPhases = (
+				E0FAC51F2F202B1F00A190AA /* Sources */,
+				E0FAC5202F202B1F00A190AA /* Frameworks */,
+				E0FAC5212F202B1F00A190AA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E0FAC5282F202B1F00A190AA /* AAVEBibleLiveActivities */,
+			);
+			name = AAVEBibleLiveActivitiesExtension;
+			packageProductDependencies = (
+			);
+			productName = AAVEBibleLiveActivitiesExtension;
+			productReference = E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -618,7 +713,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					E0054FCD2D7CC38300A26A71 = {
@@ -630,6 +725,9 @@
 					};
 					E04B082A2D7A69990022E2DB = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					E0FAC5222F202B1F00A190AA = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -654,6 +752,7 @@
 				E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCD2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
 				E03F55C92EB9236000423842 /* AAVE FS Demo */,
+				E0FAC5222F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -679,6 +778,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				E0E071D22D890F5800BFB93E /* Assets 2.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E0FAC5212F202B1F00A190AA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -780,7 +886,12 @@
 				E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */,
 				E04E172B2D87DC27002EDE4A /* ChapterNavigationHeader.swift in Sources */,
 				E00962832D83369A007677BD /* SearchResult.swift in Sources */,
-				E008931A2E161C00005E0F11 /* SearchQueryParser.swift in Sources */,
+				E1C0AA012F20000100000001 /* DailyVerseAttributes.swift in Sources */,
+				E1C0AA012F20000100000002 /* DailyVerseLiveActivityManager.swift in Sources */,
+				E1C0AA012F20000100000003 /* VerseOfDayProvider.swift in Sources */,
+				E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */,
+				E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */,
+				E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */,
 				E04E17222D87C733002EDE4A /* VerseofDaySettingsView.swift in Sources */,
 				E00962812D82C102007677BD /* ErrorView.swift in Sources */,
 				E04E15D52D85DA86002EDE4A /* VerseReference.swift in Sources */,
@@ -846,6 +957,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E0FAC51F2F202B1F00A190AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources (Extension) */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -853,6 +972,11 @@
 			isa = PBXTargetDependency;
 			target = E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */;
 			targetProxy = E0054FD22D7CC38400A26A71 /* PBXContainerItemProxy */;
+		};
+		E0FAC5372F202B2000A190AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E0FAC5222F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension */;
+			targetProxy = E0FAC5362F202B2000A190AA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1085,7 +1209,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1122,7 +1246,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1149,6 +1273,70 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E0FAC53A2F202B2000A190AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AAVEBibleLiveActivities/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AAVEBibleLiveActivities;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.phishoapps.concordance.AAVE-Bible-Concordance.AAVEBibleLiveActivities";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E0FAC53B2F202B2000A190AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AAVEBibleLiveActivities/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AAVEBibleLiveActivities;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.phishoapps.concordance.AAVE-Bible-Concordance.AAVEBibleLiveActivities";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1189,6 +1377,15 @@
 			buildConfigurations = (
 				E04B083A2D7A699D0022E2DB /* Debug */,
 				E04B083B2D7A699D0022E2DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E0FAC53C2F202B2000A190AA /* Build configuration list for PBXNativeTarget "AAVEBibleLiveActivitiesExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E0FAC53A2F202B2000A190AA /* Debug */,
+				E0FAC53B2F202B2000A190AA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

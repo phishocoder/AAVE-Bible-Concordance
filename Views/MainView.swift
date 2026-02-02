@@ -96,6 +96,8 @@ private struct BibleTabView: View {
                         VerseListView(book: bookID, chapter: chapter, initialVerse: verse)
                     case let .commentary(bookID, chapter, verse):
                         CommentaryView(book: bookID, chapter: chapter, verse: verse)
+                    case let .verseDetail(reference):
+                        VerseDetailView(reference: reference)
                     case .bookmarks:
                         BookmarkView(selectedTab: $selectedTab)
                     }

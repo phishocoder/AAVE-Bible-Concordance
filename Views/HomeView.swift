@@ -197,6 +197,26 @@ struct HomeView: View {
             // Start rotating messages
             startRotatingMessages()
         }
+        .onChange(of: redLetterVerse?.reference.id) { _, _ in
+            guard let verse = redLetterVerse else { return }
+            let verseId = liveActivityVerseId(for: verse.reference)
+            let excerpt = liveActivityExcerpt(from: verse.text, maxLength: 140)
+            let versionUsed = settings.verseOfDayTranslation
+            print("HOME->LA snapshot verseId=\(verseId) isJesusSaid=true versionUsed=\(versionUsed) excerptLen=\(excerpt.count)")
+            DailyVerseLiveActivityCoordinator.setHomeDisplayedVerse(
+                verseId: verseId,
+                reference: verse.reference.displayString,
+                excerpt: excerpt,
+                isJesusSaid: true,
+                versionUsed: versionUsed
+            )
+        }
+        .onChange(of: settings.verseOfDayTranslation) { _, _ in
+            generateRedLetterVerse()
+        }
+        .onChange(of: gospelFilter) { _, _ in
+            generateRedLetterVerse()
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingProfile = true }) {
@@ -827,6 +847,19 @@ struct HomeView: View {
     func getOTChaptersReadCount() -> Int {
         // For now, return 929 (all OT chapters) since OT is complete
         return 929
+    }
+
+    private func liveActivityVerseId(for reference: VerseReference) -> String {
+        let bookPart = reference.book.replacingOccurrences(of: " ", with: "-")
+        return "\(bookPart)-\(reference.chapter)-\(reference.verse)"
+    }
+
+    private func liveActivityExcerpt(from text: String, maxLength: Int) -> String {
+        let cleaned = text
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard cleaned.count > maxLength else { return cleaned }
+        return String(cleaned.prefix(maxLength)).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
     }
 }
 

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E1C0AA012F20000200000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000014 /* LiveActivityDebug.swift */; };
+		E1C0AA012F20000200000001 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */; };
+		E1C0AA012F20000200000002 /* DailyVerseLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */; };
+		E1C0AA012F20000200000003 /* VerseOfDayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */; };
 		E0054F922D7BB55100A26A71 /* BookListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F802D7BB55100A26A71 /* BookListView.swift */; };
 		E0054F932D7BB55100A26A71 /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F812D7BB55100A26A71 /* ChapterListView.swift */; };
 		E0054F942D7BB55100A26A71 /* ConcordanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F822D7BB55100A26A71 /* ConcordanceView.swift */; };
@@ -146,6 +150,10 @@
 		E009628F2D835963007677BD /* BibleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleData.swift; sourceTree = "<group>"; };
 		E00BC61C2D839B7400D3BBCF /* TestamentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestamentPicker.swift; sourceTree = "<group>"; };
 		E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMessages.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseAttributes.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseLiveActivityManager.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
 		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
@@ -276,6 +284,7 @@
 				E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */,
 				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
 				E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */,
+				E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */,
 				E04E0FA12D933C60004C44A2 /* AppState.swift */,
 				E04E17352D87E238002EDE4A /* BibleBooks.swift */,
 				E04E15E42D8610DD002EDE4A /* ChapterNavigation.swift */,
@@ -407,6 +416,9 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */,
+				E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */,
+				E1C0AA012F20000200000014 /* LiveActivityDebug.swift */,
 				E0534B662DC2A3E90038651E /* AppleAuthManager.swift */,
 				E077B9762DB9F9E50072C19F /* LeaderboardService.swift */,
 				E077B96B2DB9F5CB0072C19F /* FirestoreService.swift */,
@@ -590,6 +602,10 @@
 				E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */,
 				E04E172B2D87DC27002EDE4A /* ChapterNavigationHeader.swift in Sources */,
 				E00962832D83369A007677BD /* SearchResult.swift in Sources */,
+				E1C0AA012F20000200000001 /* DailyVerseAttributes.swift in Sources */,
+				E1C0AA012F20000200000002 /* DailyVerseLiveActivityManager.swift in Sources */,
+				E1C0AA012F20000200000003 /* VerseOfDayProvider.swift in Sources */,
+				E1C0AA012F20000200000004 /* LiveActivityDebug.swift in Sources */,
 				E04E17222D87C733002EDE4A /* VerseofDaySettingsView.swift in Sources */,
 				E00962812D82C102007677BD /* ErrorView.swift in Sources */,
 				E04E15D52D85DA86002EDE4A /* VerseReference.swift in Sources */,
@@ -820,7 +836,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -857,7 +873,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "AAVE Bible Concordance/AAVE Bible Concordance.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

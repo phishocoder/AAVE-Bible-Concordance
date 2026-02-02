@@ -27,6 +27,7 @@ enum AppRoute: Hashable {
     case bookChapters(bookID: String)
     case bible(bookID: String, chapter: Int, verse: Int?)
     case commentary(bookID: String, chapter: Int, verse: Int)
+    case verseDetail(reference: VerseReference)
     case bookmarks
 }
 

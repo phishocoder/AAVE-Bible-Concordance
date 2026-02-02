@@ -12,6 +12,9 @@ struct SettingsView: View {
     @StateObject private var preferences = UserProfilePreferences.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showingAbout = false
+    @AppStorage("lockScreenDailyVerseEnabled") private var lockScreenDailyVerseEnabled = false
+    @AppStorage("lockScreenJesusSaidEnabled") private var lockScreenJesusSaidEnabled = false
+    @AppStorage("lockScreenVerseVersion") private var lockScreenVerseVersion = VerseVersion.aave.rawValue
     
     var body: some View {
         NavigationView {
@@ -23,6 +26,7 @@ struct SettingsView: View {
                     onboardingCard
                     savedContentCard
                     notificationsCard
+                    lockScreenCard
                     aboutCard
                 }
                 .padding(.horizontal, 24)
@@ -148,6 +152,84 @@ struct SettingsView: View {
         SettingsSection(title: "Notifications") {
             NavigationLink(destination: NotificationSettingsView()) {
                 SettingsNavigationRow(icon: "bell.fill", tint: .blue, title: "Notifications")
+            }
+        }
+    }
+
+    private var lockScreenCard: some View {
+        SettingsSection(title: "Lock Screen") {
+            VStack(alignment: .leading, spacing: 12) {
+                if #available(iOS 16.1, *) {
+                    Toggle(isOn: $lockScreenDailyVerseEnabled) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Lock Screen: Daily Verse")
+                                .fontWeight(.medium)
+                            Text("Shows one daily verse on your Lock Screen. Tap to open.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .onChange(of: lockScreenDailyVerseEnabled) { _, newValue in
+                        if newValue {
+                            print("LA-DEBUG toggle ON")
+                        } else {
+                            print("LA-DEBUG toggle OFF")
+                        }
+
+                        if #available(iOS 16.1, *) {
+                            if newValue {
+                                debugDailyVerseLiveActivities("toggle-on-before-refresh")
+                            }
+                        }
+
+                        DailyVerseLiveActivityCoordinator.setEnabled(newValue)
+
+                        if #available(iOS 16.1, *) {
+                            if newValue {
+                                debugDailyVerseLiveActivities("toggle-on-after-refresh")
+                            } else {
+                                debugDailyVerseLiveActivities("toggle-off-after-end")
+                            }
+                        }
+                    }
+
+                    Toggle(isOn: $lockScreenJesusSaidEnabled) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Jesus Said Mode")
+                                .fontWeight(.medium)
+                            Text("Only shows verses where Jesus is speaking.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .onChange(of: lockScreenJesusSaidEnabled) { _, _ in
+                        DailyVerseLiveActivityCoordinator.refreshIfEnabled()
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Lock Screen Verse Version")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        Picker("Lock Screen Verse Version", selection: $lockScreenVerseVersion) {
+                            ForEach(VerseVersion.allCases, id: \.rawValue) { version in
+                                Text(version.label).tag(version.rawValue)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .onChange(of: lockScreenVerseVersion) { _, _ in
+                        DailyVerseLiveActivityCoordinator.refreshIfEnabled()
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Lock Screen: Daily Verse")
+                            .fontWeight(.medium)
+                        Text("Requires iOS 16.1 or later.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .opacity(0.6)
+                }
             }
         }
     }

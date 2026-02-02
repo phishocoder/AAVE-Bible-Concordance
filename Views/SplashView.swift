@@ -11,6 +11,8 @@ struct SplashView: View {
     @EnvironmentObject private var appState: AppState
     @State private var currentIndex = 0
     @Environment(\.colorScheme) var colorScheme
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion = ""
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     
     let taglines = [
         ("God's Word. Our Voice.", "🗣️"),
@@ -18,6 +20,14 @@ struct SplashView: View {
         ("The Bible, the way we talk.", "🤝"),
         ("Bridging the Gap Between The Word & The Culture.", "🌉"),
         ("From Genesis to Revelation, No Cap.", "📖")
+    ]
+
+    let whatsNewItems = [
+        ("📌", "Daily Verse Live Activity on your Lock Screen"),
+        ("🔴", "Jesus Said mode for red-letter verses"),
+        ("🔤", "Pick your Lock Screen verse version"),
+        ("🔗", "Tap Live Activity to open the verse"),
+        ("✨", "Polished Dynamic Island layout")
     ]
     
     let timer = Timer.publish(every: 2.6, on: .main, in: .common).autoconnect()
@@ -82,12 +92,48 @@ struct SplashView: View {
                 }
                 .padding(.horizontal, 28)
 
+                if lastSeenWhatsNewVersion != currentVersion {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Welcome back — what’s new")
+                            .font(.system(.headline, design: .rounded))
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(whatsNewItems, id: \.0) { item in
+                                HStack(alignment: .top, spacing: 10) {
+                                    Text(item.0)
+                                        .font(.system(size: 18))
+                                    Text(item.1)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary.opacity(0.9))
+                                        .lineLimit(2)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.22))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.white.opacity(colorScheme == .dark ? 0.12 : 0.18), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 28)
+                }
+
                 Spacer()
 
                 VStack(spacing: 14) {
                     if appState.isInitialLoadComplete {
                         Button(action: {
                             withAnimation(.easeInOut) {
+                                if lastSeenWhatsNewVersion != currentVersion {
+                                    lastSeenWhatsNewVersion = currentVersion
+                                }
                                 appState.continueToApp()
                             }
                         }) {
