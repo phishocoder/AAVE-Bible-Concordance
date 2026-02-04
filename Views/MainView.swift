@@ -5,8 +5,8 @@ struct MainView: View {
     @EnvironmentObject private var router: NavigationRouter
     @AppStorage("selectedTab") private var selectedTabRawValue: String = AppTab.home.rawValue
     @StateObject private var achievementService = AchievementService.shared
-    @State private var shareImage: UIImage?
-    @State private var showShareSheet = false
+    @State private var isPreparingShare = false
+    @State private var shareErrorMessage: String?
     
     private var selectedTabBinding: Binding<AppTab> {
         Binding<AppTab>(
@@ -57,10 +57,16 @@ struct MainView: View {
                 AchievementUnlockToastView(
                     unlock: unlock,
                     onShare: {
-                        if let image = AchievementShareCardView.renderImage(for: unlock.achievement) {
-                            shareImage = image
-                            showShareSheet = true
-                            achievementService.clearLastUnlocked()
+                        Task { @MainActor in
+                            print("[Share] User initiated share for \(unlock.achievement.title)")
+                            isPreparingShare = true
+                            if let items = AchievementShareRenderer.shareItems(for: unlock.achievement) {
+                                AchievementSharePresenter.present(items: items)
+                                achievementService.clearLastUnlocked()
+                            } else {
+                                shareErrorMessage = "Unable to generate share image. Please try again."
+                            }
+                            isPreparingShare = false
                         }
                     },
                     onDismiss: {
@@ -70,10 +76,24 @@ struct MainView: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .sheet(isPresented: $showShareSheet) {
-            if let shareImage {
-                ShareSheet(items: [shareImage])
+        .overlay {
+            if isPreparingShare {
+                ProgressView("Preparing share…")
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                    )
+                    .zIndex(2)
             }
+        }
+        .alert("Share Failed", isPresented: Binding(
+            get: { shareErrorMessage != nil },
+            set: { if !$0 { shareErrorMessage = nil } }
+        )) {
+            Button("OK") { shareErrorMessage = nil }
+        } message: {
+            Text(shareErrorMessage ?? "")
         }
     }
 }

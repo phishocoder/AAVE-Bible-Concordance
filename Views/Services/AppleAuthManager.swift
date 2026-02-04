@@ -19,6 +19,7 @@ class AppleAuthManager: NSObject, ObservableObject {
     private let keychain = KeychainHelper.shared
     private let keychainService = "AAVEBibleAppleSignIn"
     private let keychainAccount = "appleUserID"
+    private let displayNameKey = "displayName"
     
     // Generate a random nonce for authentication
     private func randomNonceString(length: Int = 32) -> String {
@@ -70,13 +71,18 @@ class AppleAuthManager: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 self.userID = current.uid
                 let storedName = UserDefaults.standard.string(forKey: "displayName")?.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let storedName, !storedName.isEmpty {
-                    self.displayName = storedName
-                } else {
-                    self.displayName = current.displayName
-                }
+                let resolvedName: String? = {
+                    if let storedName, !storedName.isEmpty { return storedName }
+                    if let currentName = current.displayName, !currentName.isEmpty { return currentName }
+                    let fallback = self.generateDefaultDisplayName()
+                    UserDefaults.standard.set(fallback, forKey: self.displayNameKey)
+                    return fallback
+                }()
+                self.displayName = resolvedName
                 self.isSignedIn = true
             }
+            let nameForDoc = UserDefaults.standard.string(forKey: displayNameKey) ?? current.displayName ?? generateDefaultDisplayName()
+            ensureUserDocument(uid: current.uid, displayName: nameForDoc)
         }
         
         guard let savedAppleID = keychain.read(service: keychainService, account: keychainAccount) else { return }
@@ -179,10 +185,12 @@ class AppleAuthManager: NSObject, ObservableObject {
             guard let user = authResult?.user else { return }
             let givenName = appleIDCredential.fullName?.givenName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let storedName = UserDefaults.standard.string(forKey: "displayName")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            if !givenName.isEmpty, storedName.isEmpty {
-                UserDefaults.standard.set(givenName, forKey: "displayName")
-            }
-            let resolvedName = !givenName.isEmpty ? givenName : storedName
+            let resolvedName: String = {
+                if !givenName.isEmpty { return givenName }
+                if !storedName.isEmpty { return storedName }
+                return self?.generateDefaultDisplayName() ?? "Reader"
+            }()
+            UserDefaults.standard.set(resolvedName, forKey: self?.displayNameKey ?? "displayName")
             let uid = user.uid
             let appleUserID = appleIDCredential.user
 
@@ -194,25 +202,10 @@ class AppleAuthManager: NSObject, ObservableObject {
                 self?.displayName = resolvedName.isEmpty ? nil : resolvedName
                 self?.userID = uid
                 self?.isSignedIn = true
+                self?.needsUsernamePrompt = false
             }
 
-            let userRef = self?.db.collection("users").document(user.uid)
-
-            userRef?.setData([
-                "name": resolvedName,
-                "email": user.email ?? "",
-                "createdAt": Timestamp(date: Date())
-            ], merge: true)
-
-            // Check if a username already exists, if not trigger prompt
-            userRef?.getDocument { snapshot, _ in
-                if let data = snapshot?.data(), data["username"] == nil {
-                    DispatchQueue.main.async {
-                        self?.pendingUserID = uid
-                        self?.needsUsernamePrompt = true
-                    }
-                }
-            }
+            self?.ensureUserDocument(uid: uid, displayName: resolvedName)
 
             print("✅ Signed in with Apple. UID: \(user.uid), Name: \(resolvedName)")
         }
@@ -296,5 +289,50 @@ final class KeychainHelper {
             kSecAttrAccount as String: account
         ]
         SecItemDelete(query as CFDictionary)
+    }
+}
+
+extension AppleAuthManager {
+    func updateDisplayName(_ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        UserDefaults.standard.set(trimmed, forKey: displayNameKey)
+        DispatchQueue.main.async {
+            self.displayName = trimmed
+        }
+
+        let userRef = db.collection("users").document(uid)
+        userRef.setData([
+            "displayName": trimmed,
+            "lastActiveAt": Timestamp(date: Date())
+        ], merge: true)
+    }
+
+    private func ensureUserDocument(uid: String, displayName: String) {
+        let userRef = db.collection("users").document(uid)
+        userRef.getDocument { [weak self] snapshot, _ in
+            let now = Timestamp(date: Date())
+            if snapshot?.exists == true {
+                userRef.setData([
+                    "displayName": displayName,
+                    "lastActiveAt": now
+                ], merge: true)
+            } else {
+                userRef.setData([
+                    "displayName": displayName,
+                    "createdAt": now,
+                    "lastActiveAt": now
+                ], merge: true)
+            }
+            self?.pendingUserID = nil
+            self?.needsUsernamePrompt = false
+        }
+    }
+
+    private func generateDefaultDisplayName() -> String {
+        let suffix = Int.random(in: 1000...9999)
+        return "Reader \(suffix)"
     }
 }

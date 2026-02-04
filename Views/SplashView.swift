@@ -69,7 +69,7 @@ struct SplashView: View {
                         .shadow(color: Color.white.opacity(colorScheme == .dark ? 0.18 : 0.10), radius: 18, x: 0, y: 10)
 
                     Text("Bible Concordance")
-                        .font(.system(size: 22, weight: .semibold, design: .rounded))
+                        .font(AAVETypography.launchSubtitle)
                         .foregroundStyle(.primary)
                         .opacity(colorScheme == .dark ? 0.92 : 0.85)
                 }
@@ -81,8 +81,7 @@ struct SplashView: View {
                         .accessibilityHidden(true)
 
                     Text(taglines[currentIndex].0)
-                        .font(.system(.title3, design: .rounded))
-                        .fontWeight(.semibold)
+                        .font(AAVETypography.tagline)
                         .multilineTextAlignment(.center)
                         .lineSpacing(3)
                         .foregroundStyle(.primary)
@@ -95,8 +94,7 @@ struct SplashView: View {
                 if lastSeenWhatsNewVersion != currentVersion {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Welcome back — what’s new")
-                            .font(.system(.headline, design: .rounded))
-                            .fontWeight(.semibold)
+                            .font(AAVETypography.sectionTitle)
                             .foregroundStyle(.primary)
 
                         VStack(alignment: .leading, spacing: 8) {
@@ -138,8 +136,7 @@ struct SplashView: View {
                             }
                         }) {
                             Text("Start Reading")
-                                .font(.system(.headline, design: .rounded))
-                                .fontWeight(.medium)
+                                .font(AAVETypography.button)
                                 .foregroundStyle(.primary.opacity(0.85))
                                 .padding(.vertical, 10)
                                 .padding(.horizontal, 18)
@@ -151,7 +148,7 @@ struct SplashView: View {
                             ProgressView()
                                 .tint(.white.opacity(colorScheme == .dark ? 0.85 : 0.65))
                             Text("Loading…")
-                                .font(.caption)
+                                .font(AAVETypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.bottom, 2)
@@ -188,7 +185,7 @@ private struct GlassLogo: View {
             Text("E")
                 .foregroundColor(.green)
         }
-        .font(.system(size: 72, weight: .bold, design: .rounded))
+        .font(AAVETypography.logo)
         .shadow(color: Color.white.opacity(colorScheme == .dark ? 0.12 : 0.08), radius: 10, x: 0, y: 6)
     }
 }

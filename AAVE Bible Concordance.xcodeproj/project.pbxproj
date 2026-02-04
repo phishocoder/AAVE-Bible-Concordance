@@ -136,7 +136,7 @@
 		E1C0AA012F20000100000002 /* DailyVerseLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000012 /* DailyVerseLiveActivityManager.swift */; };
 		E1C0AA012F20000100000003 /* VerseOfDayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */; };
 		E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000014 /* LiveActivityDebug.swift */; };
-		E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources (Extension) */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
+		E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
 		E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000015 /* VerseVersion.swift */; };
 		E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
 /* End PBXBuildFile section */
@@ -961,7 +961,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources (Extension) */,
+				E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

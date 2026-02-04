@@ -4,18 +4,26 @@ import UIKit
 struct AchievementsView: View {
     @ObservedObject private var achievementService = AchievementService.shared
     @Environment(\.colorScheme) private var colorScheme
-    @State private var shareImage: UIImage?
-    @State private var showShareSheet = false
+    @State private var isPreparingShare = false
+    @State private var shareErrorMessage: String?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 ForEach(achievementService.achievements) { achievement in
                     AchievementRow(achievement: achievement) {
-                        guard achievement.isUnlocked,
-                              let image = AchievementShareCardView.renderImage(for: achievement) else { return }
-                        shareImage = image
-                        showShareSheet = true
+                        guard achievement.isUnlocked else { return }
+                        Task { @MainActor in
+                            print("[Share] User initiated share for \(achievement.title)")
+                            isPreparingShare = true
+                            guard let items = AchievementShareRenderer.shareItems(for: achievement) else {
+                                shareErrorMessage = "Unable to generate share image. Please try again."
+                                isPreparingShare = false
+                                return
+                            }
+                            AchievementSharePresenter.present(items: items)
+                            isPreparingShare = false
+                        }
                     }
                 }
             }
@@ -26,10 +34,23 @@ struct AchievementsView: View {
         .glassBackground()
         .navigationTitle("Achievements")
         .applyGlassToolbar()
-        .sheet(isPresented: $showShareSheet) {
-            if let shareImage {
-                ShareSheet(items: [shareImage])
+        .overlay {
+            if isPreparingShare {
+                ProgressView("Preparing share…")
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                    )
             }
+        }
+        .alert("Share Failed", isPresented: Binding(
+            get: { shareErrorMessage != nil },
+            set: { if !$0 { shareErrorMessage = nil } }
+        )) {
+            Button("OK") { shareErrorMessage = nil }
+        } message: {
+            Text(shareErrorMessage ?? "")
         }
     }
 }

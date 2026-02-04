@@ -83,7 +83,7 @@ struct VerseCard: View {
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.background)
+                    .fill(AAVEColors.surfaceSecondary)
                     .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
             }
         }

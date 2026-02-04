@@ -17,14 +17,14 @@ struct ToolButton: View {
         Button(action: action) {
             VStack {
                 Image(systemName: icon)
-                    .font(.system(size: 22))
-                    .foregroundColor(isActive ? .blue : .primary)
+                    .font(AAVETypography.toolIcon)
+                    .foregroundColor(isActive ? AAVEColors.accent : .primary)
                 Text(label)
-                    .font(.caption)
+                    .font(AAVETypography.caption)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
-            .background(Color(.tertiarySystemBackground))
+            .background(AAVEColors.surface)
             .cornerRadius(8)
         }
     }

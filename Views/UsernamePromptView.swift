@@ -21,12 +21,12 @@ struct UsernamePromptView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("This name will show on the leaderboard. You can't change it later, so choose wisely.")
+                Text("This name will show on the leaderboard. You can update it later in Profile.")
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
 
-                TextField("Enter a username", text: $username)
+                TextField("Enter a display name", text: $username)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
@@ -71,7 +71,7 @@ struct UsernamePromptView: View {
         let trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard trimmed.count >= 3 else {
-            errorMessage = "Username must be at least 3 characters."
+            errorMessage = "Display name must be at least 3 characters."
             return
         }
 
@@ -81,7 +81,7 @@ struct UsernamePromptView: View {
         let userRef = db.collection("users").document(uid)
 
         userRef.setData([
-            "username": trimmed,
+            "displayName": trimmed,
             "updatedAt": Timestamp(date: Date())
         ], merge: true) { error in
             DispatchQueue.main.async {
@@ -89,7 +89,8 @@ struct UsernamePromptView: View {
                 if let error = error {
                     errorMessage = "Error saving: \(error.localizedDescription)"
                 } else {
-                    print("✅ Username saved: \(trimmed)")
+                    UserDefaults.standard.set(trimmed, forKey: "displayName")
+                    print("✅ Display name saved: \(trimmed)")
                     dismiss()
                 }
             }

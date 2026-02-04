@@ -78,6 +78,14 @@ final class AchievementService: ObservableObject {
         return timeInterval > 0 ? Date(timeIntervalSince1970: timeInterval) : nil
     }
 
+    func recentUnlocked(limit: Int = 3) -> [Achievement] {
+        achievements
+            .filter { $0.isUnlocked }
+            .sorted { ($0.unlockedAt ?? .distantPast) > ($1.unlockedAt ?? .distantPast) }
+            .prefix(limit)
+            .map { $0 }
+    }
+
     func clearLastUnlocked() {
         lastUnlocked = nil
     }
@@ -89,6 +97,7 @@ enum AchievementID: String, CaseIterable {
     case streak3
     case streak7
     case finishBook
+    case perfectQuizScore
 
     var title: String {
         switch self {
@@ -97,6 +106,7 @@ enum AchievementID: String, CaseIterable {
         case .streak3: return "3-Day Streak"
         case .streak7: return "7-Day Streak"
         case .finishBook: return "Finish a Book"
+        case .perfectQuizScore: return "Perfect Score"
         }
     }
 
@@ -107,6 +117,7 @@ enum AchievementID: String, CaseIterable {
         case .streak3: return "Read on 3 consecutive days."
         case .streak7: return "Read on 7 consecutive days."
         case .finishBook: return "Read the final verse of any book."
+        case .perfectQuizScore: return "Score 10/10 in Who Said That?!"
         }
     }
 
@@ -117,6 +128,7 @@ enum AchievementID: String, CaseIterable {
         case .streak3: return "flame"
         case .streak7: return "flame.fill"
         case .finishBook: return "bookmark.fill"
+        case .perfectQuizScore: return "crown.fill"
         }
     }
 }

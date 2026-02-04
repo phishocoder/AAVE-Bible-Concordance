@@ -7,7 +7,7 @@ struct AchievementUnlockToastView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Achievement Unlocked")
+            Text("Achievement Unlocked 🎉")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 

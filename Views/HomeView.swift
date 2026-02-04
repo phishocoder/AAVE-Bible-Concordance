@@ -12,6 +12,7 @@ struct HomeView: View {
     @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var userDataManager = UserDataManager.shared
     @StateObject private var preferences = UserProfilePreferences.shared
+    @StateObject private var achievementService = AchievementService.shared
     @EnvironmentObject private var router: NavigationRouter
     @State private var showingProfile = false
     @State private var isLoadingVerse = false
@@ -20,6 +21,8 @@ struct HomeView: View {
     @State private var showConfetti = false
     @State private var rotatingMessageIndex = 0
     @State private var hasReadNTChapter = false
+    @State private var showAchievements = false
+    @State private var suppressAchievementsTap = false
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -130,6 +133,8 @@ struct HomeView: View {
                 bibleCompletionSection
 
                 StreakCard()
+
+                achievementsSummaryCard
                 
                 // Jesus Said (Red Letter Verse)
                 if let verse = redLetterVerse {
@@ -235,6 +240,15 @@ struct HomeView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(Color.clear, for: .navigationBar)
         .glassBackground()
+        .background(
+            NavigationLink(
+                destination: AchievementsView(),
+                isActive: $showAchievements
+            ) {
+                EmptyView()
+            }
+            .hidden()
+        )
     }
 
     private var isRegularWidth: Bool {
@@ -364,6 +378,75 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
     }
+
+    private var achievementsSummaryCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Your Achievements")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+            }
+
+            let recent = achievementService.recentUnlocked(limit: 3)
+            if recent.isEmpty {
+                Text("No unlocks yet. Highlight a verse to get your first badge.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                Button(action: {
+                    suppressAchievementsTap = true
+                    selectedTab = .bible
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        suppressAchievementsTap = false
+                    }
+                }) {
+                    Text("Highlight a Verse")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.orange.opacity(0.9), Color.yellow.opacity(0.85)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(10)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(recent) { achievement in
+                        HStack(spacing: 10) {
+                            Image(systemName: achievement.icon)
+                                .foregroundColor(.yellow)
+                                .frame(width: 28, height: 28)
+                                .background(
+                                    Circle().fill(Color.yellow.opacity(0.15))
+                                )
+
+                            Text(achievement.title)
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if !suppressAchievementsTap {
+                showAchievements = true
+            }
+        }
+    }
     
     // Discord invite
     var discordInvite: some View {
@@ -414,27 +497,9 @@ struct HomeView: View {
     
     // Function to share the app
     func shareApp() {
-        let shareText = "Yo! I’m part of the AAVE Bible App beta. It’s the full Bible translated in our voice—AAVE style. If you wanna check it out and give feedback before the public launch, hit this link and let me know. Let’s make history with this. officialaavebible.com"
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [shareText],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
-            if let popover = activityVC.popoverPresentationController {
-                popover.sourceView = rootViewController.view
-                popover.sourceRect = CGRect(
-                    x: rootViewController.view.bounds.midX,
-                    y: rootViewController.view.bounds.midY,
-                    width: 0,
-                    height: 0
-                )
-                popover.permittedArrowDirections = []
-            }
-            rootViewController.present(activityVC, animated: true)
-        }
+        print("[InviteShare] User tapped Invite to the Beta")
+        guard let items = InviteShareProvider.shareItems() else { return }
+        AchievementSharePresenter.present(items: items)
     }
     
     // Function to open the website

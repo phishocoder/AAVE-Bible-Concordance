@@ -1,11 +1,16 @@
 import Foundation
 
 struct ScriptureStore {
-    private static let translationService = TranslationService.shared
+    private static func translationService() async -> TranslationService {
+        await MainActor.run {
+            TranslationService.shared
+        }
+    }
 
     static func text(for verseId: String, version: VerseVersion) async -> String? {
         guard let reference = VerseOfDayProvider.reference(forVerseId: verseId) else { return nil }
         do {
+            let translationService = await translationService()
             return try await translationService.getVerseTranslation(
                 for: reference.book,
                 chapter: reference.chapter,

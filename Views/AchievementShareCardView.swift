@@ -1,125 +1,140 @@
 import SwiftUI
 
 struct AchievementShareCardView: View {
-    let achievement: Achievement
-    let unlockedAt: Date?
+    let achievementTitle: String
+    let achievementSubtitle: String
+    let badgeIconName: String
+    let dateOrStreakLabel: String?
+    let backgroundImage: Image?
+    let brandMark: String
+    let hashtag: String?
+    let callToAction: String?
+
+    private let cardSize = CGSize(width: 1080, height: 1080)
+    private let innerCardSize = CGSize(width: 918, height: 918)
 
     var body: some View {
         ZStack {
-            // Background
-            GlassTheme.backgroundGradient(for: .dark)
-                .overlay(Color.black.opacity(0.25))
+            backgroundLayer
 
-            // Foreground card
-            VStack(spacing: 22) {
-                // Top brand mark
+            VStack {
                 HStack {
-                    Text("AAVE")
-                        .font(.system(size: 34, weight: .heavy))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [Color.red, Color.orange, Color.yellow, Color.green],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                    Text("Bible")
-                        .font(.system(size: 34, weight: .heavy))
-                        .foregroundStyle(.white)
+                    Text(brandMark)
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
                     Spacer()
                 }
+                .padding(.top, 18)
+                .padding(.horizontal, 24)
 
-                Divider()
-                    .overlay(Color.white.opacity(0.12))
+                Spacer()
 
-                // Icon + label
-                VStack(spacing: 10) {
-                    ZStack {
+                innerCard
+
+                Spacer()
+            }
+        }
+        .frame(width: cardSize.width, height: cardSize.height)
+        .clipShape(RoundedRectangle(cornerRadius: 44, style: .continuous))
+        .shadow(color: .black.opacity(0.24), radius: 22, x: 0, y: 14)
+    }
+
+    @ViewBuilder
+    private var backgroundLayer: some View {
+        if let backgroundImage {
+            backgroundImage
+                .resizable()
+                .scaledToFill()
+                .blur(radius: 8)
+                .overlay(Color.black.opacity(0.28))
+        } else {
+            AAVEColors.brandGradient
+                .overlay(Color.black.opacity(0.22))
+        }
+    }
+
+    private var badgeBlock: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.15))
+                    .overlay(
                         Circle()
-                            .fill(Color.white.opacity(0.10))
-                            .overlay(
-                                Circle().stroke(Color.white.opacity(0.16), lineWidth: 1)
-                            )
+                            .stroke(Color.white.opacity(0.35), lineWidth: 2)
+                    )
+                    .frame(width: 176, height: 176)
 
-                        Image(systemName: achievement.icon)
-                            .font(.system(size: 56, weight: .semibold))
-                            .foregroundStyle(Color.orange)
-                    }
-                    .frame(width: 120, height: 120)
+                Image(systemName: badgeIconName)
+                    .font(.system(size: 72, weight: .bold))
+                    .foregroundStyle(AAVEColors.brandGold)
+            }
 
-                    Text("Achievement Unlocked")
-                        .font(.system(size: 22, weight: .semibold))
+            Text("Achievement Unlocked")
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.92))
+        }
+    }
+
+    private var innerCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Spacer()
+                badgeBlock
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(achievementTitle)
+                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+
+                Text(achievementSubtitle)
+                    .font(.system(size: 24, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.85)
+
+                if let dateOrStreakLabel {
+                    Text(dateOrStreakLabel)
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+
+                if let callToAction {
+                    Text(callToAction)
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white.opacity(0.92))
-                }
-
-                // Title + detail
-                VStack(spacing: 10) {
-                    Text(achievement.title)
-                        .font(.system(size: 46, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(2)
-
-                    Text(achievement.detail)
-                        .font(.system(size: 24, weight: .regular))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.82))
-                        .lineSpacing(4)
-                        .padding(.horizontal, 24)
-                        .lineLimit(4)
-                }
-
-                // Unlocked date
-                if let unlockedAt {
-                    Text("Unlocked \(formattedDate(unlockedAt))")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.72))
-                        .padding(.top, 4)
-                }
-
-                Spacer(minLength: 0)
-
-                // Footer
-                HStack {
-                    Text("Share your progress")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.70))
-
-                    Spacer()
-
-                    Text("#AAVEBible")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.80))
+                        .padding(.top, 1)
                 }
             }
-            .padding(36)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 32, style: .continuous)
-                            .stroke(Color.white.opacity(0.14), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.35), radius: 30, x: 0, y: 18)
-            )
-            .padding(56)
+
+            HStack {
+                Spacer()
+                if let hashtag {
+                    Text(hashtag)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+            }
         }
-        .frame(width: 1080, height: 1350)
-    }
-
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-
-    static func renderImage(for achievement: Achievement) -> UIImage? {
-        let renderer = ImageRenderer(content: AchievementShareCardView(achievement: achievement, unlockedAt: achievement.unlockedAt))
-        renderer.proposedSize = ProposedViewSize(width: 1080, height: 1350)
-        renderer.scale = 3
-        return renderer.uiImage
+        .padding(24)
+        .frame(width: innerCardSize.width, height: innerCardSize.height, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: 36, style: .continuous)
+                .fill(Color.black.opacity(0.16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 36, style: .continuous)
+                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+        )
+        .shadow(color: .black.opacity(0.22), radius: 16, x: 0, y: 10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 36, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .blur(radius: 1)
+        )
     }
 }

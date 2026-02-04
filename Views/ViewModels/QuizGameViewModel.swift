@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import FirebaseAuth
 
 /// Drives the "Who Said That?!" quiz so both Home and More tabs share the exact
 /// same logic, question bank, and timing rules. Handles randomization & timer.
@@ -106,8 +107,14 @@ final class QuizGameViewModel: ObservableObject {
         timer?.invalidate()
         quizFinished = true
         selectedOptionIndex = nil
+
+        if score == questionsPerSession {
+            Task { @MainActor in
+                AchievementService.shared.unlock(.perfectQuizScore)
+            }
+        }
         
-        if let userID = UserDefaults.standard.string(forKey: "userID") {
+        if let userID = Auth.auth().currentUser?.uid {
             QuizScoreLogger.shared.logScore(userID: userID, score: score, quizType: "WhoSaidThat")
         }
     }

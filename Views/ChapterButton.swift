@@ -14,18 +14,18 @@ struct ChapterButton: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color.accentColor.opacity(0.1))
+                .fill(AAVEColors.accent.opacity(0.12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.accentColor, lineWidth: 1)
+                        .stroke(AAVEColors.accent, lineWidth: 1)
                 )
             
             VStack {
                 Text("\(chapter)")
-                    .font(.headline)
+                    .font(AAVETypography.chapterNumber)
                 if !isDownloaded {
                     Image(systemName: "icloud.and.arrow.down")
-                        .font(.caption)
+                        .font(AAVETypography.caption)
                 }
             }
             .foregroundColor(.primary)

@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
 import FirebaseAuth
+import FirebaseFirestore
 
 struct LeaderboardEntry: Identifiable {
     var id: String { userID }
@@ -17,29 +17,27 @@ struct LeaderboardEntry: Identifiable {
 }
 
 struct LeaderboardView: View {
-    @State private var topScores: [LeaderboardEntry] = []
-    @State private var isLoading = true
-    @State private var errorMessage: String?
+    @StateObject private var viewModel = LeaderboardViewModel()
     
     private let currentUserID = Auth.auth().currentUser?.uid
 
     var body: some View {
         NavigationView {
             List {
-                if isLoading {
+                if viewModel.isLoading {
                     ProgressView("Loading Leaderboard...")
                         .frame(maxWidth: .infinity, alignment: .center)
-                } else if let errorMessage = errorMessage {
+                } else if let errorMessage = viewModel.errorMessage {
                     Text("❌ \(errorMessage)")
                         .foregroundColor(.red)
                         .frame(maxWidth: .infinity, alignment: .center)
-                } else if topScores.isEmpty {
+                } else if viewModel.entries.isEmpty {
                     Text("No scores yet.")
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                 } else {
-                    ForEach(topScores.indices, id: \.self) { index in
-                        let entry = topScores[index]
+                    ForEach(viewModel.entries.indices, id: \.self) { index in
+                        let entry = viewModel.entries[index]
                         let isCurrentUser = entry.userID == currentUserID
 
                         HStack {
@@ -76,47 +74,57 @@ struct LeaderboardView: View {
             }
             .navigationTitle("Top Scores")
             .onAppear {
-                fetchTopScores()
+                viewModel.fetchTopScores()
             }
         }
     }
+}
 
-    func fetchTopScores() {
-        let db = Firestore.firestore()
+@MainActor
+final class LeaderboardViewModel: ObservableObject {
+    @Published var entries: [LeaderboardEntry] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+
+    private let db = Firestore.firestore()
+
+    func fetchTopScores(limit: Int = 10) {
         isLoading = true
         errorMessage = nil
 
         db.collection("quizScores")
             .order(by: "score", descending: true)
             .order(by: "timestamp", descending: true)
-            .limit(to: 10)
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
+            .limit(to: limit)
+            .getDocuments { [weak self] snapshot, error in
+                guard let self else { return }
+                if let error {
+                    DispatchQueue.main.async {
+                        self.errorMessage = error.localizedDescription
+                        self.isLoading = false
+                    }
                     return
                 }
 
-                var results: [LeaderboardEntry] = []
-                let group = DispatchGroup()
+                let docs = snapshot?.documents ?? []
+                if docs.isEmpty {
+                    DispatchQueue.main.async {
+                        self.entries = []
+                        self.isLoading = false
+                    }
+                    return
+                }
 
-                for doc in snapshot?.documents ?? [] {
+                let results = docs.map { doc -> LeaderboardEntry in
                     let data = doc.data()
                     let userID = data["userID"] as? String ?? "unknown"
                     let score = data["score"] as? Int ?? 0
-
-                    group.enter()
-                    db.collection("users").document(userID).getDocument { userDoc, _ in
-                        let userData = userDoc?.data()
-                        let username = userData?["username"] as? String ??
-                                       userData?["displayName"] as? String
-                        results.append(LeaderboardEntry(userID: userID, score: score, username: username))
-                        group.leave()
-                    }
+                    let username = data["username"] as? String
+                    return LeaderboardEntry(userID: userID, score: score, username: username)
                 }
 
-                group.notify(queue: .main) {
-                    self.topScores = results
+                DispatchQueue.main.async {
+                    self.entries = results
                     self.isLoading = false
                 }
             }

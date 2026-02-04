@@ -2,20 +2,27 @@ import SwiftUI
 
 /// Centralizes the updated "Liquid Glass" inspired theming used across the app.
 enum GlassTheme {
+    private static func color(hex: UInt, alpha: Double = 1) -> Color {
+        let red = Double((hex >> 16) & 0xFF) / 255
+        let green = Double((hex >> 8) & 0xFF) / 255
+        let blue = Double(hex & 0xFF) / 255
+        return Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
+    }
+
     static func backgroundGradient(for colorScheme: ColorScheme) -> LinearGradient {
         if colorScheme == .dark {
             return LinearGradient(
-                colors: [Color(hex: 0x0F172A).opacity(0.95),
-                         Color(hex: 0x111827).opacity(0.9),
-                         Color(hex: 0x312E81).opacity(0.75)],
+                colors: [color(hex: 0x0F172A).opacity(0.95),
+                         color(hex: 0x111827).opacity(0.9),
+                         color(hex: 0x312E81).opacity(0.75)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         } else {
             return LinearGradient(
-                colors: [Color(hex: 0xF8FAFC),
-                         Color(hex: 0xE2E8F0),
-                         Color(hex: 0xE0EAFF)],
+                colors: [color(hex: 0xF8FAFC),
+                         color(hex: 0xE2E8F0),
+                         color(hex: 0xE0EAFF)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -120,14 +127,5 @@ extension View {
 
     func glassBackground() -> some View {
         modifier(GlassTheme.BackgroundModifier())
-    }
-}
-
-private extension Color {
-    init(hex: UInt, alpha: Double = 1) {
-        let red = Double((hex >> 16) & 0xFF) / 255
-        let green = Double((hex >> 8) & 0xFF) / 255
-        let blue = Double(hex & 0xFF) / 255
-        self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
     }
 }

@@ -38,12 +38,12 @@ struct UnifiedBottomToolbar: View {
             HStack(alignment: .center, spacing: 12) {
                 if viewModel.isMultiSelectMode {
                     Text("\(viewModel.selectedVerses.count) verses selected")
-                        .font(.caption)
+                        .font(AAVETypography.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Button(action: toggleSelectAll) {
                         Text(areAllVersesSelected() ? "Deselect All" : "Select All")
-                            .font(.caption)
+                            .font(AAVETypography.caption)
                     }
                     .buttonStyle(.plain)
                 } else {
@@ -52,7 +52,7 @@ struct UnifiedBottomToolbar: View {
 
                 Button(action: dismissSelection) {
                     Text("Cancel")
-                        .font(.caption)
+                        .font(AAVETypography.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 10)
@@ -198,7 +198,7 @@ struct UnifiedBottomToolbar: View {
         var body: some View {
             Button(action: action) {
                 Image(systemName: icon)
-                    .font(.system(size: 19, weight: .semibold))
+                    .font(AAVETypography.toolbarIcon)
                     .frame(width: 38, height: 38)
             }
             .buttonStyle(.plain)

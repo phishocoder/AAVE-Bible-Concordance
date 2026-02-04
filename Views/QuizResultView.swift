@@ -84,10 +84,5 @@ struct QuizResultView: View {
 
         }
         .padding()
-        .onAppear {
-            if let userID = FirebaseAuthManager.shared.userID {
-                QuizScoreLogger.shared.logScore(userID: userID, score: score)
-            }
-        }
     }
 }

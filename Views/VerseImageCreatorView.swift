@@ -23,13 +23,16 @@ struct VerseImageCreatorView: View {
     @State private var showingFontPicker = false
     @State private var selectedFont = "CormorantGaramond-Regular"
     @State private var showScrollHint = false
+    @State private var isRendering = false
+    @State private var showRenderError = false
+    @State private var renderErrorMessage = ""
 
     @State private var isBold = false
     @State private var isItalic = false
 
     private let watermark = "@officialaavebibleapp"
     private let exportCanvasSize = CGSize(width: 1080, height: 1350) // 4:5 portrait, Instagram-safe
-    
+
     // Available fonts
     private let availableFonts = [
         "CormorantGaramond-Regular",
@@ -52,7 +55,7 @@ struct VerseImageCreatorView: View {
             // Apply bold/italic styling to the selected font
             if let baseFontName = selectedFont.split(separator: "-").first {
                 let base = String(baseFontName)
-                
+
                 switch (isBold, isItalic) {
                 case (true, true):
                     return "\(base)-BoldItalic"
@@ -77,134 +80,47 @@ struct VerseImageCreatorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Top Bar
-            HStack {
-                Button("Cancel") { dismiss() }
-                Spacer()
-                Text("Create Verse Image").font(.headline)
-                Spacer()
-                Button("Share") {
-                    generateFinalImage()
-                }
-                .foregroundColor(.blue)
-                .fontWeight(.semibold)
-            }
-            .padding()
-            .background(Color(.systemBackground))
+        ZStack {
+            Color.black.ignoresSafeArea()
 
-            // Canvas
-            VerseImageCanvas(
-                verse: verse,
-                userImage: userImage,
-                fontName: dynamicFont,
-                fontSize: fontSize,
-                referenceFontSize: referenceFontSize,
-                textColor: textColor,
-                textAlignment: textAlignment,
-                textPositionRatio: $textPositionRatio,
-                watermark: watermark,
-                allowsInteraction: true,
-                magnification: magnifyBy
-            )
-            // The preview renders at the exact export aspect ratio so the renderer uses identical layout.
-            .aspectRatio(exportCanvasSize, contentMode: .fit)
-            .frame(maxWidth: UIScreen.main.bounds.width)
-            .background(Color.black)
-            .clipped()
-            .gesture(
-                MagnificationGesture()
-                    .updating($magnifyBy) { currentState, gestureState, _ in
-                        gestureState = currentState
-                    }
-                    .onEnded { value in
-                        self.fontSize = min(72, self.fontSize * value)
-                        self.referenceFontSize = min(40, self.referenceFontSize * value)
-                    }
-            )
+            VStack(spacing: 0) {
+                topBar
 
-            // Controls - Fixed scrolling issue with proper content width
-            ScrollView(.horizontal, showsIndicators: true) {
-                HStack(spacing: 20) {
-                    // Existing buttons remain unchanged
-                    Button(action: { showingImagePicker = true }) {
-                        controlIcon("photo", label: "Background")
-                    }
-                    
-                    Button(action: { showingFontPicker.toggle() }) {
-                        controlIcon("textformat", label: "Font")
-                    }
-                    
-                    Button(action: {
-                        isBold.toggle()
-                        // Don't close font picker when toggling bold
-                    }) {
-                        VStack {
-                            Image(systemName: isBold ? "bold.circle.fill" : "bold.circle")
-                                .font(.system(size: 20))
-                            Text("Bold").font(.caption)
-                        }
-                    }
-                    
-                    Button(action: {
-                        isItalic.toggle()
-                        // Don't close font picker when toggling italic
-                    }) {
-                        VStack {
-                            Image(systemName: isItalic ? "italic.circle.fill" : "italic.circle")
-                                .font(.system(size: 20))
-                            Text("Italic").font(.caption)
-                        }
-                    }
-                    
-                    VStack {
-                        HStack {
-                            Button { fontSize = max(12, fontSize - 1) } label: { Image(systemName: "arrow.down") }
-                            Text("\(Int(fontSize))").frame(width: 25)
-                            Button { fontSize = min(72, fontSize + 1) } label: { Image(systemName: "arrow.up") }
-                        }
-                        Text("Size").font(.caption)
-                    }
-                    
-                    VStack {
-                        HStack {
-                            Button { referenceFontSize = max(10, referenceFontSize - 1) } label: { Image(systemName: "arrow.down") }
-                            Text("\(Int(referenceFontSize))").frame(width: 25)
-                            Button { referenceFontSize = min(40, referenceFontSize + 1) } label: { Image(systemName: "arrow.up") }
-                        }
-                        Text("Ref Size").font(.caption)
-                    }
-                    
-                    Menu {
-                        Button("White") { textColor = .white }
-                        Button("Black") { textColor = .black }
-                        Button("Red") { textColor = .red }
-                        Button("Blue") { textColor = .blue }
-                        Button("Yellow") { textColor = .yellow }
-                        Button("Green") { textColor = .green }
-                        Button("Orange") { textColor = .orange }
-                        Button("Purple") { textColor = .purple }
-                    } label: {
-                        controlIcon("paintpalette", label: "Color")
-                    }
-                    
-                    Menu {
-                        Button("Left") { textAlignment = .leading }
-                        Button("Center") { textAlignment = .center }
-                        Button("Right") { textAlignment = .trailing }
-                    } label: {
-                        controlIcon("text.alignleft", label: "Align")
-                    }
-                    
+                // Canvas
+                VerseImageCanvas(
+                    verse: verse,
+                    userImage: userImage,
+                    fontName: dynamicFont,
+                    fontSize: fontSize,
+                    referenceFontSize: referenceFontSize,
+                    textColor: textColor,
+                    textAlignment: textAlignment,
+                    textPositionRatio: $textPositionRatio,
+                    watermark: watermark,
+                    allowsInteraction: true,
+                    magnification: magnifyBy
+                )
+                // The preview renders at the exact export aspect ratio so the renderer uses identical layout.
+                .aspectRatio(exportCanvasSize, contentMode: .fit)
+                .frame(maxWidth: UIScreen.main.bounds.width)
+                .background(Color.black)
+                .clipped()
+                .overlay(alignment: .topLeading) {
+                    hintPill
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                // Replace the minWidth with a fixed width calculation based on button count
-                .frame(width: UIScreen.main.bounds.width * 2.0) // Adjust multiplier as needed
+                .gesture(
+                    MagnificationGesture()
+                        .updating($magnifyBy) { currentState, gestureState, _ in
+                            gestureState = currentState
+                        }
+                        .onEnded { value in
+                            self.fontSize = min(72, self.fontSize * value)
+                            self.referenceFontSize = min(40, self.referenceFontSize * value)
+                        }
+                )
+
+                controlsBar
             }
-            .padding(.vertical, 5)
-            .background(Color(.systemGray6))
-            .frame(maxWidth: .infinity)
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: $userImage)
@@ -234,7 +150,7 @@ struct VerseImageCreatorView: View {
                                 .padding(.vertical, 6)
                                 .background(Color.black.opacity(0.8))
                                 .cornerRadius(8)
-                            
+
                             Image(systemName: "arrow.down")
                                 .foregroundColor(.white)
                                 .font(.title)
@@ -253,6 +169,147 @@ struct VerseImageCreatorView: View {
         .onAppear {
             checkForScrollHint()
         }
+        .alert("Unable to Share", isPresented: $showRenderError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(renderErrorMessage)
+        }
+    }
+
+    private var topBar: some View {
+        HStack(spacing: 12) {
+            Button {
+                dismiss()
+            } label: {
+                Label("Cancel", systemImage: "xmark")
+            }
+            .buttonStyle(.bordered)
+
+            Spacer()
+
+            Text("Verse Image")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            Spacer()
+
+            Button {
+                generateFinalImage()
+            } label: {
+                if isRendering {
+                    ProgressView()
+                } else {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isRendering)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(glassBarBackground)
+        .padding(.horizontal, 12)
+        .padding(.top, 12)
+    }
+
+    private var controlsBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                Button(action: { showingImagePicker = true }) {
+                    controlIcon("photo", label: "Background")
+                }
+
+                Button(action: { showingFontPicker.toggle() }) {
+                    controlIcon("textformat", label: "Font")
+                }
+
+                Button(action: {
+                    isBold.toggle()
+                }) {
+                    controlIcon(isBold ? "bold.circle.fill" : "bold.circle", label: "Bold")
+                }
+
+                Button(action: {
+                    isItalic.toggle()
+                }) {
+                    controlIcon(isItalic ? "italic.circle.fill" : "italic.circle", label: "Italic")
+                }
+
+                VStack(spacing: 6) {
+                    HStack(spacing: 8) {
+                        Button { fontSize = max(12, fontSize - 1) } label: { Image(systemName: "minus.circle") }
+                        Text("\(Int(fontSize))").frame(width: 28)
+                        Button { fontSize = min(72, fontSize + 1) } label: { Image(systemName: "plus.circle") }
+                    }
+                    Text("Size").font(.caption)
+                }
+
+                VStack(spacing: 6) {
+                    HStack(spacing: 8) {
+                        Button { referenceFontSize = max(10, referenceFontSize - 1) } label: { Image(systemName: "minus.circle") }
+                        Text("\(Int(referenceFontSize))").frame(width: 28)
+                        Button { referenceFontSize = min(40, referenceFontSize + 1) } label: { Image(systemName: "plus.circle") }
+                    }
+                    Text("Ref Size").font(.caption)
+                }
+
+                Menu {
+                    Button("White") { textColor = .white }
+                    Button("Black") { textColor = .black }
+                    Button("Red") { textColor = .red }
+                    Button("Blue") { textColor = .blue }
+                    Button("Yellow") { textColor = .yellow }
+                    Button("Green") { textColor = .green }
+                    Button("Orange") { textColor = .orange }
+                    Button("Purple") { textColor = .purple }
+                } label: {
+                    controlIcon("paintpalette", label: "Color")
+                }
+
+                Menu {
+                    Button("Left") { textAlignment = .leading }
+                    Button("Center") { textAlignment = .center }
+                    Button("Right") { textAlignment = .trailing }
+                } label: {
+                    controlIcon("text.alignleft", label: "Align")
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+        }
+        .background(glassBarBackground)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+    }
+
+    private var glassBarBackground: some View {
+        RoundedRectangle(cornerRadius: 22, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.22), radius: 16, x: 0, y: 12)
+    }
+
+    private var hintPill: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "hand.tap")
+            Text("Drag to move. Pinch to resize.")
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(.white.opacity(0.9))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            Capsule(style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .padding(12)
     }
 
     private func fontPickerOverlay() -> some View {
@@ -266,7 +323,7 @@ struct VerseImageCreatorView: View {
                 }
             }
             .padding()
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(availableFonts, id: \.self) { font in
@@ -294,13 +351,15 @@ struct VerseImageCreatorView: View {
             }
         }
         .frame(width: UIScreen.main.bounds.width * 0.8, height: 400)
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(radius: 10)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                )
         )
+        .shadow(color: Color.black.opacity(0.2), radius: 16, x: 0, y: 12)
     }
 
     private func controlIcon(_ name: String, label: String) -> some View {
@@ -312,34 +371,49 @@ struct VerseImageCreatorView: View {
     }
 
     private func generateFinalImage() {
-        // Render the exact same canvas used for the preview so exported pixels match what the user saw.
-        let renderer = ImageRenderer(content:
-            VerseImageCanvas(
-                verse: verse,
-                userImage: userImage,
-                fontName: dynamicFont,
-                fontSize: fontSize,
-                referenceFontSize: referenceFontSize,
-                textColor: textColor,
-                textAlignment: textAlignment,
-                textPositionRatio: .constant(textPositionRatio),
-                watermark: watermark,
-                allowsInteraction: false,
-                magnification: 1
+        guard !isRendering else { return }
+        isRendering = true
+
+        Task { @MainActor in
+            defer { isRendering = false }
+            guard #available(iOS 16.0, *) else {
+                renderErrorMessage = "Sharing requires iOS 16 or later."
+                showRenderError = true
+                return
+            }
+
+            // Render the exact same canvas used for the preview so exported pixels match what the user saw.
+            let renderer = ImageRenderer(content:
+                VerseImageCanvas(
+                    verse: verse,
+                    userImage: userImage,
+                    fontName: dynamicFont,
+                    fontSize: fontSize,
+                    referenceFontSize: referenceFontSize,
+                    textColor: textColor,
+                    textAlignment: textAlignment,
+                    textPositionRatio: .constant(textPositionRatio),
+                    watermark: watermark,
+                    allowsInteraction: false,
+                    magnification: 1
+                )
+                .frame(width: exportCanvasSize.width, height: exportCanvasSize.height)
             )
-            .frame(width: exportCanvasSize.width, height: exportCanvasSize.height)
-        )
-        // The renderer respects the explicit frame so the bitmap is 1080x1350, safe for most social feeds.
-        renderer.proposedSize = ProposedViewSize(exportCanvasSize)
-        renderer.scale = UIScreen.main.scale
-        
-        if let uiImage = renderer.uiImage {
-            finalImage = uiImage
-            showingShareSheet = true
-            AchievementService.shared.recordShare()
+            // The renderer respects the explicit frame so the bitmap is 1080x1350, safe for most social feeds.
+            renderer.proposedSize = ProposedViewSize(exportCanvasSize)
+            renderer.scale = UIScreen.main.scale
+
+            if let uiImage = renderer.uiImage {
+                finalImage = uiImage
+                showingShareSheet = true
+                AchievementService.shared.recordShare()
+            } else {
+                renderErrorMessage = "We couldn't render your image. Try again or simplify the layout."
+                showRenderError = true
+            }
         }
     }
-    
+
     private func checkForScrollHint() {
         let hasSeenScrollHint = UserDefaults.standard.bool(forKey: "hasSeenVerseImageScrollHint")
         if !hasSeenScrollHint {
@@ -347,7 +421,7 @@ struct VerseImageCreatorView: View {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showScrollHint = true
                 }
-                
+
                 // Hide after 4 seconds
                 DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -376,7 +450,7 @@ private struct VerseImageCanvas: View {
     private let safePaddingRatio: CGFloat = 0.08
     private let referenceOffsetRatio: CGFloat = 0.08
     private let watermarkBottomPaddingRatio: CGFloat = 0.025
-    
+
     var body: some View {
         GeometryReader { geo in
             let size = geo.size
@@ -390,13 +464,13 @@ private struct VerseImageCanvas: View {
                 x: safeRect.minX + textPositionRatio.x * safeRect.width,
                 y: safeRect.minY + textPositionRatio.y * safeRect.height
             )
-            
+
             ZStack {
                 // Background always stays behind everything else.
                 background(size: size)
                     .overlay(Color.black.opacity(0.18)) // soften busy photos while keeping text above
                     .allowsHitTesting(false)
-                
+
                 VStack(spacing: size.height * referenceOffsetRatio) {
                     Text(verse.text)
                         .font(.custom(fontName, size: fontSize * magnification))
@@ -406,7 +480,7 @@ private struct VerseImageCanvas: View {
                         .minimumScaleFactor(0.6)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(width: safeRect.width)
-                    
+
                     Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
                         .font(.custom(fontName, size: referenceFontSize))
                         .foregroundColor(textColor.opacity(0.85))
@@ -425,7 +499,7 @@ private struct VerseImageCanvas: View {
                         }
                 )
                 .zIndex(1) // keep text above any overlays
-                
+
                 Text(watermark)
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
@@ -439,7 +513,7 @@ private struct VerseImageCanvas: View {
             .coordinateSpace(name: "VerseCanvas")
         }
     }
-    
+
     @ViewBuilder
     private func background(size: CGSize) -> some View {
         let base = Group {
@@ -457,7 +531,7 @@ private struct VerseImageCanvas: View {
             .frame(width: size.width, height: size.height)
             .clipped()
     }
-    
+
     private func updatePosition(with location: CGPoint, safeRect: CGRect) {
         let normalizedX = ((location.x - safeRect.minX) / safeRect.width).clamped(to: 0...1)
         let normalizedY = ((location.y - safeRect.minY) / safeRect.height).clamped(to: 0...1)
@@ -475,7 +549,7 @@ private extension Comparable {
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Environment(\.presentationMode) var presentationMode
-    
+
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
         config.filter = .images
@@ -483,25 +557,25 @@ struct ImagePicker: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         return picker
     }
-    
+
     func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: ImagePicker
-        
+
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
-        
+
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
-            
+
             guard let provider = results.first?.itemProvider else { return }
-            
+
             if provider.canLoadObject(ofClass: UIImage.self) {
                 provider.loadObject(ofClass: UIImage.self) { image, _ in
                     DispatchQueue.main.async {

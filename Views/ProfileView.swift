@@ -7,6 +7,7 @@ struct ProfileView: View {
     @StateObject private var readingProgress = ReadingProgressService.shared
     @StateObject private var authManager = AppleAuthManager.shared
     @State private var showingSignOutConfirm = false
+    @State private var isSavingName = false
 
     var body: some View {
         NavigationStack {
@@ -54,6 +55,20 @@ struct ProfileView: View {
                             .textInputAutocapitalization(.words)
                             .autocorrectionDisabled()
                             .submitLabel(.done)
+                            .onSubmit {
+                                saveDisplayName()
+                            }
+                        Button(action: saveDisplayName) {
+                            if isSavingName {
+                                ProgressView()
+                            } else {
+                                Text("Save Display Name")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(preferences.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
 
                     ProfileInfoRow(label: "Sign-in Method", value: "Sign in with Apple")
@@ -145,6 +160,16 @@ struct ProfileView: View {
             .buttonStyle(.bordered)
             .disabled(!authManager.isSignedIn)
             .opacity(authManager.isSignedIn ? 1 : 0.5)
+        }
+    }
+
+    private func saveDisplayName() {
+        let trimmed = preferences.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        isSavingName = true
+        authManager.updateDisplayName(trimmed)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            isSavingName = false
         }
     }
 }
