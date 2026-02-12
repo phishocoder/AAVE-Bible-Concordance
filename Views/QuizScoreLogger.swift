@@ -32,4 +32,20 @@ class QuizScoreLogger {
             }
         }
     }
+
+    func fetchBestScore(userID: String, quizType: String = "WhoSaidThat", completion: @escaping (Int?) -> Void) {
+        db.collection(collection)
+            .whereField("userID", isEqualTo: userID)
+            .whereField("quizType", isEqualTo: quizType)
+            .getDocuments { snapshot, error in
+                if let error {
+                    print("❌ Failed to fetch best score: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+
+                let scores = snapshot?.documents.compactMap { $0.data()["score"] as? Int } ?? []
+                completion(scores.max())
+            }
+    }
 }

@@ -8,6 +8,7 @@ import PhotosUI
 
 struct VerseImageCreatorView: View {
     let verse: Verse
+    var onReadInContext: ((VerseReference) -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
     @State private var fontSize: CGFloat = 24
@@ -26,6 +27,7 @@ struct VerseImageCreatorView: View {
     @State private var isRendering = false
     @State private var showRenderError = false
     @State private var renderErrorMessage = ""
+    @State private var showShareFollowUp = false
 
     @State private var isBold = false
     @State private var isItalic = false
@@ -127,7 +129,11 @@ struct VerseImageCreatorView: View {
         }
         .sheet(isPresented: $showingShareSheet) {
             if let image = finalImage {
-                ShareSheet(items: [image])
+                ShareSheet(items: [image]) { completed in
+                    if completed {
+                        showShareFollowUp = true
+                    }
+                }
             }
         }
         .overlay {
@@ -174,6 +180,46 @@ struct VerseImageCreatorView: View {
         } message: {
             Text(renderErrorMessage)
         }
+        .overlay(alignment: .bottom) {
+            if showShareFollowUp {
+                shareFollowUpStrip
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 14)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+    }
+
+    private var shareFollowUpStrip: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Shared. Keep the Word moving.")
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.primary)
+
+            HStack(spacing: 10) {
+                Button("Read in context") {
+                    showShareFollowUp = false
+                    onReadInContext?(verse.reference)
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Mark today complete") {
+                    ReadingProgressService.shared.markVerseRead(verse.reference)
+                    showShareFollowUp = false
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+        )
     }
 
     private var topBar: some View {

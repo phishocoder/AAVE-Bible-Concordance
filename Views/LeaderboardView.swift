@@ -16,67 +16,125 @@ struct LeaderboardEntry: Identifiable {
     let username: String?
 }
 
+struct UserScoreSummary {
+    let bestScore: Int?
+    let latestScore: Int?
+    let gamesPlayed: Int
+}
+
 struct LeaderboardView: View {
     @StateObject private var viewModel = LeaderboardViewModel()
-    
+    @ObservedObject private var readingProgress = ReadingProgressService.shared
     private let currentUserID = Auth.auth().currentUser?.uid
 
     var body: some View {
-        NavigationView {
-            List {
-                if viewModel.isLoading {
-                    ProgressView("Loading Leaderboard...")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text("❌ \(errorMessage)")
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else if viewModel.entries.isEmpty {
-                    Text("No scores yet.")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    ForEach(viewModel.entries.indices, id: \.self) { index in
-                        let entry = viewModel.entries[index]
-                        let isCurrentUser = entry.userID == currentUserID
+        List {
+            if viewModel.isLoading && viewModel.entries.isEmpty && viewModel.userSummary == nil {
+                ProgressView("Loading progress...")
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                Section("Your Progress") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Growth over flexing. Keep showing up in the Word.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
 
-                        HStack {
-                            Text("#\(index + 1)")
-                                .fontWeight(.bold)
-                                .foregroundColor(.gray)
-
-                            VStack(alignment: .leading) {
-                                Text(entry.username ?? "User \(entry.userID.prefix(6))")
-                                    .font(.headline)
-                                    .foregroundColor(isCurrentUser ? .blue : .primary)
-
-                                Text("Score: \(entry.score)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            Spacer()
-
-                            if isCurrentUser {
-                                Text("You")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 3)
-                                    .background(Color.blue.opacity(0.1))
-                                    .cornerRadius(5)
-                                    .foregroundColor(.blue)
-                            }
+                        HStack(spacing: 10) {
+                            scoreStatPill(
+                                title: "Best",
+                                value: statValue(viewModel.userSummary?.bestScore)
+                            )
+                            scoreStatPill(
+                                title: "Latest",
+                                value: statValue(viewModel.userSummary?.latestScore)
+                            )
+                            scoreStatPill(
+                                title: "Streak",
+                                value: "\(readingProgress.currentStreak)d"
+                            )
                         }
-                        .padding(.vertical, 4)
-                        .listRowBackground(isCurrentUser ? Color.blue.opacity(0.05) : Color.clear)
+
+                        Text("Games played: \(viewModel.userSummary?.gamesPlayed ?? 0)")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Section("Top Scores (Community)") {
+                    if let errorMessage = viewModel.errorMessage {
+                        Text("Couldn't load community scores: \(errorMessage)")
+                            .foregroundColor(.secondary)
+                    } else if viewModel.entries.isEmpty {
+                        Text("No community scores yet.")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(viewModel.entries.indices, id: \.self) { index in
+                            let entry = viewModel.entries[index]
+                            leaderboardRow(for: entry, rank: index + 1)
+                        }
                     }
                 }
             }
-            .navigationTitle("Top Scores")
-            .onAppear {
-                viewModel.fetchTopScores()
+        }
+        .navigationTitle("Leaderboard")
+        .onAppear {
+            viewModel.fetchLeaderboard(currentUserID: currentUserID)
+        }
+    }
+
+    private func leaderboardRow(for entry: LeaderboardEntry, rank: Int) -> some View {
+        let isCurrentUser = entry.userID == currentUserID
+        return HStack {
+            Text("#\(rank)")
+                .fontWeight(.bold)
+                .foregroundColor(.gray)
+
+            VStack(alignment: .leading) {
+                Text(entry.username ?? "User \(entry.userID.prefix(6))")
+                    .font(.headline)
+                    .foregroundColor(isCurrentUser ? .blue : .primary)
+
+                Text("Score: \(entry.score)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            if isCurrentUser {
+                Text("You")
+                    .font(.caption2)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(5)
+                    .foregroundColor(.blue)
             }
         }
+        .padding(.vertical, 4)
+        .listRowBackground(isCurrentUser ? Color.blue.opacity(0.05) : Color.clear)
+    }
+
+    private func statValue(_ value: Int?) -> String {
+        guard let value else { return "--" }
+        return "\(value)"
+    }
+
+    private func scoreStatPill(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.headline)
+                .fontWeight(.semibold)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.blue.opacity(0.08))
+        )
     }
 }
 
@@ -85,12 +143,23 @@ final class LeaderboardViewModel: ObservableObject {
     @Published var entries: [LeaderboardEntry] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var userSummary: UserScoreSummary?
 
     private let db = Firestore.firestore()
 
-    func fetchTopScores(limit: Int = 10) {
+    func fetchLeaderboard(currentUserID: String?, limit: Int = 10) {
         isLoading = true
         errorMessage = nil
+        userSummary = nil
+
+        var pendingRequests = currentUserID == nil ? 1 : 2
+
+        func completeOneRequest() {
+            pendingRequests -= 1
+            if pendingRequests == 0 {
+                self.isLoading = false
+            }
+        }
 
         db.collection("quizScores")
             .order(by: "score", descending: true)
@@ -101,7 +170,7 @@ final class LeaderboardViewModel: ObservableObject {
                 if let error {
                     DispatchQueue.main.async {
                         self.errorMessage = error.localizedDescription
-                        self.isLoading = false
+                        completeOneRequest()
                     }
                     return
                 }
@@ -110,7 +179,7 @@ final class LeaderboardViewModel: ObservableObject {
                 if docs.isEmpty {
                     DispatchQueue.main.async {
                         self.entries = []
-                        self.isLoading = false
+                        completeOneRequest()
                     }
                     return
                 }
@@ -125,7 +194,44 @@ final class LeaderboardViewModel: ObservableObject {
 
                 DispatchQueue.main.async {
                     self.entries = results
-                    self.isLoading = false
+                    completeOneRequest()
+                }
+            }
+
+        guard let currentUserID else { return }
+
+        db.collection("quizScores")
+            .whereField("userID", isEqualTo: currentUserID)
+            .getDocuments { [weak self] snapshot, error in
+                guard let self else { return }
+                if error != nil {
+                    DispatchQueue.main.async {
+                        self.userSummary = UserScoreSummary(bestScore: nil, latestScore: nil, gamesPlayed: 0)
+                        completeOneRequest()
+                    }
+                    return
+                }
+
+                let docs = snapshot?.documents ?? []
+                let scoredRuns: [(score: Int, timestamp: Date)] = docs.compactMap { doc in
+                    let data = doc.data()
+                    guard let score = data["score"] as? Int,
+                          let timestamp = data["timestamp"] as? Timestamp else {
+                        return nil
+                    }
+                    return (score: score, timestamp: timestamp.dateValue())
+                }
+                let scores = scoredRuns.map(\.score)
+                let latest = scoredRuns.sorted { $0.timestamp > $1.timestamp }.first?.score
+                let best = scores.max()
+
+                DispatchQueue.main.async {
+                    self.userSummary = UserScoreSummary(
+                        bestScore: best,
+                        latestScore: latest,
+                        gamesPlayed: scores.count
+                    )
+                    completeOneRequest()
                 }
             }
     }

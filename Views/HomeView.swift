@@ -13,40 +13,20 @@ struct HomeView: View {
     @StateObject private var userDataManager = UserDataManager.shared
     @StateObject private var preferences = UserProfilePreferences.shared
     @StateObject private var achievementService = AchievementService.shared
+    @StateObject private var personalization = PersonalizationService.shared
     @EnvironmentObject private var router: NavigationRouter
     @State private var showingProfile = false
     @State private var isLoadingVerse = false
     @State private var error: Error?
     @State private var redLetterVerse: (reference: VerseReference, text: String)?
-    @State private var showConfetti = false
-    @State private var rotatingMessageIndex = 0
-    @State private var hasReadNTChapter = false
     @State private var showAchievements = false
     @State private var suppressAchievementsTap = false
+    @State private var showShareFollowUp = false
+    @State private var shareFollowUpReference: VerseReference?
+    @AppStorage(DailyVerseLiveActivityCoordinator.enabledKey) private var lockScreenDailyVerseEnabled = false
+    @AppStorage(DailyVerseLiveActivityCoordinator.jesusSaidKey) private var lockScreenJesusSaidEnabled = false
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
-    
-    // Get NT completed chapters count
-    func getNTCompletedChapters() -> Int {
-        // List of NT books
-        let ntBooks = ["Matthew", "Mark", "Luke", "John", "Acts",
-                      "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
-                      "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
-                      "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews",
-                      "James", "1 Peter", "2 Peter", "1 John", "2 John",
-                      "3 John", "Jude", "Revelation"]
-        
-        // Count NT chapters read from UserDataManager
-        let ntChaptersRead = userDataManager.chaptersRead.filter { chapterKey in
-            let components = chapterKey.split(separator: "_")
-            guard components.count == 2, let book = components.first else { return false }
-            return ntBooks.contains(String(book))
-        }
-        
-        return ntChaptersRead.count
-    }
-    
     // Jesus quotes related properties
     private let jesusQuoteReferences = HomeView.jesusQuoteReferences  // Initialize from the static property
     @State private var previousReference: VerseReference?
@@ -89,30 +69,18 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(personalizedWelcomeLine)
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
         .homeCard()
     }
     
-    let rotatingMessages = [
-        "Every prophet, every king, every scroll. You did that.",
-        "1189 chapters, and the journey's still not over.",
-        "Now… let's talk about this Jesus."
-    ]
-    
-    // NT chapter count
-    let totalNTChapters = 260
-    
-    // Gospels chapter count
-    let gospelsChapters = 89 // Matthew (28), Mark (16), Luke (24), John (21)
-
     private var personalizedWelcomeLine: String {
         "\(preferences.tonePreference.homeLine) \(preferences.faithVibe.shortLine)"
     }
@@ -128,15 +96,18 @@ struct HomeView: View {
                 spacing: gridSpacing
             ) {
                 welcomeSection
+
+                personalizationCard
                 
-                // Bible Completion Section
-                bibleCompletionSection
+                HomeDailyCard { reference in
+                    navigateToVerse(reference)
+                }
 
                 StreakCard()
 
                 achievementsSummaryCard
                 
-                // Jesus Said (Red Letter Verse)
+                // Today Focus Verse
                 if let verse = redLetterVerse {
                     redLetterVerseCard(verse)
                 } else if isLoadingVerse {
@@ -159,28 +130,19 @@ struct HomeView: View {
                         Text("“Who Said That?!” Bible quiz now live in the More tab! 10 verses. 15 seconds each. Think you know the Word like that?")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                         
                         HStack {
                             Text("Tap to Play")
                                 .font(.subheadline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color.green.opacity(0.9), Color.mint.opacity(0.9)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .cornerRadius(12)
+                                .homePrimaryCTA()
                             
                             Spacer()
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .glassCard()
+                .homeCard()
                 
                 // Share App CTA
                 shareAppCTA
@@ -192,35 +154,45 @@ struct HomeView: View {
             .padding(.horizontal, horizontalPadding)
             .padding(.bottom, 80)
         }
+        .safeAreaPadding(.top, 8)
         .scrollIndicators(.hidden)
         .applyGlassToolbar()
         .onAppear {
+            personalization.recordAppOpen()
+            personalization.refresh(using: userDataManager.history)
             generateRedLetterVerse()
-            checkNTProgress()
-            checkForConfetti()
-            
-            // Start rotating messages
-            startRotatingMessages()
         }
         .onChange(of: redLetterVerse?.reference.id) { _, _ in
             guard let verse = redLetterVerse else { return }
             let verseId = liveActivityVerseId(for: verse.reference)
             let excerpt = liveActivityExcerpt(from: verse.text, maxLength: 140)
             let versionUsed = settings.verseOfDayTranslation
-            print("HOME->LA snapshot verseId=\(verseId) isJesusSaid=true versionUsed=\(versionUsed) excerptLen=\(excerpt.count)")
+            print("HOME->LA snapshot verseId=\(verseId) isJesusSaid=\(lockScreenJesusSaidEnabled) versionUsed=\(versionUsed) excerptLen=\(excerpt.count)")
             DailyVerseLiveActivityCoordinator.setHomeDisplayedVerse(
                 verseId: verseId,
                 reference: verse.reference.displayString,
                 excerpt: excerpt,
-                isJesusSaid: true,
+                isJesusSaid: lockScreenJesusSaidEnabled,
                 versionUsed: versionUsed
             )
         }
         .onChange(of: settings.verseOfDayTranslation) { _, _ in
             generateRedLetterVerse()
         }
+        .onChange(of: userDataManager.history) { _, newHistory in
+            personalization.refresh(using: newHistory)
+        }
         .onChange(of: gospelFilter) { _, _ in
+            if lockScreenJesusSaidEnabled {
+                generateRedLetterVerse()
+            }
+        }
+        .onChange(of: lockScreenDailyVerseEnabled) { _, newValue in
+            DailyVerseLiveActivityCoordinator.setEnabled(newValue)
+        }
+        .onChange(of: lockScreenJesusSaidEnabled) { _, _ in
             generateRedLetterVerse()
+            DailyVerseLiveActivityCoordinator.refreshIfEnabled()
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -249,6 +221,14 @@ struct HomeView: View {
             }
             .hidden()
         )
+        .overlay(alignment: .bottom) {
+            if showShareFollowUp, let reference = shareFollowUpReference {
+                shareFollowUpStrip(reference: reference)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
     }
 
     private var isRegularWidth: Bool {
@@ -268,48 +248,59 @@ struct HomeView: View {
         }
     }
 
-    private var gridSpacing: CGFloat {
-        isRegularWidth ? 16 : 12
-    }
+    private var gridSpacing: CGFloat { 14 }
 
     private var horizontalPadding: CGFloat {
         isRegularWidth ? 24 : 16
     }
     
-    // Bible Completion Section
-    var bibleCompletionSection: some View {
+    private var personalizationCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("The Word Is Complete — Full Bible 📜")
+                Text("For You Today")
                     .font(.headline)
                     .fontWeight(.bold)
-                
                 Spacer()
+                Image(systemName: "sparkles")
+                    .foregroundColor(.yellow)
             }
-            
-            Text("1189 chapters. Every book. Fully translated.")
+
+            Text(personalization.state.primaryTitle)
+                .font(.subheadline.weight(.semibold))
+
+            Text(personalization.state.primaryBody)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
-            if rotatingMessageIndex < rotatingMessages.count {
-                Text(rotatingMessages[rotatingMessageIndex])
-                    .font(.body)
-                    .italic()
-                    .padding(.top, 4)
-                    .transition(.opacity)
-                    .id("rotating-\(rotatingMessageIndex)")
+
+            Button(action: handlePersonalizationPrimaryAction) {
+                Text(personalization.state.primaryActionTitle)
+                    .homePrimaryCTA()
+            }
+            .buttonStyle(.plain)
+
+            Divider()
+
+            Text(personalization.state.timeOfDayCopy)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+
+            HStack(spacing: 8) {
+                Text(personalization.state.explorationCopy)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                if let book = personalization.state.explorationBook {
+                    Button("Try \(book)") {
+                        navigateToBook(book)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .buttonStyle(.bordered)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
-        .overlay(
-            ZStack {
-                if showConfetti {
-                    ConfettiView()
-                        .allowsHitTesting(false)
-                }
-            }
-        )
+        .homeCard()
     }
     
     
@@ -327,6 +318,7 @@ struct HomeView: View {
             Text("You in early. They next. You already got off the waitlist and into the AAVE Bible beta. If you know somebody who’d love hearing Scripture in our voice, send ’em your link so they can join the waitlist. The more folks on the list, the more we can build, test, and unlock. You got early access. Now you can help your people get in line.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             
             Text("Visit officialaavebible.com to learn more.")
                 .font(.body)
@@ -337,18 +329,7 @@ struct HomeView: View {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
                     Label("Invite to the Beta", systemImage: "square.and.arrow.up")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.blue.opacity(0.95), Color.cyan.opacity(0.9)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .cornerRadius(12)
+                        .homePrimaryCTA()
                 }
                 
                 Button(action: {
@@ -376,7 +357,7 @@ struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
     }
 
     private var achievementsSummaryCard: some View {
@@ -405,19 +386,7 @@ struct HomeView: View {
                     }
                 }) {
                     Text("Highlight a Verse")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.orange.opacity(0.9), Color.yellow.opacity(0.85)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .cornerRadius(10)
+                        .homePrimaryCTA()
                 }
             } else {
                 VStack(alignment: .leading, spacing: 8) {
@@ -439,7 +408,7 @@ struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
         .contentShape(Rectangle())
         .onTapGesture {
             if !suppressAchievementsTap {
@@ -461,6 +430,7 @@ struct HomeView: View {
             Text("Tap in with other testers, drop feedback, and see what's cooking in real time. The Discord is where the squad links up.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             
             Button(action: {
                 openDiscord()
@@ -475,24 +445,12 @@ struct HomeView: View {
                         .foregroundStyle(.white)
 
                     Text("Join Discord")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    LinearGradient(
-                        colors: [Color.purple.opacity(0.95), Color.indigo.opacity(0.85)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .cornerRadius(12)
+                .homePrimaryCTA()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .homeCard()
     }
     
     // Function to share the app
@@ -521,9 +479,9 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 HStack(spacing: 8) {
-                    Image(systemName: "text.bubble.fill")
-                        .foregroundColor(.red)
-                    Text("Jesus Said…")
+                    Image(systemName: "sun.max.fill")
+                        .foregroundColor(.yellow)
+                    Text("Today Focus")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -542,6 +500,8 @@ struct HomeView: View {
                 }
                 .buttonStyle(.plain)
             }
+
+            todayFocusModeControls
 
             HStack {
                 Spacer()
@@ -559,9 +519,9 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 HStack(spacing: 8) {
-                    Image(systemName: "text.bubble.fill")
-                        .foregroundColor(.red)
-                    Text("Jesus Said…")
+                    Image(systemName: "sun.max.fill")
+                        .foregroundColor(.yellow)
+                    Text("Today Focus")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -580,6 +540,8 @@ struct HomeView: View {
                 }
                 .buttonStyle(.plain)
             }
+
+            todayFocusModeControls
 
             Text("Could not load verse. Tap refresh to try again.")
                 .font(.subheadline)
@@ -595,9 +557,9 @@ struct HomeView: View {
             // Header
             HStack(alignment: .firstTextBaseline) {
                 HStack(spacing: 8) {
-                    Image(systemName: "text.bubble.fill")
-                        .foregroundColor(.red)
-                    Text("Jesus Said…")
+                    Image(systemName: "sun.max.fill")
+                        .foregroundColor(.yellow)
+                    Text("Today Focus")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -616,6 +578,8 @@ struct HomeView: View {
                 }
                 .buttonStyle(.plain)
             }
+
+            todayFocusModeControls
 
             // Reference + Scope
             HStack(alignment: .center, spacing: 10) {
@@ -637,27 +601,29 @@ struct HomeView: View {
                 Spacer(minLength: 8)
 
                 // Compact scope control
-                Menu {
-                    Button("All Gospels", action: { gospelFilter = "All" })
-                    Button("Matthew", action: { gospelFilter = "Matthew" })
-                    Button("Mark", action: { gospelFilter = "Mark" })
-                    Button("Luke", action: { gospelFilter = "Luke" })
-                    Button("John", action: { gospelFilter = "John" })
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                        Text(gospelFilter == "All" ? "All Gospels" : gospelFilter)
-                            .lineLimit(1)
+                if lockScreenJesusSaidEnabled {
+                    Menu {
+                        Button("All Gospels", action: { gospelFilter = "All" })
+                        Button("Matthew", action: { gospelFilter = "Matthew" })
+                        Button("Mark", action: { gospelFilter = "Mark" })
+                        Button("Luke", action: { gospelFilter = "Luke" })
+                        Button("John", action: { gospelFilter = "John" })
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                            Text(gospelFilter == "All" ? "All Gospels" : gospelFilter)
+                                .lineLimit(1)
+                        }
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(Color.blue.opacity(0.10))
+                        )
                     }
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.blue)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule(style: .continuous)
-                            .fill(Color.blue.opacity(0.10))
-                    )
                 }
             }
 
@@ -725,11 +691,16 @@ struct HomeView: View {
                 }
                 .buttonStyle(.plain)
 
-                NavigationLink(destination: VerseImageCreatorView(verse: Verse(
-                    text: verse.text,
-                    translation: settings.verseOfDayTranslation,
-                    reference: verse.reference
-                ))) {
+                NavigationLink(destination: VerseImageCreatorView(
+                    verse: Verse(
+                        text: verse.text,
+                        translation: settings.verseOfDayTranslation,
+                        reference: verse.reference
+                    ),
+                    onReadInContext: { ref in
+                        readJesusQuoteInContext(ref)
+                    }
+                )) {
                     Label("Create Image", systemImage: "photo.on.rectangle")
                         .font(.subheadline)
                         .fontWeight(.semibold)
@@ -751,6 +722,21 @@ struct HomeView: View {
         .homeCard()
         .transition(.opacity)
         .id(verse.reference.id)
+    }
+
+    private var todayFocusModeControls: some View {
+        VStack(spacing: 10) {
+            Toggle(isOn: $lockScreenDailyVerseEnabled) {
+                Label("Pin to Lock Screen", systemImage: "iphone.gen3")
+                    .font(.subheadline.weight(.medium))
+            }
+
+            Toggle(isOn: $lockScreenJesusSaidEnabled) {
+                Label("Jesus Said mode", systemImage: "text.bubble")
+                    .font(.subheadline.weight(.medium))
+            }
+        }
+        .toggleStyle(.switch)
     }
     
     // Function to get random Jesus quote
@@ -802,8 +788,20 @@ struct HomeView: View {
         
         Task {
             do {
-                // Get a random red letter verse with text from TranslationService
-                let verse = try await getRandomJesusQuote()
+                let verse: (reference: VerseReference, text: String)
+                if lockScreenJesusSaidEnabled {
+                    verse = try await getRandomJesusQuote()
+                } else {
+                    let preferredVersion = VerseVersion(rawValue: settings.verseOfDayTranslation) ?? .aave
+                    if let selection = await VerseOfDayProvider.today(
+                        jesusSaidOnly: false,
+                        preferredVersion: preferredVersion
+                    ), let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
+                        verse = (reference: reference, text: selection.fullText)
+                    } else {
+                        throw NSError(domain: "HomeView.TodayFocus", code: 1)
+                    }
+                }
                 
                 await MainActor.run {
                     redLetterVerse = verse
@@ -843,6 +841,21 @@ struct HomeView: View {
         selectedTab = .bible
     }
 
+    private func handlePersonalizationPrimaryAction() {
+        switch personalization.state.primaryAction {
+        case .resumeVerse(let reference):
+            navigateToVerse(reference)
+        case .openBook(let book):
+            navigateToBook(book)
+        }
+    }
+
+    private func navigateToBook(_ book: String) {
+        let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+        let verseRef = VerseReference(book: canonicalBook, chapter: 1, verse: 1)
+        navigateToVerse(verseRef)
+    }
+
     func readJesusQuoteInContext(_ reference: VerseReference) {
         let canonicalBook = BookNameNormalizer.canonicalBookName(reference.book) ?? reference.book
         let canonicalRef = VerseReference(book: canonicalBook, chapter: reference.chapter, verse: reference.verse)
@@ -857,49 +870,17 @@ struct HomeView: View {
         NotificationManager.shared.scheduleReadInContextNudge()
     }
     
-    // Check NT progress
-    func checkNTProgress() {
-        // Check if user has started NT journey
-        hasReadNTChapter = UserDefaults.standard.bool(forKey: "hasStartedNTJourney")
-    }
-    
-    // Check for confetti
-    func checkForConfetti() {
-        // Show confetti if user has completed OT
-        if UserDefaults.standard.bool(forKey: "hasCompletedOT") && !UserDefaults.standard.bool(forKey: "hasShownOTConfetti") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                withAnimation {
-                    self.showConfetti = true
-                }
-                
-                // Mark confetti as shown
-                UserDefaults.standard.set(true, forKey: "hasShownOTConfetti")
-                
-                // Hide confetti after a few seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-                    withAnimation {
-                        self.showConfetti = false
-                    }
-                }
-            }
-        }
-    }
-    
-    // Start rotating messages
-    func startRotatingMessages() {
-        // Rotate messages every 5 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            withAnimation {
-                rotatingMessageIndex = (rotatingMessageIndex + 1) % rotatingMessages.count
-            }
-            startRotatingMessages()
-        }
-    }
-    
     // Share Jesus quote
     func shareJesusQuote(_ verse: (reference: VerseReference, text: String)) {
         let shareText = "\"\(verse.text)\" - \(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse) (AAVE Bible)"
         let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            guard completed else { return }
+            DispatchQueue.main.async {
+                shareFollowUpReference = verse.reference
+                showShareFollowUp = true
+            }
+        }
         
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
@@ -907,13 +888,38 @@ struct HomeView: View {
         }
         AchievementService.shared.recordShare()
     }
-    
-    // Get OT chapters read count
-    func getOTChaptersReadCount() -> Int {
-        // For now, return 929 (all OT chapters) since OT is complete
-        return 929
-    }
 
+    private func shareFollowUpStrip(reference: VerseReference) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Shared. Keep the Word moving.")
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.primary)
+
+            HStack(spacing: 10) {
+                Button("Read in context") {
+                    showShareFollowUp = false
+                    readJesusQuoteInContext(reference)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Mark today complete") {
+                    ReadingProgressService.shared.markVerseRead(reference)
+                    showShareFollowUp = false
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+        )
+    }
+    
     private func liveActivityVerseId(for reference: VerseReference) -> String {
         let bookPart = reference.book.replacingOccurrences(of: " ", with: "-")
         return "\(bookPart)-\(reference.chapter)-\(reference.verse)"
@@ -928,6 +934,172 @@ struct HomeView: View {
     }
 }
 
+private struct HomeDailyCard: View {
+    @AppStorage("lastBook") private var lastBook = ""
+    @AppStorage("lastChapter") private var lastChapter = 0
+
+    let onPrimaryAction: (VerseReference) -> Void
+
+    private var state: HomeDailyCardState {
+        let resolvedBook = lastBook.isEmpty ? nil : lastBook
+        let resolvedChapter = lastChapter > 0 ? lastChapter : nil
+        return HomeDailyCardBuilder.newTestamentSpotlight(
+            lastBook: resolvedBook,
+            lastChapter: resolvedChapter
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("New Testament Spotlight", systemImage: "book.pages")
+                    .font(.headline.weight(.bold))
+                Spacer()
+            }
+
+            Text(state.body)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(action: { onPrimaryAction(state.reference) }) {
+                Label(state.ctaTitle, systemImage: "arrow.right.circle.fill")
+                    .homePrimaryCTA()
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .homeCard()
+    }
+}
+
+private struct HomeDailyCardState {
+    let body: String
+    let ctaTitle: String
+    let reference: VerseReference
+}
+
+private enum HomeDailyCardBuilder {
+    private static let ntBooks = bibleBooks.filter { $0.testament == .new }
+
+    static func newTestamentSpotlight(lastBook: String?, lastChapter: Int?) -> HomeDailyCardState {
+        guard let lastBook,
+              let canonicalLastBook = BookNameNormalizer.canonicalBookName(lastBook),
+              let lastChapter,
+              lastChapter > 0 else {
+            return placeholderState()
+        }
+
+        guard let currentIndex = ntBooks.firstIndex(where: { $0.name == canonicalLastBook }) else {
+            return placeholderState()
+        }
+
+        let currentBook = ntBooks[currentIndex]
+        let chapterCount = currentBook.chapters
+
+        guard chapterCount > 0 else {
+            return placeholderState()
+        }
+
+        if lastChapter < chapterCount {
+            let nextReference = VerseReference(book: currentBook.name, chapter: lastChapter + 1, verse: 1)
+            return HomeDailyCardState(
+                body: "Keep your rhythm going with \(nextReference.book) \(nextReference.chapter).",
+                ctaTitle: "Read \(nextReference.book) \(nextReference.chapter)",
+                reference: nextReference
+            )
+        }
+
+        if currentIndex < ntBooks.count - 1 {
+            let nextBook = ntBooks[currentIndex + 1]
+            let nextReference = VerseReference(book: nextBook.name, chapter: 1, verse: 1)
+            return HomeDailyCardState(
+                body: "You finished \(currentBook.name). Next up: \(nextBook.name) 1.",
+                ctaTitle: "Start \(nextBook.name)",
+                reference: nextReference
+            )
+        }
+
+        let restartReference = VerseReference(book: "Matthew", chapter: 1, verse: 1)
+        return HomeDailyCardState(
+            body: "You reached the end of Revelation. Start a fresh NT cycle today.",
+            ctaTitle: "Restart in Matthew",
+            reference: restartReference
+        )
+    }
+
+    private static func placeholderState() -> HomeDailyCardState {
+        let fallback = VerseReference(book: "Matthew", chapter: 1, verse: 1)
+        return HomeDailyCardState(
+            body: "No recent NT chapter found yet. Start in Matthew and build your flow.",
+            ctaTitle: "Start Matthew 1",
+            reference: fallback
+        )
+    }
+}
+
+private struct HomeDailyCardPreviewHarness: View {
+    let state: HomeDailyCardState
+
+    var body: some View {
+        VStack {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label("New Testament Spotlight", systemImage: "book.pages")
+                        .font(.headline.weight(.bold))
+                    Spacer()
+                }
+                Text(state.body)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Text(state.ctaTitle)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.indigo.opacity(0.92), Color.blue.opacity(0.86)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(10)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
+        }
+        .padding()
+        .glassBackground()
+    }
+}
+
+private struct HomePrimaryCTAStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.82)
+            .foregroundColor(.white)
+            .padding(.horizontal, 14)
+            .frame(minHeight: 44)
+            .background(
+                LinearGradient(
+                    colors: [Color.indigo.opacity(0.92), Color.blue.opacity(0.86)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .cornerRadius(12)
+    }
+}
+
+private extension View {
+    func homePrimaryCTA() -> some View {
+        modifier(HomePrimaryCTAStyle())
+    }
+}
+
 
    
     
@@ -936,5 +1108,25 @@ struct HomeView: View {
 #Preview {
     HomeView(selectedTab: .constant(.home))
         .environmentObject(NavigationRouter())
+}
+
+#Preview("HomeDailyCard - Spotlight") {
+    HomeDailyCardPreviewHarness(
+        state: HomeDailyCardState(
+            body: "Keep your rhythm going with John 7.",
+            ctaTitle: "Read John 7",
+            reference: VerseReference(book: "John", chapter: 7, verse: 1)
+        )
+    )
+}
+
+#Preview("HomeDailyCard - Placeholder") {
+    HomeDailyCardPreviewHarness(
+        state: HomeDailyCardState(
+            body: "No recent NT chapter found yet. Start in Matthew and build your flow.",
+            ctaTitle: "Start Matthew 1",
+            reference: VerseReference(book: "Matthew", chapter: 1, verse: 1)
+        )
+    )
 }
     

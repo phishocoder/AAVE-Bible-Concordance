@@ -10,6 +10,8 @@ import SwiftUI
 struct QuizResultView: View {
     let score: Int
     let totalQuestions: Int
+    let personalBestImproved: Bool
+    let previousBestScore: Int?
     let onPlayAgain: () -> Void
 
     private var badgeTitle: String {
@@ -65,9 +67,22 @@ struct QuizResultView: View {
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding()
+
+            if personalBestImproved {
+                VStack(spacing: 6) {
+                    Text("Personal best improved")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                    Text(previousBestScore == nil ? "First score on the board. Keep building." : "You beat your previous best of \(previousBestScore ?? 0).")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal)
+            }
             
             NavigationLink(destination: LeaderboardView()) {
-                Text("View Leaderboard")
+                Text("See Your Progress")
                     .font(.headline)
                     .padding()
                     .background(Color.green)

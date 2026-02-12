@@ -130,6 +130,9 @@ struct SettingsView: View {
             NavigationLink(destination: ReadingProgressDebugView()) {
                 SettingsNavigationRow(icon: "ladybug", tint: .pink, title: "Reading Progress Debug")
             }
+            NavigationLink(destination: PersonalizationDebugView()) {
+                SettingsNavigationRow(icon: "sparkles.rectangle.stack", tint: .teal, title: "Personalization Debug")
+            }
 #endif
         }
     }
@@ -321,6 +324,101 @@ private struct SettingsNavigationRow: View {
         )
     }
 }
+
+#if DEBUG
+private struct PersonalizationDebugView: View {
+    @ObservedObject private var personalization = PersonalizationService.shared
+    @State private var snapshot = PersonalizationService.shared.debugSnapshot()
+
+    private var sortedBookFrequency: [(key: String, value: Int)] {
+        snapshot.bookFrequency.sorted { lhs, rhs in
+            if lhs.value == rhs.value { return lhs.key < rhs.key }
+            return lhs.value > rhs.value
+        }
+    }
+
+    private var sortedUsageBuckets: [(key: String, value: Int)] {
+        snapshot.usageBuckets.sorted { lhs, rhs in
+            if lhs.value == rhs.value { return lhs.key < rhs.key }
+            return lhs.value > rhs.value
+        }
+    }
+
+    var body: some View {
+        List {
+            Section("Current State") {
+                Text("Primary: \(snapshot.currentState.primaryTitle)")
+                Text(snapshot.currentState.primaryBody)
+                    .foregroundColor(.secondary)
+                Text("Primary Action: \(snapshot.currentState.primaryActionTitle)")
+                Text("Time Prompt: \(snapshot.currentState.timeOfDayCopy)")
+                    .foregroundColor(.secondary)
+                Text("Exploration: \(snapshot.currentState.explorationCopy)")
+                    .foregroundColor(.secondary)
+            }
+
+            Section("Last Read") {
+                if let ref = snapshot.lastReadReference {
+                    Text("\(ref.book) \(ref.chapter):\(ref.verse)")
+                } else {
+                    Text("No saved last read reference")
+                        .foregroundColor(.secondary)
+                }
+
+                if let date = snapshot.lastReadAt {
+                    Text(date.formatted(date: .abbreviated, time: .shortened))
+                } else {
+                    Text("No saved last read timestamp")
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Section("Usage Buckets") {
+                if sortedUsageBuckets.isEmpty {
+                    Text("No usage bucket data yet")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(sortedUsageBuckets, id: \.key) { bucket in
+                        HStack {
+                            Text(bucket.key.capitalized)
+                            Spacer()
+                            Text("\(bucket.value)")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+
+            Section("Book Frequency") {
+                if sortedBookFrequency.isEmpty {
+                    Text("No book frequency data yet")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(sortedBookFrequency, id: \.key) { entry in
+                        HStack {
+                            Text(entry.key)
+                            Spacer()
+                            Text("\(entry.value)")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Personalization Debug")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Refresh") {
+                    snapshot = personalization.debugSnapshot()
+                }
+            }
+        }
+        .onAppear {
+            snapshot = personalization.debugSnapshot()
+        }
+    }
+}
+#endif
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {

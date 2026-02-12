@@ -12,6 +12,8 @@ final class QuizGameViewModel: ObservableObject {
     @Published var quizFinished: Bool = false
     @Published var timerProgress: CGFloat = 1.0
     @Published var timeRemaining: Double = 15
+    @Published private(set) var personalBestImproved: Bool = false
+    @Published private(set) var previousBestScore: Int?
     
     let questionsPerSession = 10
     let timePerQuestion: Double = 15
@@ -19,9 +21,9 @@ final class QuizGameViewModel: ObservableObject {
     private let repository: QuizQuestionRepository
     private var timer: Timer?
     
-    init(repository: QuizQuestionRepository = .shared) {
+    init(repository: QuizQuestionRepository = .shared, autostartTimer: Bool = true) {
         self.repository = repository
-        startNewGame()
+        startNewGame(autostartTimer: autostartTimer)
     }
     
     deinit {
@@ -32,9 +34,13 @@ final class QuizGameViewModel: ObservableObject {
         guard currentQuestionIndex < questions.count else { return nil }
         return questions[currentQuestionIndex]
     }
-    
+
     func startNewGame() {
-        timer?.invalidate()
+        startNewGame(autostartTimer: true)
+    }
+    
+    func startNewGame(autostartTimer: Bool = true) {
+        stopTimer()
         questions = repository.fetchRandomQuestions(count: questionsPerSession).map { question in
             // Shuffle options while tracking the new correct index
             let correctAnswer = question.options[question.correctIndex]
@@ -53,13 +59,25 @@ final class QuizGameViewModel: ObservableObject {
         score = 0
         quizFinished = false
         selectedOptionIndex = nil
+        personalBestImproved = false
+        previousBestScore = nil
+        timeRemaining = timePerQuestion
+        timerProgress = 1.0
+        if autostartTimer {
+            startTimer()
+        }
+    }
+
+    func beginSession() {
+        guard !quizFinished, selectedOptionIndex == nil else { return }
+        guard timer == nil else { return }
         startTimer()
     }
     
     func selectOption(_ index: Int) {
         guard selectedOptionIndex == nil, let question = currentQuestion else { return }
         selectedOptionIndex = index
-        timer?.invalidate()
+        stopTimer()
         
         if index == question.correctIndex {
             score += 1
@@ -80,7 +98,7 @@ final class QuizGameViewModel: ObservableObject {
     func timeRanOut() {
         guard selectedOptionIndex == nil else { return }
         selectedOptionIndex = -1 // indicates timeout
-        timer?.invalidate()
+        stopTimer()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.advance()
@@ -90,7 +108,7 @@ final class QuizGameViewModel: ObservableObject {
     private func startTimer() {
         timeRemaining = timePerQuestion
         timerProgress = 1.0
-        timer?.invalidate()
+        stopTimer()
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self else { return }
@@ -104,7 +122,7 @@ final class QuizGameViewModel: ObservableObject {
     }
     
     private func finishQuiz() {
-        timer?.invalidate()
+        stopTimer()
         quizFinished = true
         selectedOptionIndex = nil
 
@@ -115,7 +133,19 @@ final class QuizGameViewModel: ObservableObject {
         }
         
         if let userID = Auth.auth().currentUser?.uid {
+            QuizScoreLogger.shared.fetchBestScore(userID: userID, quizType: "WhoSaidThat") { [weak self] bestScore in
+                guard let self else { return }
+                DispatchQueue.main.async {
+                    self.previousBestScore = bestScore
+                    self.personalBestImproved = bestScore == nil || self.score > (bestScore ?? 0)
+                }
+            }
             QuizScoreLogger.shared.logScore(userID: userID, score: score, quizType: "WhoSaidThat")
         }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }

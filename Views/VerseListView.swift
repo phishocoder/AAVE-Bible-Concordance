@@ -221,17 +221,27 @@ struct VerseListMainContent: View {
             selectedChapter: $viewModel.currentChapter,
             selectedVerse: $viewModel.highlightedVerse,
             onSelect: {
+                let selectedBook = viewModel.currentBook
+                let selectedChapter = viewModel.currentChapter
+                let selectedVerse = viewModel.highlightedVerse
                 showingBookPicker = false
-                
-                // If a verse was selected, scroll to it
-                if let verse = viewModel.highlightedVerse {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+
+                Task {
+                    // Route picker jumps through the same deep-link path so header and content stay in sync.
+                    await viewModel.applyDeepLink(
+                        book: selectedBook,
+                        chapter: selectedChapter,
+                        verse: selectedVerse
+                    )
+
+                    // If a verse was selected, scroll to it after chapter content reloads.
+                    if let verse = selectedVerse {
                         NotificationCenter.default.post(
                             name: Notification.Name("HighlightVerse"),
                             object: nil,
                             userInfo: [
-                                "book": viewModel.currentBook,
-                                "chapter": viewModel.currentChapter,
+                                "book": selectedBook,
+                                "chapter": selectedChapter,
                                 "verse": verse
                             ]
                         )
