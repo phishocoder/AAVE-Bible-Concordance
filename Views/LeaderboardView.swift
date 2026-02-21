@@ -32,6 +32,9 @@ struct LeaderboardView: View {
             if viewModel.isLoading && viewModel.entries.isEmpty && viewModel.userSummary == nil {
                 ProgressView("Loading progress...")
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             } else {
                 Section("Your Progress") {
                     VStack(alignment: .leading, spacing: 10) {
@@ -58,15 +61,30 @@ struct LeaderboardView: View {
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .homeCard()
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
 
                 Section("Top Scores (Community)") {
                     if let errorMessage = viewModel.errorMessage {
                         Text("Couldn't load community scores: \(errorMessage)")
                             .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .homeCard()
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     } else if viewModel.entries.isEmpty {
                         Text("No community scores yet.")
                             .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .homeCard()
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     } else {
                         ForEach(viewModel.entries.indices, id: \.self) { index in
                             let entry = viewModel.entries[index]
@@ -76,6 +94,10 @@ struct LeaderboardView: View {
                 }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .glassBackground()
+        .applyGlassToolbar()
         .navigationTitle("Leaderboard")
         .onAppear {
             viewModel.fetchLeaderboard(currentUserID: currentUserID)
@@ -111,8 +133,17 @@ struct LeaderboardView: View {
                     .foregroundColor(.blue)
             }
         }
-        .padding(.vertical, 4)
-        .listRowBackground(isCurrentUser ? Color.blue.opacity(0.05) : Color.clear)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .homeCard()
+        .overlay(alignment: .topLeading) {
+            if isCurrentUser {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(Color.blue.opacity(0.45), lineWidth: 1)
+            }
+        }
+        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
     }
 
     private func statValue(_ value: Int?) -> String {

@@ -38,7 +38,37 @@ struct NotificationSettingsView: View {
                                     .foregroundColor(.blue)
                             }
                         }
+                        if notificationManager.smartTimingEnabled {
+                            let optimized = notificationManager.smartTimingDescription() ?? "Not enough recent activity yet"
+                            Text("Smart Timing is on. Auto-optimized target: \(optimized). Manual time remains as backup.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
                     }
+
+                    Toggle("Smart Timing", isOn: $notificationManager.smartTimingEnabled)
+                        .onChange(of: notificationManager.smartTimingEnabled) { _, _ in
+                            notificationManager.scheduleVerseOfDayNotification()
+                        }
+                    Text("Uses your local 7-day open pattern to optimize Daily Verse timing. Updates at most once per week.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+
+                    Toggle("Gentle Mode", isOn: $notificationManager.gentleModeEnabled)
+                        .onChange(of: notificationManager.gentleModeEnabled) { _, _ in
+                            notificationManager.scheduleAllNotifications()
+                        }
+                    Text("Shorter, softer notification copy with no urgency language.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+
+                    Toggle("Streak Nudge", isOn: $notificationManager.streakNudgeEnabled)
+                        .onChange(of: notificationManager.streakNudgeEnabled) { _, _ in
+                            notificationManager.scheduleStreakNudge()
+                        }
+                    Text("Optional reminder only when your streak is established and no other push has gone out today.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                     
                     Toggle("Midweek Motivation", isOn: $notificationManager.midweekMotivationEnabled)
                         .onChange(of: notificationManager.midweekMotivationEnabled) { _, _ in
@@ -61,8 +91,17 @@ struct NotificationSettingsView: View {
                     }
                     
                     Toggle("Beta Feedback", isOn: $notificationManager.betaFeedbackEnabled)
+                        .onChange(of: notificationManager.betaFeedbackEnabled) { _, _ in
+                            notificationManager.scheduleAllNotifications()
+                        }
                     
                     Toggle("Feature Discovery", isOn: $notificationManager.featureDiscoveryEnabled)
+                        .onChange(of: notificationManager.featureDiscoveryEnabled) { _, _ in
+                            notificationManager.scheduleAllNotifications()
+                        }
+                    Text("Feature Discovery is intentionally rare. Most feature tips now appear in-app.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
             }
         }

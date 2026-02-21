@@ -44,8 +44,12 @@ struct HighlightedVersesView: View {
                             .lineLimit(3)
                             .foregroundColor(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .homeCard()
                 }
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .swipeActions {
                     Button(role: .destructive) {
                         highlightManager.removeHighlight(VerseReference(
@@ -59,7 +63,32 @@ struct HighlightedVersesView: View {
                 }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .glassBackground()
+        .applyGlassToolbar()
         .searchable(text: $searchText, prompt: "Search highlights")
         .navigationTitle("Highlighted Verses")
+        .overlay {
+            if highlightManager.highlights.isEmpty {
+                ContentUnavailableView(
+                    "No Highlights",
+                    systemImage: "highlighter",
+                    description: Text("Your highlighted verses will appear here")
+                )
+            } else if filteredHighlights.isEmpty {
+                ContentUnavailableView(
+                    "No Results",
+                    systemImage: "magnifyingglass",
+                    description: Text("Try a different search term")
+                )
+            }
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        HighlightedVersesView()
     }
 }

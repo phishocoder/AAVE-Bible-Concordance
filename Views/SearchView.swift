@@ -25,99 +25,104 @@ struct SearchView: View {
     private let haptics = HapticManager.shared
 
     var body: some View {
-        VStack {
-            SearchBar(text: $searchText, isSearching: $isSearching) {
-                cancelScheduledSearch()
-                Task {
-                    await performSearch(for: searchText)
+        VStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
+                SearchBar(text: $searchText, isSearching: $isSearching) {
+                    cancelScheduledSearch()
+                    Task {
+                        await performSearch(for: searchText)
+                    }
                 }
-            }
-            .onChange(of: searchText) { _, newValue in
-                scheduleSearch(for: newValue)
-            }
+                .onChange(of: searchText) { _, newValue in
+                    scheduleSearch(for: newValue)
+                }
 
-            Picker("Search Mode", selection: $searchMode) {
-                ForEach(SearchMode.allCases, id: \.self) { mode in
-                    Text(mode.label).tag(mode)
+                Picker("Search Mode", selection: $searchMode) {
+                    ForEach(SearchMode.allCases, id: \.self) { mode in
+                        Text(mode.label).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                
+                Text(translationService.searchCoverageDescription)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                
+                if searchMode == .reference {
+                    Text("Try: “John 3”, “John 3:16”, or “1 Corinthians 13”.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("Tip: AAVE search is limited to available books.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.top, 8)
-            
-            Text(translationService.searchCoverageDescription)
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.horizontal)
-                .padding(.top, 6)
-            
-            if searchMode == .reference {
-                Text("Try: “John 3”, “John 3:16”, or “1 Corinthians 13”.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                    .padding(.top, 2)
-                    .padding(.bottom, 6)
-            } else {
-                Text("Tip: AAVE search is limited to available books.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                    .padding(.top, 2)
-                    .padding(.bottom, 6)
-            }
-            // (Removed duplicated coverage description and misplaced .onChange)
+            .homeCard()
 
             if isSearching {
                 ProgressView("Searching...")
-                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .homeCard()
             } else if searchResults.isEmpty && !searchText.isEmpty {
                 ContentUnavailableView(
                     "No verses found",
                     systemImage: "magnifyingglass",
                     description: Text("Try different keywords or another reference.")
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(searchResults) { result in
-                    Button {
-                        haptics.impact(.light)
-                        navigateToResult(result)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text(result.displayTitle)
-                                    .font(.headline)
-                                
-                                if result.kind == .verse,
-                                   let chapter = result.chapter,
-                                   let verse = result.verse,
-                                   translationService.hasCommentary(
-                                    for: result.book,
-                                    chapter: chapter,
-                                    verse: verse
-                                   ) {
-                                    Image(systemName: "lightbulb.fill")
-                                        .foregroundColor(.yellow)
-                                        .font(.system(size: 12))
-                                }
-                            }
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        ForEach(searchResults) { result in
+                            Button {
+                                haptics.impact(.light)
+                                navigateToResult(result)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Text(result.displayTitle)
+                                            .font(.headline)
+                                        
+                                        if result.kind == .verse,
+                                           let chapter = result.chapter,
+                                           let verse = result.verse,
+                                           translationService.hasCommentary(
+                                            for: result.book,
+                                            chapter: chapter,
+                                            verse: verse
+                                           ) {
+                                            Image(systemName: "lightbulb.fill")
+                                                .foregroundColor(.yellow)
+                                                .font(.system(size: 12))
+                                        }
+                                    }
 
-                            if let preview = result.previewText {
-                                Text(preview)
-                                    .font(.body)
-                                    .foregroundColor(.primary)
-                                    .lineLimit(3)
-                            } else {
-                                Text(result.kind == .book ? "Jump to book" : "Open chapter")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    if let preview = result.previewText {
+                                        Text(preview)
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                            .lineLimit(3)
+                                    } else {
+                                        Text(result.kind == .book ? "Jump to book" : "Open chapter")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
+                            .buttonStyle(.plain)
+                            .homeCard()
                         }
                     }
+                    .padding(.bottom, 24)
                 }
-                .listStyle(.plain)
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .glassBackground()
+        .applyGlassToolbar()
         .navigationTitle("Search")
     }
 
@@ -229,9 +234,13 @@ private struct SearchBar: View {
     let onSubmit: () -> Void
 
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+
             TextField("Search verses...", text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
                 .submitLabel(.search)
                 .onSubmit(onSubmit)
 
@@ -241,11 +250,20 @@ private struct SearchBar: View {
                     onSubmit()
                 }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 12)
+        .frame(minHeight: 44)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color.white.opacity(0.16), lineWidth: 1)
+                )
+        )
     }
 }
 

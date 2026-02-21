@@ -21,6 +21,7 @@ struct VerseRow: View {
     @ObservedObject private var highlightManager = HighlightManager.shared
     @ObservedObject private var settings = SettingsViewModel.shared
     @ObservedObject private var readingProgress = ReadingProgressService.shared
+    private let haptics = HapticManager.shared
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
@@ -115,6 +116,7 @@ struct VerseRow: View {
             onTap()
         }
         .onLongPressGesture {
+            haptics.impact(.medium)
             onLongPress()
         }
         .onAppear {

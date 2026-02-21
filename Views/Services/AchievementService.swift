@@ -10,10 +10,12 @@ final class AchievementService: ObservableObject {
     private let defaults = UserDefaults.standard
     private let storageKey = "achievements.unlocked"
     private let dateKeyPrefix = "achievements.unlockedAt."
+    private let legacyNotesKey = "verseNotes"
 
     private init() {
         let stored = defaults.array(forKey: storageKey) as? [String] ?? []
         unlockedIDs = Set(stored)
+        runLegacyFirstNoteMigrationIfNeeded()
     }
 
     func isUnlocked(_ id: AchievementID) -> Bool {
@@ -38,12 +40,35 @@ final class AchievementService: ObservableObject {
         )
     }
 
+    private func unlockSilently(_ id: AchievementID, at date: Date = Date()) {
+        guard !unlockedIDs.contains(id.rawValue) else { return }
+        unlockedIDs.insert(id.rawValue)
+        defaults.set(Array(unlockedIDs), forKey: storageKey)
+        defaults.set(date.timeIntervalSince1970, forKey: dateKeyPrefix + id.rawValue)
+    }
+
+    private func runLegacyFirstNoteMigrationIfNeeded() {
+        guard !isUnlocked(.firstNote) else { return }
+        guard let data = defaults.data(forKey: legacyNotesKey),
+              let notes = try? JSONDecoder().decode([String: String].self, from: data) else {
+            return
+        }
+
+        let hasAnyNote = notes.values.contains { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard hasAnyNote else { return }
+        unlockSilently(.firstNote)
+    }
+
     func recordHighlight() {
         unlock(.firstHighlight)
     }
 
     func recordShare() {
         unlock(.firstShare)
+    }
+
+    func recordNoteCreated() {
+        unlock(.firstNote)
     }
 
     func handleStreak(_ currentStreak: Int) {
@@ -94,6 +119,7 @@ final class AchievementService: ObservableObject {
 enum AchievementID: String, CaseIterable {
     case firstHighlight
     case firstShare
+    case firstNote
     case streak3
     case streak7
     case finishBook
@@ -103,6 +129,7 @@ enum AchievementID: String, CaseIterable {
         switch self {
         case .firstHighlight: return "First Highlight"
         case .firstShare: return "First Share"
+        case .firstNote: return "First Note"
         case .streak3: return "3-Day Streak"
         case .streak7: return "7-Day Streak"
         case .finishBook: return "Finish a Book"
@@ -114,6 +141,7 @@ enum AchievementID: String, CaseIterable {
         switch self {
         case .firstHighlight: return "Highlight your first verse."
         case .firstShare: return "Share a verse for the first time."
+        case .firstNote: return "Create your first verse note."
         case .streak3: return "Read on 3 consecutive days."
         case .streak7: return "Read on 7 consecutive days."
         case .finishBook: return "Read the final verse of any book."
@@ -125,6 +153,7 @@ enum AchievementID: String, CaseIterable {
         switch self {
         case .firstHighlight: return "highlighter"
         case .firstShare: return "square.and.arrow.up"
+        case .firstNote: return "note.text"
         case .streak3: return "flame"
         case .streak7: return "flame.fill"
         case .finishBook: return "bookmark.fill"

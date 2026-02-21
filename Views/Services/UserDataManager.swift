@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 class UserDataManager: ObservableObject {
     static let shared = UserDataManager()
+    static let noteCharacterLimit = 1200
     
     @Published private(set) var history: [VerseReference] = []
     @Published var notes: [String: String] = [:]
@@ -38,7 +39,16 @@ class UserDataManager: ObservableObject {
     }
     
     func saveNote(_ text: String, for reference: VerseReference) {
-        notes[reference.id] = text
+        let hadExistingNote = notes[reference.id] != nil
+        let sanitized = Self.sanitizedNoteText(text)
+        if sanitized.isEmpty {
+            notes.removeValue(forKey: reference.id)
+        } else {
+            notes[reference.id] = sanitized
+            if !hadExistingNote {
+                AchievementService.shared.recordNoteCreated()
+            }
+        }
         saveNotes()
     }
     
@@ -121,7 +131,16 @@ class UserDataManager: ObservableObject {
     private func loadNotes() {
         if let data = UserDefaults.standard.data(forKey: notesKey),
            let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
-            notes = decoded
+            let sanitized = decoded.reduce(into: [String: String]()) { partialResult, entry in
+                let cleaned = Self.sanitizedNoteText(entry.value)
+                if !cleaned.isEmpty {
+                    partialResult[entry.key] = cleaned
+                }
+            }
+            notes = sanitized
+            if sanitized != decoded {
+                saveNotes()
+            }
         }
     }
     
@@ -144,5 +163,11 @@ class UserDataManager: ObservableObject {
     func clearChaptersRead() {
         chaptersRead.removeAll()
         saveChaptersRead()
+    }
+
+    private static func sanitizedNoteText(_ text: String) -> String {
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+        let limited = String(normalized.prefix(noteCharacterLimit))
+        return limited.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

@@ -18,7 +18,7 @@ struct MoreView: View {
                         MoreRow(icon: "bookmark.fill", tint: .orange, title: "Bookmarks")
                     }
                     NavigationLink {
-                        NotesView(reference: VerseReference(book: "Genesis", chapter: 1, verse: 1))
+                        NotesView()
                     } label: {
                         MoreRow(icon: "note.text", tint: .teal, title: "Notes")
                     }

@@ -60,6 +60,7 @@ struct AAVE_Bible_ConcordanceApp: App {
             }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }
+                notificationManager.recordAppForeground(at: Date())
                 DailyVerseLiveActivityCoordinator.handleAppActive()
             }
         }

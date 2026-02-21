@@ -138,6 +138,11 @@ final class QuizGameViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.previousBestScore = bestScore
                     self.personalBestImproved = bestScore == nil || self.score > (bestScore ?? 0)
+                    if let bestScore, self.score > bestScore {
+                        Task { @MainActor in
+                            NotificationManager.shared.scheduleMilestoneCelebration(.quizPersonalBest(score: self.score))
+                        }
+                    }
                 }
             }
             QuizScoreLogger.shared.logScore(userID: userID, score: score, quizType: "WhoSaidThat")

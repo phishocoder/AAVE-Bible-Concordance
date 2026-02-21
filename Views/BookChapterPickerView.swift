@@ -110,10 +110,18 @@ struct BookChapterPickerView: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .homeCard()
                         }
+                        .buttonStyle(.plain)
                         .contentShape(Rectangle())
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             } else if let book = bookForChapters, showingChapters {
                 // Chapter grid view
                 VStack {
@@ -179,6 +187,8 @@ struct BookChapterPickerView: View {
                 }
             }
         }
+        .glassBackground()
+        .applyGlassToolbar()
         .navigationTitle("Select Book & Chapter")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {

@@ -138,7 +138,8 @@
 		E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000014 /* LiveActivityDebug.swift */; };
 		E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
 		E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000015 /* VerseVersion.swift */; };
-		E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
+			E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
+			E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D0AA012F30000100000002 /* VerseActionSheetView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -303,7 +304,8 @@
 		E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
 		E1C0AA012F20000100000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
 		E1C0AA012F20000100000015 /* VerseVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseVersion.swift; sourceTree = "<group>"; };
-		E1C0AA012F20000100000016 /* ScriptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureStore.swift; sourceTree = "<group>"; };
+			E1C0AA012F20000100000016 /* ScriptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureStore.swift; sourceTree = "<group>"; };
+			E1D0AA012F30000100000002 /* VerseActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseActionSheetView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -455,9 +457,10 @@
 				E0E071D72D8913E100BFB93E /* MultiSelectBottomToolbar.swift */,
 				E0E071D12D890F5800BFB93E /* Assets 2.xcassets */,
 				E04E17322D87E172002EDE4A /* ActionButton.swift */,
-				E04E172A2D87DC21002EDE4A /* ChapterNavigationHeader.swift */,
-				E04E17282D87DC0E002EDE4A /* VerseRow.swift */,
-				E04E17262D87CBC5002EDE4A /* CreditsView.swift */,
+					E04E172A2D87DC21002EDE4A /* ChapterNavigationHeader.swift */,
+					E04E17282D87DC0E002EDE4A /* VerseRow.swift */,
+					E1D0AA012F30000100000002 /* VerseActionSheetView.swift */,
+					E04E17262D87CBC5002EDE4A /* CreditsView.swift */,
 				E04E17212D87C72B002EDE4A /* VerseofDaySettingsView.swift */,
 				E04E171D2D87C5C0002EDE4A /* BookChapterPickerView.swift */,
 				E04E171B2D87C593002EDE4A /* BibleNavigationHeader.swift */,
@@ -908,9 +911,10 @@
 				E1A0AA012F00000100000011 /* AchievementService.swift in Sources */,
 				E1A0AA012F00000100000012 /* ReadingProgressService.swift in Sources */,
 				E04E171E2D87C5C6002EDE4A /* BookChapterPickerView.swift in Sources */,
-				E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
-				E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,
-				E00962732D827D97007677BD /* NotesView.swift in Sources */,
+					E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
+					E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,
+					E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */,
+					E00962732D827D97007677BD /* NotesView.swift in Sources */,
 				E0534B692DC2A4F10038651E /* UsernamePromptView.swift in Sources */,
 				E04E15DF2D85F567002EDE4A /* TranslationsView.swift in Sources */,
 				E04E171A2D87C57E002EDE4A /* MultiVerseActionsOverlay.swift in Sources */,

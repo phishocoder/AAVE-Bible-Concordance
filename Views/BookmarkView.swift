@@ -63,9 +63,13 @@ struct BookmarkView: View {
                             .lineLimit(3)
                             .foregroundColor(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .homeCard()
                 }
                 .buttonStyle(.plain)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .swipeActions {
                     Button(role: .destructive) {
                         bookmarks.removeBookmark(withId: bookmark.id)
@@ -75,6 +79,10 @@ struct BookmarkView: View {
                 }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .glassBackground()
+        .applyGlassToolbar()
         .navigationTitle("Bookmarks")
         .searchable(text: $searchText, prompt: "Search bookmarks")
         .overlay {

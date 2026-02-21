@@ -38,7 +38,16 @@ struct VerseListView: View {
     @State private var shareText = ""
     @State private var showToast = false
     @State private var toastMessage = ""
+    @State private var showingVerseActionSheet = false
+    @State private var selectedActionVerse: Verse?
+    @State private var showingHighlightPalette = false
+    @State private var noteReference: VerseReference?
+    @State private var compareReference: VerseReference?
+    @State private var showingVerseImageSheet = false
     @AppStorage("hasSeenVerseActionsLongPressHint") private var hasSeenLongPressHint = false
+    @StateObject private var bookmarks = Bookmarks.shared
+    @StateObject private var highlightManager = HighlightManager.shared
+    private let haptics = HapticManager.shared
     
     private var backgroundColor: Color {
         // Your color logic here
@@ -58,7 +67,8 @@ struct VerseListView: View {
             viewModel: viewModel,
             settings: settings,
             showingBookPicker: $showingBookPicker,
-            showTranslationPicker: $showTranslationPicker
+            showTranslationPicker: $showTranslationPicker,
+            onVerseLongPress: handleVerseLongPress
         )
         .overlay {
             // Only show the commentary overlay when needed
@@ -98,6 +108,50 @@ struct VerseListView: View {
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [shareText])
         }
+        .sheet(isPresented: $showingVerseActionSheet, onDismiss: {
+            selectedActionVerse = nil
+            showingHighlightPalette = false
+        }) {
+            if let verse = selectedActionVerse {
+                VerseActionSheetView(
+                    verse: verse,
+                    translationLabel: settings.preferredTranslation,
+                    isBookmarked: isBookmarked(verse),
+                    isHighlighted: highlightManager.isHighlighted(verse.reference),
+                    currentHighlightColor: highlightManager.getHighlightColor(for: verse.reference),
+                    showsHighlightPalette: showingHighlightPalette,
+                    onAction: { action in
+                        handleVerseAction(action, verse: verse)
+                    },
+                    onHighlightColor: { color in
+                        highlightManager.addHighlight(verse.reference, color: color)
+                        haptics.selection()
+                        showSavedToast()
+                        showingVerseActionSheet = false
+                    },
+                    onRemoveHighlight: {
+                        highlightManager.removeHighlight(verse.reference)
+                        haptics.selection()
+                        showSavedToast(message: "Removed")
+                        showingVerseActionSheet = false
+                    },
+                    onCancel: { showingVerseActionSheet = false }
+                )
+                .presentationDetents([.height(220), .medium])
+                .presentationDragIndicator(.visible)
+            }
+        }
+        .sheet(item: $noteReference) { reference in
+            NotesView(reference: reference)
+        }
+        .sheet(item: $compareReference) { reference in
+            CompareTranslationsSheet(reference: reference)
+        }
+        .sheet(isPresented: $showingVerseImageSheet) {
+            if let verse = selectedActionVerse {
+                VerseImageCreatorView(verse: verse)
+            }
+        }
         .glassBackground()
         .task(id: "\(book)-\(chapter)-\(initialVerse ?? -1)") {
             await viewModel.applyDeepLink(book: book, chapter: chapter, verse: initialVerse)
@@ -125,6 +179,82 @@ struct VerseListView: View {
             }
         }
     }
+
+    private func handleVerseLongPress(_ verse: Verse) {
+        // Ensure old multi-select toolbar does not conflict with the new action sheet.
+        viewModel.selectedVerse = nil
+        viewModel.selectedVerses = []
+        viewModel.isMultiSelectMode = false
+        selectedActionVerse = verse
+        showingHighlightPalette = false
+        showingVerseActionSheet = true
+    }
+
+    private func handleVerseAction(_ action: VerseActionSheetAction, verse: Verse) {
+        switch action {
+        case .highlight:
+            showingHighlightPalette.toggle()
+        case .bookmark:
+            let nowBookmarked = toggleBookmark(for: verse)
+            if nowBookmarked {
+                showSavedToast()
+            }
+            showingVerseActionSheet = false
+        case .note:
+            showingVerseActionSheet = false
+            noteReference = verse.reference
+        case .copy:
+            UIPasteboard.general.string = "\(verse.reference.displayString) - \(verse.text)"
+            showSavedToast()
+            showingVerseActionSheet = false
+        case .share:
+            shareText = "\"\(verse.text)\" - \(verse.reference.displayString) (\(settings.preferredTranslation))"
+            showingVerseActionSheet = false
+            showShareSheet = true
+            AchievementService.shared.recordShare()
+        case .verseImage:
+            showingVerseActionSheet = false
+            showingVerseImageSheet = true
+        case .compareTranslation:
+            showingVerseActionSheet = false
+            compareReference = verse.reference
+        }
+    }
+
+    private func isBookmarked(_ verse: Verse) -> Bool {
+        bookmarks.isBookmarked(
+            book: verse.reference.book,
+            chapter: verse.reference.chapter,
+            verse: verse.reference.verse
+        )
+    }
+
+    private func toggleBookmark(for verse: Verse) -> Bool {
+        if let bookmark = bookmarks.bookmarks.first(where: {
+            $0.book == verse.reference.book &&
+            $0.chapter == verse.reference.chapter &&
+            $0.verse == verse.reference.verse
+        }) {
+            bookmarks.removeBookmark(withId: bookmark.id)
+            return false
+        }
+
+        bookmarks.addBookmark(
+            book: verse.reference.book,
+            chapter: verse.reference.chapter,
+            verse: verse.reference.verse,
+            text: verse.text
+        )
+        return true
+    }
+
+    private func showSavedToast(message: String = "Saved") {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            showToast = false
+        }
+    }
 }
 
 // MARK: - Supporting Views
@@ -135,6 +265,7 @@ struct VerseListMainContent: View {
     @ObservedObject var settings: SettingsViewModel
     @Binding var showingBookPicker: Bool
     @Binding var showTranslationPicker: Bool
+    let onVerseLongPress: (Verse) -> Void
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
@@ -210,7 +341,10 @@ struct VerseListMainContent: View {
                     .glassCard()
                     .padding(.horizontal, 24)
             } else {
-                VerseListContent(viewModel: viewModel)
+                VerseListContent(
+                    viewModel: viewModel,
+                    onVerseLongPress: onVerseLongPress
+                )
             }
         }
     }
@@ -307,6 +441,7 @@ struct VerseListMainContent: View {
 // MARK: - Verse List Content
 struct VerseListContent: View {
     @ObservedObject var viewModel: VerseListViewModel
+    let onVerseLongPress: (Verse) -> Void
     @ObservedObject private var translationService = TranslationService.shared
     @State private var shouldScrollToTop = false
     @State private var isClearingFocus = false
@@ -327,7 +462,7 @@ struct VerseListContent: View {
                                 verse: verse.reference.verse
                             ),
                             onTap: { viewModel.handleVerseTap(verse) },
-                            onLongPress: { viewModel.handleVerseLongPress(verse) },
+                            onLongPress: { onVerseLongPress(verse) },
                             onCommentaryTap: {
                                 viewModel.showCommentary = true
                                 viewModel.commentaryReference = verse.reference

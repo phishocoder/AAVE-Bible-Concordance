@@ -74,6 +74,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        Task { @MainActor in
+            NotificationManager.shared.markNotificationDelivered()
+        }
         completionHandler([.banner, .sound])
     }
 
@@ -81,6 +84,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
+        Task { @MainActor in
+            NotificationManager.shared.markNotificationDelivered()
+        }
         let userInfo = response.notification.request.content.userInfo
 
         switch response.notification.request.content.categoryIdentifier {

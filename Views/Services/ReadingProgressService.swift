@@ -110,6 +110,9 @@ final class ReadingProgressService: ObservableObject {
         defaults.set(longestStreak, forKey: Keys.longestStreak)
 
         AchievementService.shared.handleStreak(currentStreak)
+        if currentStreak == 7 {
+            NotificationManager.shared.scheduleMilestoneCelebration(.streak7)
+        }
     }
 
     var gracePassesRemaining: Int {
@@ -162,6 +165,7 @@ final class ReadingProgressService: ObservableObject {
 
         if reference.chapter == lastChapter && reference.verse == lastVerse {
             AchievementService.shared.recordBookFinished()
+            NotificationManager.shared.scheduleMilestoneCelebration(.finishedBook(book: reference.book))
         }
     }
 }

@@ -26,6 +26,11 @@ struct TestamentSection: View {
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .homeCard()
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         }
     }
@@ -39,6 +44,10 @@ struct DownloadManagerView: View {
             TestamentSection(testament: .old, viewModel: viewModel)
             TestamentSection(testament: .new, viewModel: viewModel)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .glassBackground()
+        .applyGlassToolbar()
         .navigationTitle("Download Traditional Verses")
         .alert("Download Error", isPresented: $viewModel.showError) {
             Button("OK") {
