@@ -159,28 +159,20 @@ class VerseListViewModel: ObservableObject {
     func handleVerseTap(_ verse: Verse) {
         if isMultiSelectMode {
             toggleVerseSelection(verse)
-        } else if let currentSelected = selectedVerse,
-                  currentSelected.reference.id != verse.reference.id {
-            // Allow tap to extend selection only after a long-press selection exists.
-            isMultiSelectMode = true
-            selectedVerses = [currentSelected, verse]
-            selectedVerse = nil
-            showVerseActions = false
-        } else {
-            // Tap alone should not open the toolbar.
             return
         }
-    }
-    
-    func handleVerseLongPress(_ verse: Verse) {
-        if !isMultiSelectMode {
-            selectedVerse = verse
-            isMultiSelectMode = false
-            selectedVerses = []
-            showVerseActions = false
-        } else {
-            toggleVerseSelection(verse)
+
+        guard let currentSelected = selectedVerse else {
+            selectSingleVerse(verse)
+            return
         }
+
+        guard currentSelected.reference.id != verse.reference.id else {
+            clearSelection()
+            return
+        }
+
+        startMultiSelect(with: currentSelected, and: verse)
     }
     
     func toggleVerseSelection(_ verse: Verse) {
@@ -189,10 +181,11 @@ class VerseListViewModel: ObservableObject {
             
             // If no verses are selected, exit multi-select mode
             if selectedVerses.isEmpty {
-                isMultiSelectMode = false
+                clearSelection()
             }
         } else {
             selectedVerses.append(verse)
+            sortSelectedVerses()
         }
     }
     
@@ -205,8 +198,7 @@ class VerseListViewModel: ObservableObject {
     }
     
     func cancelMultiSelect() {
-        isMultiSelectMode = false
-        selectedVerses = []
+        clearSelection()
     }
     
     func navigateToPreviousChapter() {
@@ -378,7 +370,8 @@ class VerseListViewModel: ObservableObject {
     func selectAllVerses() {
         // Select all verses
         isMultiSelectMode = true
-        selectedVerses = verses
+        selectedVerse = nil
+        selectedVerses = verses.sorted { verseOrder(lhs: $0, rhs: $1) }
     }
     
     func markLastVisibleVerse(_ verseNumber: Int) {
@@ -392,5 +385,58 @@ class VerseListViewModel: ObservableObject {
         if let lastVerse = lastVisibleVerse ?? highlightedVerse {
             defaults.set(lastVerse, forKey: lastVerseKey)
         }
+    }
+
+    var orderedSelectedVerses: [Verse] {
+        if isMultiSelectMode {
+            return selectedVerses.sorted { verseOrder(lhs: $0, rhs: $1) }
+        }
+
+        guard let selectedVerse else { return [] }
+        return [selectedVerse]
+    }
+
+    func selectedVersesTextBlock() -> String {
+        orderedSelectedVerses
+            .map { "\($0.reference.displayString)\n\($0.text)" }
+            .joined(separator: "\n\n")
+    }
+
+    private func selectSingleVerse(_ verse: Verse) {
+        selectedVerse = verse
+        selectedVerses = []
+        isMultiSelectMode = false
+        showVerseActions = false
+    }
+
+    private func startMultiSelect(with firstVerse: Verse, and secondVerse: Verse) {
+        isMultiSelectMode = true
+        selectedVerse = nil
+        selectedVerses = [firstVerse, secondVerse]
+        sortSelectedVerses()
+        showVerseActions = false
+    }
+
+    private func clearSelection() {
+        isMultiSelectMode = false
+        selectedVerse = nil
+        selectedVerses = []
+        showVerseActions = false
+    }
+
+    private func sortSelectedVerses() {
+        selectedVerses.sort { verseOrder(lhs: $0, rhs: $1) }
+    }
+
+    private func verseOrder(lhs: Verse, rhs: Verse) -> Bool {
+        if lhs.reference.book != rhs.reference.book {
+            return lhs.reference.book < rhs.reference.book
+        }
+
+        if lhs.reference.chapter != rhs.reference.chapter {
+            return lhs.reference.chapter < rhs.reference.chapter
+        }
+
+        return lhs.reference.verse < rhs.reference.verse
     }
 }

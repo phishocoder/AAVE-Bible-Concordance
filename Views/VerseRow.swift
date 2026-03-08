@@ -30,6 +30,8 @@ struct VerseRow: View {
         let strokeOpacity = colorScheme == .dark ? 0.08 : 0.25
         let focusFill = colorScheme == .dark ? Color.yellow.opacity(0.18) : Color.yellow.opacity(0.12)
         let focusStroke = Color.yellow.opacity(colorScheme == .dark ? 0.6 : 0.8)
+        let selectionFill = colorScheme == .dark ? Color.accentColor.opacity(0.14) : Color.accentColor.opacity(0.08)
+        let selectionStroke = Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 0.45)
         
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
@@ -96,10 +98,10 @@ struct VerseRow: View {
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(cardFill)
+                .fill(isSelected ? selectionFill : cardFill)
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Color.white.opacity(strokeOpacity), lineWidth: isSelected ? 2 : 1)
+                        .stroke(isSelected ? selectionStroke : Color.white.opacity(strokeOpacity), lineWidth: isSelected ? 2 : 1)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -109,6 +111,14 @@ struct VerseRow: View {
                                 .fill(isFocused ? focusFill : Color.clear)
                         )
                 )
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 999, style: .continuous)
+                        .fill(selectionStroke)
+                        .frame(width: 4)
+                        .padding(.vertical, 14)
+                        .padding(.leading, 10)
+                        .opacity(isSelected ? 1 : 0)
+                }
         )
         .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.08), radius: 12, x: 0, y: 8)
         .contentShape(Rectangle())

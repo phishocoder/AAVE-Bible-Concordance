@@ -150,20 +150,13 @@ struct UnifiedBottomToolbar: View {
     }
     
     private func dismissSelection() {
-        if viewModel.isMultiSelectMode {
-            viewModel.isMultiSelectMode = false
-            viewModel.selectedVerses = []
-        } else {
-            viewModel.selectedVerse = nil
-        }
+        viewModel.cancelMultiSelect()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
     
     private func toggleSelectAll() {
         if areAllVersesSelected() {
-            if let firstVerse = viewModel.selectedVerses.first {
-                viewModel.selectedVerses = [firstVerse]
-            }
+            viewModel.cancelMultiSelect()
         } else {
             selectAllVerses()
         }
@@ -172,7 +165,7 @@ struct UnifiedBottomToolbar: View {
     
     private var compareSheet: some View {
         Group {
-            if let verse = viewModel.isMultiSelectMode ? viewModel.selectedVerses.first : viewModel.selectedVerse {
+            if let verse = viewModel.orderedSelectedVerses.first {
                 CompareTranslationsSheet(reference: verse.reference, aave: verse.text)
             } else {
                 NavigationView {
@@ -207,12 +200,11 @@ struct UnifiedBottomToolbar: View {
     
     private func areAllVersesSelected() -> Bool {
         guard !viewModel.verses.isEmpty else { return false }
-        return viewModel.selectedVerses.count == viewModel.verses.count
+        return viewModel.orderedSelectedVerses.count == viewModel.verses.count
     }
     
     private func selectAllVerses() {
-        viewModel.isMultiSelectMode = true
-        viewModel.selectedVerses = viewModel.verses
+        viewModel.selectAllVerses()
     }
     
     private func highlightVerse(with color: Color) {
@@ -236,14 +228,7 @@ struct UnifiedBottomToolbar: View {
     }
     
     private func createShareText() -> String {
-        if viewModel.isMultiSelectMode {
-            return viewModel.selectedVerses.map {
-                "\($0.reference.book) \($0.reference.chapter):\($0.reference.verse) \($0.text)"
-            }.joined(separator: "\n\n")
-        } else if let verse = viewModel.selectedVerse {
-            return "\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse) \(verse.text)"
-        }
-        return ""
+        viewModel.selectedVersesTextBlock()
     }
     
     private func isBookmarked() -> Bool {
@@ -310,16 +295,6 @@ struct UnifiedBottomToolbar: View {
                 )
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
             }
-        }
-    }
-
-    private func toggleHighlight() {
-        if viewModel.isMultiSelectMode {
-            for verse in viewModel.selectedVerses {
-                highlightManager.toggleHighlight(verse.reference)
-            }
-        } else if let verse = viewModel.selectedVerse {
-            highlightManager.toggleHighlight(verse.reference)
         }
     }
 }

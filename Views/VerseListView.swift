@@ -33,7 +33,6 @@ struct VerseListView: View {
     // UI state
     @State private var showingBookPicker = false
     @State private var showTranslationPicker = false
-    @State private var showMultiVerseActions = false
     @State private var showShareSheet = false
     @State private var shareText = ""
     @State private var showToast = false
@@ -44,6 +43,10 @@ struct VerseListView: View {
     @State private var noteReference: VerseReference?
     @State private var compareReference: VerseReference?
     @State private var showingVerseImageSheet = false
+    @AppStorage("didCompleteOnboarding") private var didCompletePrimaryOnboarding = false
+    @AppStorage("hasCompletedOnboarding") private var didCompleteLegacyOnboarding = false
+    @AppStorage("hasCompletedVerseInteractionOnboarding") private var hasCompletedVerseInteractionOnboarding = false
+    @AppStorage("hasSeenVerseSelectionTapHint") private var hasSeenTapHint = false
     @AppStorage("hasSeenVerseActionsLongPressHint") private var hasSeenLongPressHint = false
     @StateObject private var bookmarks = Bookmarks.shared
     @StateObject private var highlightManager = HighlightManager.shared
@@ -68,6 +71,7 @@ struct VerseListView: View {
             settings: settings,
             showingBookPicker: $showingBookPicker,
             showTranslationPicker: $showTranslationPicker,
+            onVerseTap: handleVerseTap,
             onVerseLongPress: handleVerseLongPress
         )
         .overlay {
@@ -77,6 +81,17 @@ struct VerseListView: View {
                     verse: reference,
                     onDismiss: { viewModel.showCommentary = false }
                 )
+            }
+        }
+        .overlay {
+            if shouldShowVerseOnboarding {
+                VerseInteractionOnboardingOverlay(
+                    exampleReference: onboardingExampleReference,
+                    exampleText: onboardingExampleText,
+                    onDismiss: dismissOnboarding
+                )
+                .transition(.opacity)
+                .zIndex(3)
             }
         }
         
@@ -157,9 +172,6 @@ struct VerseListView: View {
             await viewModel.applyDeepLink(book: book, chapter: chapter, verse: initialVerse)
         }
         
-        .onChange(of: viewModel.selectedVerses.count) { oldValue, newValue in
-            showMultiVerseActions = newValue > 0
-        }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowCommentary"))) { notification in
             if let reference = notification.userInfo?["reference"] as? VerseReference {
                 viewModel.showCommentary = true
@@ -169,25 +181,39 @@ struct VerseListView: View {
         .onAppear {
             NotificationManager.shared.markBibleReaderOpened()
         }
-        .onAppear {
-            guard !hasSeenLongPressHint else { return }
-            toastMessage = "Tip: long-press a verse to open actions."
-            showToast = true
-            hasSeenLongPressHint = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-                showToast = false
-            }
-        }
+    }
+
+    private var onboardingExampleReference: String {
+        let verse = viewModel.verses.first?.reference.verse ?? 1
+        return "\(viewModel.currentBook) \(viewModel.currentChapter):\(verse)"
+    }
+
+    private var shouldShowVerseOnboarding: Bool {
+        !hasCompletedVerseInteractionOnboarding && (didCompletePrimaryOnboarding || didCompleteLegacyOnboarding)
+    }
+
+    private var onboardingExampleText: String {
+        viewModel.verses.first?.text ?? "Tap a verse to select it, then add more verses when you want to copy or share."
+    }
+
+    private func handleVerseTap(_ verse: Verse) {
+        viewModel.handleVerseTap(verse)
+
+        guard !hasSeenTapHint else { return }
+        hasSeenTapHint = true
+        showToastMessage("Verse selected. Tap more verses to select multiple.")
     }
 
     private func handleVerseLongPress(_ verse: Verse) {
         // Ensure old multi-select toolbar does not conflict with the new action sheet.
-        viewModel.selectedVerse = nil
-        viewModel.selectedVerses = []
-        viewModel.isMultiSelectMode = false
+        viewModel.cancelMultiSelect()
         selectedActionVerse = verse
         showingHighlightPalette = false
         showingVerseActionSheet = true
+
+        guard !hasSeenLongPressHint else { return }
+        hasSeenLongPressHint = true
+        showToastMessage("Long press gives you more options.")
     }
 
     private func handleVerseAction(_ action: VerseActionSheetAction, verse: Verse) {
@@ -204,11 +230,11 @@ struct VerseListView: View {
             showingVerseActionSheet = false
             noteReference = verse.reference
         case .copy:
-            UIPasteboard.general.string = "\(verse.reference.displayString) - \(verse.text)"
+            UIPasteboard.general.string = formattedVerseText(verse)
             showSavedToast()
             showingVerseActionSheet = false
         case .share:
-            shareText = "\"\(verse.text)\" - \(verse.reference.displayString) (\(settings.preferredTranslation))"
+            shareText = "\(formattedVerseText(verse))\n\n\(settings.preferredTranslation)"
             showingVerseActionSheet = false
             showShareSheet = true
             AchievementService.shared.recordShare()
@@ -249,10 +275,24 @@ struct VerseListView: View {
     }
 
     private func showSavedToast(message: String = "Saved") {
+        showToastMessage(message, duration: 1.2)
+    }
+
+    private func formattedVerseText(_ verse: Verse) -> String {
+        "\(verse.reference.displayString)\n\(verse.text)"
+    }
+
+    private func dismissOnboarding() {
+        hasCompletedVerseInteractionOnboarding = true
+    }
+
+    private func showToastMessage(_ message: String, duration: Double = 2.0) {
         toastMessage = message
         showToast = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            showToast = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            if toastMessage == message {
+                showToast = false
+            }
         }
     }
 }
@@ -265,6 +305,7 @@ struct VerseListMainContent: View {
     @ObservedObject var settings: SettingsViewModel
     @Binding var showingBookPicker: Bool
     @Binding var showTranslationPicker: Bool
+    let onVerseTap: (Verse) -> Void
     let onVerseLongPress: (Verse) -> Void
     @Environment(\.colorScheme) private var colorScheme
     
@@ -343,6 +384,7 @@ struct VerseListMainContent: View {
             } else {
                 VerseListContent(
                     viewModel: viewModel,
+                    onVerseTap: onVerseTap,
                     onVerseLongPress: onVerseLongPress
                 )
             }
@@ -441,6 +483,7 @@ struct VerseListMainContent: View {
 // MARK: - Verse List Content
 struct VerseListContent: View {
     @ObservedObject var viewModel: VerseListViewModel
+    let onVerseTap: (Verse) -> Void
     let onVerseLongPress: (Verse) -> Void
     @ObservedObject private var translationService = TranslationService.shared
     @State private var shouldScrollToTop = false
@@ -461,7 +504,7 @@ struct VerseListContent: View {
                                 chapter: verse.reference.chapter,
                                 verse: verse.reference.verse
                             ),
-                            onTap: { viewModel.handleVerseTap(verse) },
+                            onTap: { onVerseTap(verse) },
                             onLongPress: { onVerseLongPress(verse) },
                             onCommentaryTap: {
                                 viewModel.showCommentary = true
@@ -682,6 +725,89 @@ struct VerseContextMenu: View {
                 verse: verse.reference.verse,
                 text: verse.text
             )
+        }
+    }
+}
+
+struct VerseInteractionOnboardingOverlay: View {
+    let exampleReference: String
+    let exampleText: String
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.42)
+                .ignoresSafeArea()
+                .onTapGesture(perform: onDismiss)
+
+            VStack(spacing: 18) {
+                Spacer(minLength: 80)
+
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Welcome to the AAVE Bible App")
+                        .font(.title3.weight(.semibold))
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        onboardingLine("Tap a verse to select it")
+                        onboardingLine("Long press for more options")
+                        onboardingLine("Select multiple verses to copy or share")
+                    }
+
+                    Text("You can dismiss this anytime.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(exampleReference)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        Text(exampleText)
+                            .font(.subheadline)
+                            .lineLimit(3)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(Color.accentColor.opacity(0.12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                            )
+                    )
+
+                    Button("Got It", action: onDismiss)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .padding(20)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(Color.white.opacity(0.16), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
+                .padding(.horizontal, 24)
+
+                Spacer()
+            }
+        }
+    }
+
+    private func onboardingLine(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "circle.fill")
+                .font(.system(size: 6))
+                .padding(.top, 7)
+            Text(text)
+                .font(.body)
         }
     }
 }

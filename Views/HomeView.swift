@@ -315,7 +315,7 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("You in early. They next. You already got off the waitlist and into the AAVE Bible beta. If you know somebody who’d love hearing Scripture in our voice, send ’em your link so they can join the waitlist. The more folks on the list, the more we can build, test, and unlock. You got early access. Now you can help your people get in line.")
+            Text("Help spread the Word. The AAVE Bible App is in Open Beta now, so anybody can pull up and test it with us. If a verse, note, or moment hits home, share the app with somebody else. Every new reader helps us sharpen the translation, commentary, and overall experience.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -328,7 +328,7 @@ struct HomeView: View {
                     shareApp()
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 }) {
-                    Label("Invite to the Beta", systemImage: "square.and.arrow.up")
+                    Label("Share the App", systemImage: "square.and.arrow.up")
                         .homePrimaryCTA()
                 }
                 
