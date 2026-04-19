@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E1C0AA012F20000200000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000014 /* LiveActivityDebug.swift */; };
-		E1C0AA012F20000200000001 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */; };
-		E1C0AA012F20000200000002 /* DailyVerseLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */; };
-		E1C0AA012F20000200000003 /* VerseOfDayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */; };
 		E0054F922D7BB55100A26A71 /* BookListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F802D7BB55100A26A71 /* BookListView.swift */; };
 		E0054F932D7BB55100A26A71 /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F812D7BB55100A26A71 /* ChapterListView.swift */; };
 		E0054F942D7BB55100A26A71 /* ConcordanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F822D7BB55100A26A71 /* ConcordanceView.swift */; };
@@ -89,7 +85,6 @@
 		E077B9862DC288210072C19F /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E077B9852DC288210072C19F /* FirebaseMessaging */; };
 		E089B5EF2D7D616000255567 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E089B5EE2D7D616000255567 /* NetworkMonitor.swift */; };
 		E0914E9D2DA8736F00C463DB /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0914E9C2DA8736B00C463DB /* ConfettiView.swift */; };
-		E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A3E0462D9257F80022115A /* BookmarkView 2.swift */; };
 		E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */; };
 		E0D29A0F2D8B20CC0057EE2B /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */; };
 		E0D74C872D8A291B00A8D279 /* AAVETextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D74C862D8A291400A8D279 /* AAVETextView.swift */; };
@@ -107,6 +102,10 @@
 		E0F415C02D825C1D000A4C7E /* VerseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415BF2D825C19000A4C7E /* VerseCard.swift */; };
 		E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */; };
 		E0F415CA2D825FAD000A4C7E /* VerseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C92D825FA9000A4C7E /* VerseModels.swift */; };
+		E1C0AA012F20000200000001 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */; };
+		E1C0AA012F20000200000002 /* DailyVerseLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */; };
+		E1C0AA012F20000200000003 /* VerseOfDayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */; };
+		E1C0AA012F20000200000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000200000014 /* LiveActivityDebug.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,10 +149,6 @@
 		E009628F2D835963007677BD /* BibleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleData.swift; sourceTree = "<group>"; };
 		E00BC61C2D839B7400D3BBCF /* TestamentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestamentPicker.swift; sourceTree = "<group>"; };
 		E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMessages.swift; sourceTree = "<group>"; };
-		E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseAttributes.swift; sourceTree = "<group>"; };
-		E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseLiveActivityManager.swift; sourceTree = "<group>"; };
-		E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
-		E1C0AA012F20000200000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
 		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
@@ -199,7 +194,6 @@
 		E077B9822DBD7F4B0072C19F /* QuizSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizSplashView.swift; sourceTree = "<group>"; };
 		E089B5EE2D7D616000255567 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		E0914E9C2DA8736B00C463DB /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
-		E0A3E0462D9257F80022115A /* BookmarkView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookmarkView 2.swift"; sourceTree = "<group>"; };
 		E0D29A0C2D8B135B0057EE2B /* UnifiedBottomToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedBottomToolbar.swift; sourceTree = "<group>"; };
 		E0D29A0E2D8B20C40057EE2B /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
 		E0D74C862D8A291400A8D279 /* AAVETextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAVETextView.swift; sourceTree = "<group>"; };
@@ -217,6 +211,10 @@
 		E0F415BF2D825C19000A4C7E /* VerseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseCard.swift; sourceTree = "<group>"; };
 		E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseDetailSheet.swift; sourceTree = "<group>"; };
 		E0F415C92D825FA9000A4C7E /* VerseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseModels.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000011 /* DailyVerseAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseAttributes.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000012 /* DailyVerseLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVerseLiveActivityManager.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000200000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -350,7 +348,6 @@
 				E0DCC5242D7E061F0061F222 /* ShareSheet.swift */,
 				E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */,
 				E0054F832D7BB55100A26A71 /* ContentView.swift */,
-				E0A3E0462D9257F80022115A /* BookmarkView 2.swift */,
 				E0054FA82D7C157000A26A71 /* VerseDetailView.swift */,
 				E0054F802D7BB55100A26A71 /* BookListView.swift */,
 				E0054F812D7BB55100A26A71 /* ChapterListView.swift */,
@@ -515,7 +512,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance" */;
+			buildConfigurationList = E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance 2" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -578,7 +575,6 @@
 				E077B97D2DBD71D20072C19F /* QuizData.swift in Sources */,
 				E0DCC5332D7E18D60061F222 /* HomeView.swift in Sources */,
 				E00962902D835966007677BD /* BibleData.swift in Sources */,
-				E0A3E0472D9257F80022115A /* BookmarkView 2.swift in Sources */,
 				E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */,
 				E0054F952D7BB55100A26A71 /* ContentView.swift in Sources */,
 				E0534B672DC2A3FB0038651E /* AppleAuthManager.swift in Sources */,
@@ -837,7 +833,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AAVE Bible Concordance/Preview Content\"";
@@ -874,7 +869,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AAVEBible.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AAVE Bible Concordance/Preview Content\"";
@@ -917,7 +911,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance" */ = {
+		E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance 2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E04B08372D7A699D0022E2DB /* Debug */,

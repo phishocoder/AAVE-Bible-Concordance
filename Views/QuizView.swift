@@ -7,9 +7,11 @@
 
 import SwiftUI
 import UIKit
+import FirebaseAuth
 
 struct QuizView: View {
     @StateObject private var viewModel: QuizGameViewModel
+    @ObservedObject private var authManager = AppleAuthManager.shared
     private let showIntroCountdown: Bool
     @State private var countdownValue: Int
     @State private var showCountdownOverlay: Bool
@@ -84,6 +86,14 @@ struct QuizView: View {
         .glassBackground()
         .task {
             await runIntroCountdownIfNeeded()
+        }
+        .sheet(isPresented: $viewModel.requiresLeaderboardDisplayName) {
+            UsernamePromptView(
+                userID: Auth.auth().currentUser?.uid ?? authManager.pendingUserID,
+                onSaved: {
+                    viewModel.completePendingLeaderboardSubmissionIfPossible()
+                }
+            )
         }
     }
 

@@ -90,7 +90,7 @@ struct NotificationSettingsView: View {
                         }
                     }
                     
-                    Toggle("Beta Feedback", isOn: $notificationManager.betaFeedbackEnabled)
+                    Toggle("App Feedback", isOn: $notificationManager.betaFeedbackEnabled)
                         .onChange(of: notificationManager.betaFeedbackEnabled) { _, _ in
                             notificationManager.scheduleAllNotifications()
                         }

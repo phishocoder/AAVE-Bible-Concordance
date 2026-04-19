@@ -35,6 +35,30 @@ enum AppTab: String, Hashable {
     case bible, home, search, bookmarks, more
 }
 
+@MainActor
+final class NotificationNavigationBridge: ObservableObject {
+    static let shared = NotificationNavigationBridge()
+
+    @Published private(set) var pendingRoute: AppRoute?
+
+    private init() {}
+
+    func enqueue(_ route: AppRoute) {
+#if DEBUG
+        if case let .bible(bookID, chapter, verse) = route {
+            assertCanonicalBook(bookID, context: "NotificationNavigationBridge.enqueue chapter=\(chapter) verse=\(String(describing: verse))")
+        }
+#endif
+        pendingRoute = route
+    }
+
+    func consume() -> AppRoute? {
+        let route = pendingRoute
+        pendingRoute = nil
+        return route
+    }
+}
+
 final class NavigationRouter: ObservableObject {
     @Published var path = NavigationPath()
     @Published var pendingDeepLink: AppRoute? = nil

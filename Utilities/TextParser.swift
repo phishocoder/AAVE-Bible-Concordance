@@ -16,6 +16,11 @@ extension NSRange {
 
 // MARK: - TextParser for Rendering Styled Verses
 struct TextParser {
+    private static func debugLog(_ message: @autoclosure () -> String) {
+        #if DEBUG
+        print(message())
+        #endif
+    }
     
     /// Parses verse text and returns an AttributedString with Jesus's words in red (SwiftUI compatible)
     static func parseVerseText(_ text: String) -> AttributedString {
@@ -63,21 +68,21 @@ struct TextParser {
     // Test function should be at the struct level, not inside another function
     static func testRedTextParsing() {
         let testVerse = "But Jesus said, <red>Let it happen for now. We gotta do this to fulfill what's right in God's eyes.</red> So John was like, \"Bet,\" and baptized Him."
-        print("TEST - Original verse: \(testVerse)")
-        print("TEST - Contains <red>: \(testVerse.contains("<red>"))")
-        print("TEST - Contains </red>: \(testVerse.contains("</red>"))")
-        
+        debugLog("TEST - Original verse: \(testVerse)")
+        debugLog("TEST - Contains <red>: \(testVerse.contains("<red>"))")
+        debugLog("TEST - Contains </red>: \(testVerse.contains("</red>"))")
+
         let result = debugParseVerseTextNS(testVerse)
-        print("TEST - Result string: \(result.string)")
-        
+        debugLog("TEST - Result string: \(result.string)")
+
         // Check at position 16 (inside the red text) instead of 15
-        print("TEST - Result has attributes: \(result.attributes(at: 16, effectiveRange: nil).count > 0)")
-        
+        debugLog("TEST - Result has attributes: \(result.attributes(at: 16, effectiveRange: nil).count > 0)")
+
         // Additional checks to verify attributes
         if let color = result.attributes(at: 16, effectiveRange: nil)[.foregroundColor] as? UIColor {
-            print("TEST - Text color at position 16: \(color == .red ? "RED" : "NOT RED")")
+            debugLog("TEST - Text color at position 16: \(color == .red ? "RED" : "NOT RED")")
         } else {
-            print("TEST - No color attribute found at position 16")
+            debugLog("TEST - No color attribute found at position 16")
         }
     }
     
@@ -86,13 +91,13 @@ struct TextParser {
         let openTag = "<red>"
         let closeTag = "</red>"
         
-        print("PARSER-DEBUG - Input text: \(text.prefix(50))...")
-        print("PARSER-DEBUG - Contains <red>: \(text.contains(openTag))")
-        print("PARSER-DEBUG - Contains </red>: \(text.contains(closeTag))")
+        debugLog("PARSER-DEBUG - Input text: \(text.prefix(50))...")
+        debugLog("PARSER-DEBUG - Contains <red>: \(text.contains(openTag))")
+        debugLog("PARSER-DEBUG - Contains </red>: \(text.contains(closeTag))")
         
         // If no tags, just return plain text
         if !text.contains(openTag) || !text.contains(closeTag) {
-            print("PARSER-DEBUG - No tags found, returning plain text")
+            debugLog("PARSER-DEBUG - No tags found, returning plain text")
             return NSAttributedString(string: text)
         }
         
@@ -106,7 +111,7 @@ struct TextParser {
             let contentStartIndex = openRange.upperBound
             
             guard let closeRange = processedText.range(of: closeTag, range: contentStartIndex..<processedText.endIndex) else {
-                print("PARSER-DEBUG - Found opening tag but no closing tag")
+                debugLog("PARSER-DEBUG - Found opening tag but no closing tag")
                 break
             }
             
@@ -116,7 +121,7 @@ struct TextParser {
             let startPosition = processedText.distance(from: processedText.startIndex, to: openRange.lowerBound)
             let contentLength = processedText.distance(from: contentStartIndex, to: contentEndIndex)
             
-            print("PARSER-DEBUG - Found red text at position \(startPosition) with length \(contentLength)")
+            debugLog("PARSER-DEBUG - Found red text at position \(startPosition) with length \(contentLength)")
             
             // Store the range that will need to be colored red
             redRanges.append((start: startPosition, length: contentLength))
@@ -148,7 +153,7 @@ struct TextParser {
             }, range: range)
             attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize), range: range)
             
-            print("PARSER-DEBUG - Applied red color at adjusted position \(adjustedStart) with length \(length)")
+            debugLog("PARSER-DEBUG - Applied red color at adjusted position \(adjustedStart) with length \(length)")
             
             tagPairsRemoved += 1
         }
@@ -161,7 +166,7 @@ struct TextParser {
         do {
             return try AttributedString(nsAttributedString, including: \.uiKit)
         } catch {
-            print("Error converting NSAttributedString to AttributedString: \(error)")
+            debugLog("Error converting NSAttributedString to AttributedString: \(error)")
             return AttributedString(nsAttributedString.string)
         }
     }

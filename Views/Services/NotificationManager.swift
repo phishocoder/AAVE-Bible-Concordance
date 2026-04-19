@@ -248,7 +248,7 @@ final class NotificationManager: ObservableObject {
         guard appLaunchCount >= 4, (currentTime - lastFeedbackRequestDate) > fourteenDays else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Beta Feedback"
+        content.title = "App Feedback"
         content.body = NotificationMessages.message(for: .betaFeedback, style: messageStyle)
         content.sound = .default
         content.categoryIdentifier = "BETA_FEEDBACK"

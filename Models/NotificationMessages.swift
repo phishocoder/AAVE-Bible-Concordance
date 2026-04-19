@@ -44,7 +44,7 @@ struct NotificationMessages {
             "Slow down for a short reading this weekend."
         ],
         "betaFeedback": [
-            "Thanks for testing with us. Share feedback when you have a minute.",
+            "Thanks for reading with us. Share feedback when you have a minute.",
             "Your feedback helps us improve the app with care.",
             "If anything feels off, send us a quick note."
         ],

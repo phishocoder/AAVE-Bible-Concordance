@@ -13,7 +13,8 @@ struct LeaderboardEntry: Identifiable {
     var id: String { userID }
     let userID: String
     let score: Int
-    let username: String?
+    var username: String?
+    let timestamp: Date
 }
 
 struct UserScoreSummary {
@@ -68,7 +69,7 @@ struct LeaderboardView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                Section("Top Scores (Community)") {
+                Section("Top Scores (This Week)") {
                     if let errorMessage = viewModel.errorMessage {
                         Text("Couldn't load community scores: \(errorMessage)")
                             .foregroundColor(.secondary)
@@ -78,7 +79,7 @@ struct LeaderboardView: View {
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     } else if viewModel.entries.isEmpty {
-                        Text("No community scores yet.")
+                        Text("No community scores logged this week yet.")
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .homeCard()
@@ -177,11 +178,14 @@ final class LeaderboardViewModel: ObservableObject {
     @Published var userSummary: UserScoreSummary?
 
     private let db = Firestore.firestore()
+    private var resolvedNames: [String: String] = [:]
+    private let quizType = "WhoSaidThat"
 
     func fetchLeaderboard(currentUserID: String?, limit: Int = 10) {
         isLoading = true
         errorMessage = nil
         userSummary = nil
+        let weekKey = QuizScoreLogger.leaderboardWeekKey(for: Date())
 
         var pendingRequests = currentUserID == nil ? 1 : 2
 
@@ -193,9 +197,11 @@ final class LeaderboardViewModel: ObservableObject {
         }
 
         db.collection("quizScores")
+            .whereField("quizType", isEqualTo: quizType)
+            .whereField("leaderboardWeek", isEqualTo: weekKey)
             .order(by: "score", descending: true)
             .order(by: "timestamp", descending: true)
-            .limit(to: limit)
+            .limit(to: 200)
             .getDocuments { [weak self] snapshot, error in
                 guard let self else { return }
                 if let error {
@@ -215,16 +221,26 @@ final class LeaderboardViewModel: ObservableObject {
                     return
                 }
 
-                let results = docs.map { doc -> LeaderboardEntry in
+                let runs = docs.compactMap { doc -> LeaderboardEntry? in
                     let data = doc.data()
                     let userID = data["userID"] as? String ?? "unknown"
                     let score = data["score"] as? Int ?? 0
-                    let username = data["username"] as? String
-                    return LeaderboardEntry(userID: userID, score: score, username: username)
+                    let rawUsername = (data["username"] as? String)?
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    let username: String?
+                    if let rawUsername, !QuizScoreLogger.isPlaceholderDisplayName(rawUsername) {
+                        username = rawUsername
+                    } else {
+                        username = nil
+                    }
+                    let timestamp = (data["timestamp"] as? Timestamp)?.dateValue() ?? .distantPast
+                    return LeaderboardEntry(userID: userID, score: score, username: username, timestamp: timestamp)
                 }
+                let results = Self.bestEntriesPerUser(from: runs, limit: limit)
 
                 DispatchQueue.main.async {
                     self.entries = results
+                    self.resolveMissingUsernames()
                     completeOneRequest()
                 }
             }
@@ -233,6 +249,7 @@ final class LeaderboardViewModel: ObservableObject {
 
         db.collection("quizScores")
             .whereField("userID", isEqualTo: currentUserID)
+            .whereField("quizType", isEqualTo: quizType)
             .getDocuments { [weak self] snapshot, error in
                 guard let self else { return }
                 if error != nil {
@@ -265,5 +282,80 @@ final class LeaderboardViewModel: ObservableObject {
                     completeOneRequest()
                 }
             }
+    }
+
+    private static func bestEntriesPerUser(from runs: [LeaderboardEntry], limit: Int) -> [LeaderboardEntry] {
+        var bestByUser: [String: LeaderboardEntry] = [:]
+
+        for run in runs where run.userID != "unknown" {
+            guard let existing = bestByUser[run.userID] else {
+                bestByUser[run.userID] = run
+                continue
+            }
+
+            if run.score > existing.score || (run.score == existing.score && run.timestamp > existing.timestamp) {
+                bestByUser[run.userID] = run
+                continue
+            }
+
+            if (existing.username?.isEmpty ?? true), let username = run.username, !username.isEmpty {
+                bestByUser[run.userID] = LeaderboardEntry(
+                    userID: existing.userID,
+                    score: existing.score,
+                    username: username,
+                    timestamp: existing.timestamp
+                )
+            }
+        }
+
+        return bestByUser.values
+            .sorted {
+                if $0.score == $1.score {
+                    return $0.timestamp > $1.timestamp
+                }
+                return $0.score > $1.score
+            }
+            .prefix(limit)
+            .map { $0 }
+    }
+
+    private func resolveMissingUsernames() {
+        let unresolvedUserIDs = Set(
+            entries
+                .filter { ($0.username?.isEmpty ?? true) && $0.userID != "unknown" }
+                .map(\.userID)
+        )
+
+        for userID in unresolvedUserIDs {
+            resolveDisplayName(for: userID) { [weak self] name in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    guard let index = self.entries.firstIndex(where: { $0.userID == userID }) else { return }
+                    self.entries[index].username = name
+                }
+            }
+        }
+    }
+
+    private func resolveDisplayName(for userID: String, completion: @escaping (String) -> Void) {
+        if let cached = resolvedNames[userID] {
+            completion(cached)
+            return
+        }
+
+        db.collection("users").document(userID).getDocument { [weak self] snapshot, _ in
+            let name = (snapshot?.data()?["displayName"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let resolved: String
+            if let name, !name.isEmpty, !QuizScoreLogger.isPlaceholderDisplayName(name) {
+                resolved = name
+            } else {
+                resolved = "User \(userID.prefix(6))"
+            }
+            DispatchQueue.main.async {
+                self?.resolvedNames[userID] = resolved
+                completion(resolved)
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ final class QuizGameViewModel: ObservableObject {
     @Published var timeRemaining: Double = 15
     @Published private(set) var personalBestImproved: Bool = false
     @Published private(set) var previousBestScore: Int?
+    @Published var requiresLeaderboardDisplayName = false
     
     let questionsPerSession = 10
     let timePerQuestion: Double = 15
@@ -61,6 +62,7 @@ final class QuizGameViewModel: ObservableObject {
         selectedOptionIndex = nil
         personalBestImproved = false
         previousBestScore = nil
+        requiresLeaderboardDisplayName = false
         timeRemaining = timePerQuestion
         timerProgress = 1.0
         if autostartTimer {
@@ -132,25 +134,61 @@ final class QuizGameViewModel: ObservableObject {
             }
         }
         
-        if let userID = Auth.auth().currentUser?.uid {
-            QuizScoreLogger.shared.fetchBestScore(userID: userID, quizType: "WhoSaidThat") { [weak self] bestScore in
-                guard let self else { return }
-                DispatchQueue.main.async {
-                    self.previousBestScore = bestScore
-                    self.personalBestImproved = bestScore == nil || self.score > (bestScore ?? 0)
-                    if let bestScore, self.score > bestScore {
-                        Task { @MainActor in
-                            NotificationManager.shared.scheduleMilestoneCelebration(.quizPersonalBest(score: self.score))
-                        }
-                    }
-                }
-            }
-            QuizScoreLogger.shared.logScore(userID: userID, score: score, quizType: "WhoSaidThat")
-        }
+        submitScoreIfPossible()
     }
 
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+
+    func completePendingLeaderboardSubmissionIfPossible() {
+        guard quizFinished else { return }
+        submitScoreIfPossible()
+    }
+
+    private func submitScoreIfPossible() {
+        submitScoreIfPossible(
+            currentUserID: Auth.auth().currentUser?.uid,
+            storedDisplayName: UserDefaults.standard.string(forKey: "displayName"),
+            fetchBestScore: { userID, completion in
+                QuizScoreLogger.shared.fetchBestScore(userID: userID, quizType: "WhoSaidThat", completion: completion)
+            },
+            logScore: { userID, score in
+                QuizScoreLogger.shared.logScore(userID: userID, score: score, quizType: "WhoSaidThat")
+            }
+        )
+    }
+
+    func submitScoreIfPossible(
+        currentUserID: String?,
+        storedDisplayName: String?,
+        fetchBestScore: @escaping (String, @escaping (Int?) -> Void) -> Void,
+        logScore: @escaping (String, Int) -> Void
+    ) {
+        guard let userID = currentUserID else { return }
+
+        let displayName = storedDisplayName?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !displayName.isEmpty, !QuizScoreLogger.isPlaceholderDisplayName(displayName) else {
+            requiresLeaderboardDisplayName = true
+            return
+        }
+
+        requiresLeaderboardDisplayName = false
+
+        fetchBestScore(userID) { [weak self] bestScore in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.previousBestScore = bestScore
+                self.personalBestImproved = bestScore == nil || self.score > (bestScore ?? 0)
+                if let bestScore, self.score > bestScore {
+                    Task { @MainActor in
+                        NotificationManager.shared.scheduleMilestoneCelebration(.quizPersonalBest(score: self.score))
+                    }
+                }
+            }
+        }
+        logScore(userID, score)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 
 class QuizScoreLogger {
@@ -15,14 +16,18 @@ class QuizScoreLogger {
     private let collection = "quizScores"
 
     func logScore(userID: String, score: Int, quizType: String = "WhoSaidThat", completion: ((Result<Void, Error>) -> Void)? = nil) {
-        let data: [String: Any] = [
+        let now = Date()
+        let data: [String: Any?] = [
             "userID": userID,
             "score": score,
             "quizType": quizType,
-            "timestamp": Timestamp(date: Date())
+            "timestamp": Timestamp(date: now),
+            "leaderboardWeek": Self.leaderboardWeekKey(for: now),
+            "leaderboardWeekStartAt": Timestamp(date: Self.startOfLeaderboardWeek(for: now)),
+            "username": currentDisplayName()
         ]
 
-        db.collection(collection).addDocument(data: data) { error in
+        db.collection(collection).addDocument(data: data.compactMapValues { $0 }) { error in
             if let error = error {
                 print("❌ Failed to log quiz score: \(error.localizedDescription)")
                 completion?(.failure(error))
@@ -47,5 +52,44 @@ class QuizScoreLogger {
                 let scores = snapshot?.documents.compactMap { $0.data()["score"] as? Int } ?? []
                 completion(scores.max())
             }
+    }
+
+    private func currentDisplayName() -> String? {
+        let storedName = UserDefaults.standard.string(forKey: "displayName")?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let storedName, !storedName.isEmpty, !Self.isPlaceholderDisplayName(storedName) {
+            return storedName
+        }
+
+        let authName = Auth.auth().currentUser?.displayName?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let authName, !authName.isEmpty, !Self.isPlaceholderDisplayName(authName) {
+            return authName
+        }
+
+        return nil
+    }
+
+    static func isPlaceholderDisplayName(_ name: String) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return true }
+
+        let pattern = #"^Reader\s\d{4}$"#
+        return trimmed.range(of: pattern, options: .regularExpression) != nil
+    }
+
+    static func leaderboardWeekKey(for date: Date, calendar: Calendar = .current) -> String {
+        let start = startOfLeaderboardWeek(for: date, calendar: calendar)
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = calendar.timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: start)
+    }
+
+    static func startOfLeaderboardWeek(for date: Date, calendar: Calendar = .current) -> Date {
+        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
+        return calendar.date(from: components) ?? calendar.startOfDay(for: date)
     }
 }

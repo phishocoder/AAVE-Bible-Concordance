@@ -1,15 +1,21 @@
 import UIKit
 
 enum AchievementSharePresenter {
+    private static func debugLog(_ message: @autoclosure () -> String) {
+#if DEBUG
+        print(message())
+#endif
+    }
+
     static func present(items: [Any]) {
         DispatchQueue.main.async {
-            print("[Share] Presenting activity controller with items: \(items.map { String(describing: type(of: $0)) })")
+            debugLog("[Share] Presenting activity controller with items: \(items.map { String(describing: type(of: $0)) })")
             let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
             controller.popoverPresentationController?.sourceView = topViewController()?.view
             controller.popoverPresentationController?.sourceRect = topViewController()?.view.bounds ?? .zero
 
             guard let presenter = topViewController() else {
-                print("[Share] ERROR: No active view controller to present share sheet.")
+                debugLog("[Share] ERROR: No active view controller to present share sheet.")
                 return
             }
 
@@ -42,6 +48,6 @@ enum AchievementSharePresenter {
             }
         }
 
-        return UIApplication.shared.windows.first { $0.isKeyWindow }?.rootViewController
+        return nil
     }
 }

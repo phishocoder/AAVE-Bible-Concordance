@@ -18,7 +18,12 @@ final class UserDirectory {
         db.collection("users").document(uid).getDocument { [weak self] snapshot, _ in
             let data = snapshot?.data()
             let name = (data?["displayName"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let resolved = (name?.isEmpty == false) ? name! : Self.fallbackName(for: uid)
+            let resolved: String
+            if let name, !name.isEmpty, !QuizScoreLogger.isPlaceholderDisplayName(name) {
+                resolved = name
+            } else {
+                resolved = Self.fallbackName(for: uid)
+            }
             self?.cache[uid] = resolved
             completion(resolved)
         }

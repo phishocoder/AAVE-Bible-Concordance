@@ -91,19 +91,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
         switch response.notification.request.content.categoryIdentifier {
         case "VERSE_OF_DAY", "MIDWEEK_MOTIVATION", "WEEKEND_REFOCUS":
-            if let book = userInfo["book"] as? String,
-               let chapter = userInfo["chapter"] as? Int,
-               let verse = userInfo["verse"] as? Int {
-                NotificationCenter.default.post(
-                    name: Notification.Name("NavigateToChapter"),
-                    object: nil,
-                    userInfo: [
-                        "book": book,
-                        "chapter": chapter,
-                        "verse": verse,
-                        "shouldHighlight": true
-                    ]
-                )
+            if let route = verseRoute(from: userInfo) {
+                Task { @MainActor in
+                    NotificationNavigationBridge.shared.enqueue(route)
+                }
+            } else {
+                print("Notification tap ignored: missing or malformed verse payload \(userInfo)")
             }
 
         case "BETA_FEEDBACK":
@@ -128,5 +121,29 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
 
         completionHandler()
+    }
+
+    private func verseRoute(from userInfo: [AnyHashable: Any]) -> AppRoute? {
+        guard let rawBook = userInfo["book"] as? String,
+              let chapter = notificationIntValue(userInfo["chapter"]),
+              let verse = notificationIntValue(userInfo["verse"]) else {
+            return nil
+        }
+
+        let canonicalBook = BookNameNormalizer.canonicalBookName(rawBook) ?? rawBook
+        return .bible(bookID: canonicalBook, chapter: chapter, verse: verse)
+    }
+
+    private func notificationIntValue(_ rawValue: Any?) -> Int? {
+        switch rawValue {
+        case let value as Int:
+            return value
+        case let value as NSNumber:
+            return value.intValue
+        case let value as String:
+            return Int(value.trimmingCharacters(in: .whitespacesAndNewlines))
+        default:
+            return nil
+        }
     }
 }

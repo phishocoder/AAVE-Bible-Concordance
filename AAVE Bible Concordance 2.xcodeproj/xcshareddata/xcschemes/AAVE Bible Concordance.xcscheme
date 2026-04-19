@@ -18,7 +18,7 @@
                BlueprintIdentifier = "E04B082A2D7A69990022E2DB"
                BuildableName = "AAVE Bible Concordance.app"
                BlueprintName = "AAVE Bible Concordance"
-               ReferencedContainer = "container:AAVE Bible Concordance.xcodeproj">
+               ReferencedContainer = "container:AAVE Bible Concordance 2.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -38,7 +38,7 @@
                BlueprintIdentifier = "E0054FCD2D7CC38300A26A71"
                BuildableName = "AAVE Bible ConcordanceTests.xctest"
                BlueprintName = "AAVE Bible ConcordanceTests"
-               ReferencedContainer = "container:AAVE Bible Concordance.xcodeproj">
+               ReferencedContainer = "container:AAVE Bible Concordance 2.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -60,7 +60,7 @@
             BlueprintIdentifier = "E04B082A2D7A69990022E2DB"
             BuildableName = "AAVE Bible Concordance.app"
             BlueprintName = "AAVE Bible Concordance"
-            ReferencedContainer = "container:AAVE Bible Concordance.xcodeproj">
+            ReferencedContainer = "container:AAVE Bible Concordance 2.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -77,7 +77,7 @@
             BlueprintIdentifier = "E04B082A2D7A69990022E2DB"
             BuildableName = "AAVE Bible Concordance.app"
             BlueprintName = "AAVE Bible Concordance"
-            ReferencedContainer = "container:AAVE Bible Concordance.xcodeproj">
+            ReferencedContainer = "container:AAVE Bible Concordance 2.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

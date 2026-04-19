@@ -4,31 +4,36 @@ import FirebaseAuth
 
 struct UsernamePromptView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var username: String = ""
+    @State private var username: String
     @State private var isSaving = false
     @State private var errorMessage: String?
     
     var userID: String?
+    var onSaved: (() -> Void)?
     
-    init(userID: String? = nil) {
+    init(userID: String? = nil, onSaved: (() -> Void)? = nil) {
         self.userID = userID
+        self.onSaved = onSaved
+        let savedName = UserDefaults.standard.string(forKey: "displayName")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        _username = State(initialValue: QuizScoreLogger.isPlaceholderDisplayName(savedName) ? "" : savedName)
     }
 
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("Choose Your Display Name")
+                Text("Enter Your Name")
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("This name will show on the leaderboard. You can update it later in Profile.")
+                Text("This is what shows on the leaderboard after you finish the quiz. You can update it later in Profile.")
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
 
-                TextField("Enter a display name", text: $username)
+                TextField("Enter your first name", text: $username)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .autocapitalization(.none)
+                    .textInputAutocapitalization(.words)
                     .disableAutocorrection(true)
                     .padding(.horizontal)
 
@@ -70,8 +75,8 @@ struct UsernamePromptView: View {
 
         let trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard trimmed.count >= 3 else {
-            errorMessage = "Display name must be at least 3 characters."
+        guard trimmed.count >= 2 else {
+            errorMessage = "Name must be at least 2 characters."
             return
         }
 
@@ -91,6 +96,7 @@ struct UsernamePromptView: View {
                 } else {
                     UserDefaults.standard.set(trimmed, forKey: "displayName")
                     print("✅ Display name saved: \(trimmed)")
+                    onSaved?()
                     dismiss()
                 }
             }

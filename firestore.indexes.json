@@ -1,0 +1,27 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "quizScores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "quizType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "leaderboardWeek",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "score",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

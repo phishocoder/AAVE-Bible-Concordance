@@ -315,7 +315,7 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("Help spread the Word. The AAVE Bible App is in Open Beta now, so anybody can pull up and test it with us. If a verse, note, or moment hits home, share the app with somebody else. Every new reader helps us sharpen the translation, commentary, and overall experience.")
+            Text("Help spread the Word. If a verse, note, or moment hits home, share the app with somebody else. Every new reader helps us strengthen the translation, commentary, and overall experience.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -455,7 +455,9 @@ struct HomeView: View {
     
     // Function to share the app
     func shareApp() {
-        print("[InviteShare] User tapped Invite to the Beta")
+#if DEBUG
+        print("[InviteShare] User tapped Invite")
+#endif
         guard let items = InviteShareProvider.shareItems() else { return }
         AchievementSharePresenter.present(items: items)
     }

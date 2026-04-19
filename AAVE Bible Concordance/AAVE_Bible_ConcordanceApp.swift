@@ -7,6 +7,7 @@ struct AAVE_Bible_ConcordanceApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var notificationNavigationBridge = NotificationNavigationBridge.shared
     @StateObject private var router = NavigationRouter()
     @StateObject private var appleAuthManager = AppleAuthManager.shared
     @AppStorage("selectedTab") private var selectedTabRawValue: String = AppTab.home.rawValue
@@ -22,11 +23,6 @@ struct AAVE_Bible_ConcordanceApp: App {
                         .environmentObject(networkMonitor)
                         .environmentObject(appleAuthManager)
                         .preferredColorScheme(getPreferredColorScheme())
-                        .onAppear {
-                            // Run the test function when the app starts
-                            print("Running red text parsing test...")
-                            TextParser.testRedTextParsing()
-                        }
                         .environmentObject(router)
                 } else {
                     ContentView()
@@ -37,10 +33,6 @@ struct AAVE_Bible_ConcordanceApp: App {
                         .environmentObject(router)
                         .environmentObject(appleAuthManager)
                         .onAppear {
-                            // Run the test function when the app starts
-                            print("Running red text parsing test...")
-                            TextParser.testRedTextParsing()
-                            
                             notificationManager.incrementAppLaunchCount()
                             // Schedule notifications if enabled
                             notificationManager.scheduleVerseOfDayNotification()
@@ -50,7 +42,9 @@ struct AAVE_Bible_ConcordanceApp: App {
                             
                             // Update verse of day content for today's notification
                             notificationManager.updateVerseOfDayContent {
+                                #if DEBUG
                                 print("Verse of day notification content updated")
+                                #endif
                             }
                         }
                 }
@@ -58,10 +52,17 @@ struct AAVE_Bible_ConcordanceApp: App {
             .onOpenURL { url in
                 handleDeepLink(url)
             }
+            .onAppear {
+                consumePendingNotificationRouteIfNeeded()
+            }
+            .onChange(of: notificationNavigationBridge.pendingRoute) { _, _ in
+                consumePendingNotificationRouteIfNeeded()
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }
                 notificationManager.recordAppForeground(at: Date())
                 DailyVerseLiveActivityCoordinator.handleAppActive()
+                consumePendingNotificationRouteIfNeeded()
             }
         }
     }
@@ -87,12 +88,20 @@ struct AAVE_Bible_ConcordanceApp: App {
         let mode = urlComponents?.queryItems?.first(where: { $0.name == "mode" })?.value
         let version = urlComponents?.queryItems?.first(where: { $0.name == "version" })?.value
         if let mode, let version {
+            #if DEBUG
             print("LA-DEBUG deep link mode=\(mode) version=\(version)")
+            #endif
         }
 
         guard let reference = VerseOfDayProvider.reference(forVerseId: verseId) else { return }
 
         selectedTabRawValue = AppTab.bible.rawValue
         router.requestDeepLink(.verseDetail(reference: reference))
+    }
+
+    private func consumePendingNotificationRouteIfNeeded() {
+        guard let route = notificationNavigationBridge.consume() else { return }
+        selectedTabRawValue = AppTab.bible.rawValue
+        router.requestDeepLink(route)
     }
 }
