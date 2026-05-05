@@ -228,7 +228,7 @@ struct UnifiedBottomToolbar: View {
     }
     
     private func createShareText() -> String {
-        viewModel.selectedVersesTextBlock()
+        viewModel.selectedVersesTextBlock(includeAppLink: true)
     }
     
     private func isBookmarked() -> Bool {

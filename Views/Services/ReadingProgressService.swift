@@ -168,6 +168,25 @@ final class ReadingProgressService: ObservableObject {
             NotificationManager.shared.scheduleMilestoneCelebration(.finishedBook(book: reference.book))
         }
     }
+
+    func resetForAccountDeletion() {
+        lastReadDate = nil
+        currentStreak = 0
+        longestStreak = 0
+        versesReadToday = 0
+        gracePassMonth = ""
+        gracePassUsedCount = 0
+        readVerseIDs.removeAll()
+        lastSignalTimes.removeAll()
+
+        defaults.removeObject(forKey: Keys.lastReadDate)
+        defaults.set(0, forKey: Keys.currentStreak)
+        defaults.set(0, forKey: Keys.longestStreak)
+        defaults.set(0, forKey: Keys.versesReadToday)
+        defaults.removeObject(forKey: Keys.versesReadDay)
+        defaults.removeObject(forKey: Keys.gracePassMonth)
+        defaults.set(0, forKey: Keys.gracePassUsedCount)
+    }
 }
 
 @MainActor
@@ -390,6 +409,14 @@ struct PersonalizationDebugSnapshot {
 }
 
 extension PersonalizationService {
+    func resetForAccountDeletion() {
+        defaults.removeObject(forKey: Keys.bookFrequency)
+        defaults.removeObject(forKey: Keys.usageBuckets)
+        defaults.removeObject(forKey: Keys.lastReadAt)
+        defaults.removeObject(forKey: Keys.lastReadReference)
+        state = .empty
+    }
+
     func debugSnapshot() -> PersonalizationDebugSnapshot {
         let bookFrequency = defaults.dictionary(forKey: Keys.bookFrequency) as? [String: Int] ?? [:]
         let usageBuckets = defaults.dictionary(forKey: Keys.usageBuckets) as? [String: Int] ?? [:]

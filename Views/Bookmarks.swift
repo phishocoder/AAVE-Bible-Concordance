@@ -54,6 +54,11 @@ class Bookmarks: ObservableObject {
         bookmarks.removeAll { $0.id == id }
         saveBookmarks()
     }
+
+    func clearAllBookmarks() {
+        bookmarks.removeAll()
+        saveBookmarks()
+    }
     
     func isBookmarked(book: String, chapter: Int, verse: Int) -> Bool {
         bookmarks.contains { bookmark in

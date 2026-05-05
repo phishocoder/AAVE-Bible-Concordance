@@ -1,5 +1,5 @@
 {
-  "originHash" : "c6fe051da2aee514f69b73bf4d0bb5ba37fc0b9c4d63b63820be0e673adcb8bc",
+  "originHash" : "c63c63846d9c539229e96de38d6af51417e28c0ee9a0bc48bd0f0f19d923c329",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -26,15 +26,6 @@
       "state" : {
         "revision" : "fdc352fabaf5916e7faa1f96ad02b1957e93e5a5",
         "version" : "11.15.0"
-      }
-    },
-    {
-      "identity" : "fullstory-swift-package-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/fullstorydev/fullstory-swift-package-ios",
-      "state" : {
-        "revision" : "abd7076df1655828c01bcaaf8f37e20570a54662",
-        "version" : "1.65.0"
       }
     },
     {

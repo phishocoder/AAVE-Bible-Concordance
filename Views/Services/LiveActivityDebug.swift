@@ -5,6 +5,7 @@ import ActivityKit
 
 @available(iOS 16.1, *)
 func debugDailyVerseLiveActivities(_ label: String) {
+#if DEBUG
 #if canImport(ActivityKit)
     let authorization = ActivityAuthorizationInfo()
     let activities = Activity<DailyVerseAttributes>.activities
@@ -14,5 +15,6 @@ func debugDailyVerseLiveActivities(_ label: String) {
     }
 #else
     print("LA-DEBUG \(label) ActivityKit unavailable")
+#endif
 #endif
 }

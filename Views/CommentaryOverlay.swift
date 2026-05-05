@@ -154,11 +154,12 @@ struct CommentaryOverlay: View {
 
     private func shareText(commentary: String) -> String {
         let referenceLine = verse.displayString
+        let appLink = "\n\nRead more: https://officialaavebible.com"
         guard let verseText, !verseText.isEmpty else {
-            return "\(referenceLine)\n\nCommentary\n\(commentary)"
+            return "\(referenceLine)\n\nCommentary\n\(commentary)\(appLink)"
         }
 
-        return "\(referenceLine)\n\nScripture (\(settings.preferredTranslation))\n\(verseText)\n\nCommentary\n\(commentary)"
+        return "\(referenceLine)\n\nScripture (\(settings.preferredTranslation))\n\(verseText)\n\nCommentary\n\(commentary)\(appLink)"
     }
 
     private func loadVerseText() async {

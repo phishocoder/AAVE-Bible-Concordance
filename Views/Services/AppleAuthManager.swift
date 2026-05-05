@@ -20,6 +20,7 @@ class AppleAuthManager: NSObject, ObservableObject {
     private let keychainService = "AAVEBibleAppleSignIn"
     private let keychainAccount = "appleUserID"
     private let displayNameKey = "displayName"
+    private var pendingReauthenticationCompletion: ((Result<Void, Error>) -> Void)?
     
     // Generate a random nonce for authentication
     private func randomNonceString(length: Int = 32) -> String {
@@ -136,6 +137,26 @@ class AppleAuthManager: NSObject, ObservableObject {
         controller.performRequests()
     }
 
+    func reauthenticateForSensitiveAction(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard isSignedIn, Auth.auth().currentUser != nil else {
+            completion(.failure(AccountDeletionService.AccountDeletionError.missingUser))
+            return
+        }
+
+        pendingReauthenticationCompletion = completion
+
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        request.nonce = sha256(nonce)
+
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
+    }
+
     func signOut() {
         do {
             try Auth.auth().signOut()
@@ -143,24 +164,25 @@ class AppleAuthManager: NSObject, ObservableObject {
             print("❌ Sign out failed: \(error.localizedDescription)")
         }
 
-        keychain.delete(service: keychainService, account: keychainAccount)
-        UserDefaults.standard.set("", forKey: "displayName")
-        UserDefaults.standard.set(false, forKey: "didCompleteOnboarding")
-        UserDefaults.standard.set(AppTab.home.rawValue, forKey: "selectedTab")
-
-        DispatchQueue.main.async {
-            self.isSignedIn = false
-            self.displayName = nil
-            self.userID = nil
-            self.needsUsernamePrompt = false
-            self.pendingUserID = nil
-        }
+        clearPersistedSession()
 
         NotificationCenter.default.post(name: Notification.Name("ShowProfile"), object: nil)
         NotificationCenter.default.post(name: Notification.Name("ShowOnboarding"), object: nil)
     }
 
+    func handleAccountDeleted(showOnboarding: Bool = true) {
+        clearPersistedSession()
+        if showOnboarding {
+            NotificationCenter.default.post(name: Notification.Name("ShowOnboarding"), object: nil)
+        }
+    }
+
     private func handleAppleCredential(_ appleIDCredential: ASAuthorizationAppleIDCredential) {
+        if pendingReauthenticationCompletion != nil {
+            handleAppleReauthentication(appleIDCredential)
+            return
+        }
+
         guard let nonce = currentNonce else {
             print("❌ Invalid state: A login callback was received, but no login request was sent.")
             return
@@ -205,9 +227,68 @@ class AppleAuthManager: NSObject, ObservableObject {
                 self?.needsUsernamePrompt = false
             }
 
+            FirebaseAuthManager.shared.resumeAnonymousAuth()
+
             self?.ensureUserDocument(uid: uid, displayName: resolvedName)
 
             print("✅ Signed in with Apple. UID: \(user.uid), Name: \(resolvedName)")
+        }
+    }
+
+    private func handleAppleReauthentication(_ appleIDCredential: ASAuthorizationAppleIDCredential) {
+        guard let nonce = currentNonce else {
+            finishPendingReauthentication(with: .failure(AccountDeletionService.AccountDeletionError.requiresRecentLogin))
+            return
+        }
+
+        guard let identityToken = appleIDCredential.identityToken,
+              let tokenString = String(data: identityToken, encoding: .utf8) else {
+            finishPendingReauthentication(with: .failure(AccountDeletionService.AccountDeletionError.requiresRecentLogin))
+            return
+        }
+
+        guard let currentUser = Auth.auth().currentUser else {
+            finishPendingReauthentication(with: .failure(AccountDeletionService.AccountDeletionError.missingUser))
+            return
+        }
+
+        let credential = OAuthProvider.credential(withProviderID: "apple.com",
+                                                  idToken: tokenString,
+                                                  rawNonce: nonce)
+
+        currentUser.reauthenticate(with: credential) { [weak self] _, error in
+            if let error {
+                self?.finishPendingReauthentication(with: .failure(error))
+                return
+            }
+
+            if let self {
+                self.keychain.save(appleIDCredential.user, service: self.keychainService, account: self.keychainAccount)
+            }
+            self?.finishPendingReauthentication(with: .success(()))
+        }
+    }
+
+    private func finishPendingReauthentication(with result: Result<Void, Error>) {
+        let completion = pendingReauthenticationCompletion
+        pendingReauthenticationCompletion = nil
+        DispatchQueue.main.async {
+            completion?(result)
+        }
+    }
+
+    private func clearPersistedSession() {
+        keychain.delete(service: keychainService, account: keychainAccount)
+        UserDefaults.standard.set("", forKey: "displayName")
+        UserDefaults.standard.set(false, forKey: "didCompleteOnboarding")
+        UserDefaults.standard.set(AppTab.home.rawValue, forKey: "selectedTab")
+
+        DispatchQueue.main.async {
+            self.isSignedIn = false
+            self.displayName = nil
+            self.userID = nil
+            self.needsUsernamePrompt = false
+            self.pendingUserID = nil
         }
     }
 }
@@ -225,6 +306,10 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate, ASAuthorizationCo
 
     func authorizationController(controller: ASAuthorizationController,
                                   didCompleteWithError error: Error) {
+        if pendingReauthenticationCompletion != nil {
+            finishPendingReauthentication(with: .failure(error))
+            return
+        }
         print("❌ Apple Sign-In failed: \(error.localizedDescription)")
     }
 

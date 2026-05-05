@@ -167,7 +167,9 @@ struct HomeView: View {
             let verseId = liveActivityVerseId(for: verse.reference)
             let excerpt = liveActivityExcerpt(from: verse.text, maxLength: 140)
             let versionUsed = settings.verseOfDayTranslation
+#if DEBUG
             print("HOME->LA snapshot verseId=\(verseId) isJesusSaid=\(lockScreenJesusSaidEnabled) versionUsed=\(versionUsed) excerptLen=\(excerpt.count)")
+#endif
             DailyVerseLiveActivityCoordinator.setHomeDisplayedVerse(
                 verseId: verseId,
                 reference: verse.reference.displayString,
@@ -797,7 +799,9 @@ struct HomeView: View {
                     let preferredVersion = VerseVersion(rawValue: settings.verseOfDayTranslation) ?? .aave
                     if let selection = await VerseOfDayProvider.today(
                         jesusSaidOnly: false,
-                        preferredVersion: preferredVersion
+                        preferredVersion: preferredVersion,
+                        testament: settings.verseOfDayTestament,
+                        book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook
                     ), let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
                         verse = (reference: reference, text: selection.fullText)
                     } else {

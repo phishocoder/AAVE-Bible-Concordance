@@ -230,11 +230,11 @@ struct VerseListView: View {
             showingVerseActionSheet = false
             noteReference = verse.reference
         case .copy:
-            UIPasteboard.general.string = formattedVerseText(verse)
+            UIPasteboard.general.string = formattedVerseText(verse, includeAppLink: false)
             showSavedToast()
             showingVerseActionSheet = false
         case .share:
-            shareText = "\(formattedVerseText(verse))\n\n\(settings.preferredTranslation)"
+            shareText = formattedVerseText(verse, includeAppLink: true)
             showingVerseActionSheet = false
             showShareSheet = true
             AchievementService.shared.recordShare()
@@ -278,8 +278,14 @@ struct VerseListView: View {
         showToastMessage(message, duration: 1.2)
     }
 
-    private func formattedVerseText(_ verse: Verse) -> String {
-        "\(verse.reference.displayString)\n\(verse.text)"
+    private func formattedVerseText(_ verse: Verse, includeAppLink: Bool) -> String {
+        var text = "\(verse.reference.displayString)\n\(verse.text)"
+
+        if includeAppLink {
+            text += "\n\nRead more: https://officialaavebible.com"
+        }
+
+        return text
     }
 
     private func dismissOnboarding() {

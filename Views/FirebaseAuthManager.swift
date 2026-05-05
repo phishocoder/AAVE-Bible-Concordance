@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class FirebaseAuthManager: ObservableObject {
     static let shared = FirebaseAuthManager()
+
+    private let suppressAnonymousAuthKey = "suppressAnonymousAuthAfterDeletion"
     
     @Published var userID: String?
 
@@ -19,6 +21,14 @@ class FirebaseAuthManager: ObservableObject {
     }
 
     func signInAnonymously() {
+        guard shouldAllowAnonymousAuth else {
+            self.userID = nil
+#if DEBUG
+            print("⚠️ Anonymous auth is currently suppressed.")
+#endif
+            return
+        }
+
         if let currentUser = Auth.auth().currentUser {
             self.userID = currentUser.uid
             print("✅ Already signed in with UID: \(currentUser.uid)")
@@ -38,5 +48,18 @@ class FirebaseAuthManager: ObservableObject {
                 }
             }
         }
+    }
+
+    func handleAccountDeleted() {
+        userID = nil
+        UserDefaults.standard.set(true, forKey: suppressAnonymousAuthKey)
+    }
+
+    func resumeAnonymousAuth() {
+        UserDefaults.standard.set(false, forKey: suppressAnonymousAuthKey)
+    }
+
+    private var shouldAllowAnonymousAuth: Bool {
+        UserDefaults.standard.bool(forKey: suppressAnonymousAuthKey) == false
     }
 }

@@ -7,7 +7,13 @@ struct ProfileView: View {
     @StateObject private var readingProgress = ReadingProgressService.shared
     @StateObject private var authManager = AppleAuthManager.shared
     @State private var showingSignOutConfirm = false
+    @State private var showingDeleteConfirm = false
+    @State private var showingDeleteSuccess = false
+    @State private var showingDeleteError = false
+    @State private var attemptedAutomaticReauthentication = false
     @State private var isSavingName = false
+    @State private var isDeletingAccount = false
+    @State private var deletionErrorMessage = ""
 
     var body: some View {
         NavigationStack {
@@ -17,6 +23,7 @@ struct ProfileView: View {
                     streakCard
                     shortcutsCard
                     signOutCard
+                    deleteAccountCard
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 32)
@@ -41,6 +48,39 @@ struct ProfileView: View {
         } message: {
             Text("You can sign back in anytime. Your reading data stays on this device.")
         }
+        .alert("Delete Account?", isPresented: $showingDeleteConfirm) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete My Account", role: .destructive) {
+                attemptedAutomaticReauthentication = false
+                Task {
+                    await beginAccountDeletion()
+                }
+            }
+        } message: {
+            Text(accountDeletionWarning)
+        }
+        .alert("Account Deleted", isPresented: $showingDeleteSuccess) {
+            Button("OK") {
+                finishSuccessfulAccountDeletion()
+            }
+        } message: {
+            Text("Your account and associated app data have been deleted.")
+        }
+        .alert("Couldn’t Delete Account", isPresented: $showingDeleteError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(deletionErrorMessage)
+        }
+    }
+
+    private var accountDeletionWarning: String {
+        """
+        This will permanently delete your account and associated app data. This action cannot be undone.
+
+        Deleted data includes your Firebase sign-in account, profile/display name, leaderboard identity, quiz scores, local bookmarks, highlights, notes, reading progress, streaks, and notification preferences.
+
+        Apple may ask you to confirm your identity before deletion can finish.
+        """
     }
 
     private var profileCard: some View {
@@ -163,6 +203,38 @@ struct ProfileView: View {
         }
     }
 
+    private var deleteAccountCard: some View {
+        ProfileSection(title: "Account Management") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Delete your account and remove your associated app data from this device and Firebase.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+
+                Button(role: .destructive) {
+                    showingDeleteConfirm = true
+                } label: {
+                    HStack(spacing: 12) {
+                        if isDeletingAccount {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        } else {
+                            Image(systemName: "trash")
+                                .font(.title3)
+                        }
+                        Text("Delete Account")
+                            .fontWeight(.semibold)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .tint(.red)
+                .disabled(!authManager.isSignedIn || isDeletingAccount)
+                .opacity(authManager.isSignedIn ? 1 : 0.5)
+            }
+        }
+    }
+
     private func saveDisplayName() {
         let trimmed = preferences.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -171,6 +243,57 @@ struct ProfileView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             isSavingName = false
         }
+    }
+
+    private func beginAccountDeletion() async {
+        isDeletingAccount = true
+        defer { isDeletingAccount = false }
+
+        do {
+            try await AccountDeletionService.shared.deleteCurrentUserAccount()
+            showingDeleteSuccess = true
+        } catch let error as AccountDeletionService.AccountDeletionError {
+            handleDeletionError(error, allowAutomaticReauthentication: true)
+        } catch {
+            handleDeletionError(.unknown(error.localizedDescription), allowAutomaticReauthentication: true)
+        }
+    }
+
+    private func reauthenticateAndRetryDeletion() {
+        isDeletingAccount = true
+        authManager.reauthenticateForSensitiveAction { result in
+            switch result {
+            case .success:
+                Task {
+                    await beginAccountDeletion()
+                }
+            case .failure(let error):
+                isDeletingAccount = false
+                handleDeletionError(.unknown(error.localizedDescription), allowAutomaticReauthentication: false)
+            }
+        }
+    }
+
+    private func handleDeletionError(
+        _ error: AccountDeletionService.AccountDeletionError,
+        allowAutomaticReauthentication: Bool
+    ) {
+        switch error {
+        case .requiresRecentLogin where allowAutomaticReauthentication && !attemptedAutomaticReauthentication:
+            attemptedAutomaticReauthentication = true
+            reauthenticateAndRetryDeletion()
+        case .requiresRecentLogin:
+            deletionErrorMessage = "Apple couldn’t confirm this account for deletion. Try Delete Account again and complete the Apple confirmation."
+            showingDeleteError = true
+        default:
+            deletionErrorMessage = error.errorDescription ?? "We couldn’t delete the account."
+            showingDeleteError = true
+        }
+    }
+
+    private func finishSuccessfulAccountDeletion() {
+        dismiss()
+        NotificationCenter.default.post(name: Notification.Name("ShowOnboarding"), object: nil)
     }
 }
 

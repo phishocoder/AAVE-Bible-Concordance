@@ -397,9 +397,40 @@ class VerseListViewModel: ObservableObject {
     }
 
     func selectedVersesTextBlock() -> String {
-        orderedSelectedVerses
-            .map { "\($0.reference.displayString)\n\($0.text)" }
-            .joined(separator: "\n\n")
+        selectedVersesTextBlock(includeAppLink: true)
+    }
+
+    func selectedVersesTextBlock(includeAppLink: Bool) -> String {
+        var lines: [String] = []
+
+        if let chapterReference = selectedChapterReference {
+            lines.append(chapterReference)
+        }
+
+        lines.append(contentsOf: orderedSelectedVerses.map { verse in
+            "\(verse.reference.verse). \(verse.text)"
+        })
+
+        if includeAppLink {
+            lines.append("")
+            lines.append("Read more: https://officialaavebible.com")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private var selectedChapterReference: String? {
+        guard let first = orderedSelectedVerses.first else { return nil }
+        let verses = orderedSelectedVerses.map(\.reference.verse)
+        guard let minVerse = verses.min(), let maxVerse = verses.max() else {
+            return first.reference.displayString
+        }
+
+        if minVerse == maxVerse {
+            return first.reference.displayString
+        }
+
+        return "\(first.reference.book) \(first.reference.chapter):\(minVerse)-\(maxVerse)"
     }
 
     private func selectSingleVerse(_ verse: Verse) {

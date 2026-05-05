@@ -49,6 +49,12 @@ final class NotificationManager: ObservableObject {
         gentleModeEnabled ? .gentle : .standard
     }
 
+    private func debugLog(_ message: String) {
+#if DEBUG
+        print("DAILY-VERSE DEBUG: \(message)")
+#endif
+    }
+
     func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             DispatchQueue.main.async {
@@ -115,22 +121,19 @@ final class NotificationManager: ObservableObject {
 
         cancelVerseOfDayNotifications()
 
-        let content = UNMutableNotificationContent()
-        content.title = "Daily Verse"
-        content.body = NotificationMessages.message(for: .dailyVerse, style: messageStyle)
-        content.sound = .default
-        content.categoryIdentifier = "VERSE_OF_DAY"
+        Task {
+            let content = await makeVerseOfDayNotificationContent()
+            let components = dailyVerseTimeComponents(referenceDate: Date())
+            var triggerDateComponents = DateComponents()
+            triggerDateComponents.hour = components.hour
+            triggerDateComponents.minute = components.minute
 
-        let components = dailyVerseTimeComponents(referenceDate: Date())
-        var triggerDateComponents = DateComponents()
-        triggerDateComponents.hour = components.hour
-        triggerDateComponents.minute = components.minute
-
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "verse-of-day", content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error {
-                print("Error scheduling verse of day notification: \(error)")
+            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: true)
+            let request = UNNotificationRequest(identifier: "verse-of-day", content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error {
+                    print("Error scheduling verse of day notification: \(error)")
+                }
             }
         }
     }
@@ -143,48 +146,80 @@ final class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
+    func resetForAccountDeletion() {
+        cancelAllNotifications()
+        dailyVerseNotificationEnabled = false
+        midweekMotivationEnabled = false
+        weekendRefocusEnabled = false
+        weekendRefocusDay = "Sunday"
+        betaFeedbackEnabled = true
+        featureDiscoveryEnabled = true
+        smartTimingEnabled = false
+        gentleModeEnabled = false
+        streakNudgeEnabled = false
+        hasOpenedBibleReader = false
+        appLaunchCount = 0
+        lastFeedbackRequestDate = Date.distantPast.timeIntervalSince1970
+        lastReadInContextPromptDate = Date.distantPast.timeIntervalSince1970
+        lastFeatureDiscoveryPushDate = Date.distantPast.timeIntervalSince1970
+        isAuthorized = false
+    }
+
     func updateVerseOfDayContent(completion: @escaping () -> Void) {
+        Task {
+            let updatedContent = await makeVerseOfDayNotificationContent()
+            let center = UNUserNotificationCenter.current()
+            let requests = await center.pendingNotificationRequests()
+            let vodRequests = requests.filter { $0.identifier == "verse-of-day" }
+
+            for request in vodRequests {
+                let updatedRequest = UNNotificationRequest(
+                    identifier: request.identifier,
+                    content: updatedContent,
+                    trigger: request.trigger
+                )
+                do {
+                    try await center.add(updatedRequest)
+                } catch {
+                    print("Error updating verse of day notification: \(error)")
+                }
+            }
+            completion()
+        }
+    }
+
+    private func makeVerseOfDayNotificationContent(date: Date = Date()) async -> UNMutableNotificationContent {
         let settings = SettingsViewModel.shared
-        let reference = PopularScriptures.getVerseOfTheDay(
+        let preferredVersion = VerseVersion(rawValue: settings.verseOfDayTranslation) ?? .aave
+        let selection = await VerseOfDayProvider.today(
+            jesusSaidOnly: false,
+            preferredVersion: preferredVersion,
             testament: settings.verseOfDayTestament,
-            book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook
+            book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook,
+            date: date,
+            calendar: calendar
         )
 
-        Task {
-            do {
-                let verseText = try await TranslationService.shared.getVerseTranslation(
-                    for: reference.book,
-                    chapter: reference.chapter,
-                    verse: reference.verse,
-                    translation: settings.verseOfDayTranslation
-                )
+        let content = UNMutableNotificationContent()
+        content.title = "Daily Verse"
+        content.sound = .default
+        content.categoryIdentifier = "VERSE_OF_DAY"
 
-                let center = UNUserNotificationCenter.current()
-                let requests = await center.pendingNotificationRequests()
-                let vodRequests = requests.filter { $0.identifier == "verse-of-day" }
-
-                for request in vodRequests {
-                    let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
-                    updatedContent.title = "Daily Verse"
-                    updatedContent.body = "\(reference.book) \(reference.chapter):\(reference.verse) - \(verseText)"
-                    updatedContent.userInfo = [
-                        "book": reference.book,
-                        "chapter": reference.chapter,
-                        "verse": reference.verse
-                    ]
-                    let updatedRequest = UNNotificationRequest(
-                        identifier: request.identifier,
-                        content: updatedContent,
-                        trigger: request.trigger
-                    )
-                    try? await center.add(updatedRequest)
-                }
-                completion()
-            } catch {
-                print("Error fetching verse for notification: \(error)")
-                completion()
-            }
+        if let selection,
+           let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
+            content.body = "\(selection.reference) - \(selection.excerpt)"
+            content.userInfo = [
+                "book": reference.book,
+                "chapter": reference.chapter,
+                "verse": reference.verse
+            ]
+            debugLog("notification content date=\(date) reference=\(selection.reference) version=\(selection.versionUsed.rawValue)")
+        } else {
+            content.body = NotificationMessages.message(for: .dailyVerse, style: messageStyle)
+            debugLog("notification content fell back to generic daily message for date=\(date)")
         }
+
+        return content
     }
 
     func scheduleMidweekMotivation() {

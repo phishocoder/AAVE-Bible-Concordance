@@ -38,12 +38,6 @@
 		E0196C372D9B3D2000A07E19 /* NotificationMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */; };
 		E01A9DEC2DA87BB20000F4A3 /* RedLetterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */; };
 		E03501EF2D7CFC9200FA380E /* DownloadManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */; };
-		E03F55DF2EB9239F00423842 /* FullStory in Frameworks */ = {isa = PBXBuildFile; productRef = E03F55DE2EB9239F00423842 /* FullStory */; };
-		E03F560A2EB924F400423842 /* AAVE_FS_DemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */; };
-		E03F560B2EB924F400423842 /* DemoAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56012EB924F400423842 /* DemoAppDelegate.swift */; };
-		E03F560C2EB924F400423842 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56022EB924F400423842 /* ContentView.swift */; };
-		E03F560D2EB924F400423842 /* DemoDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03F56032EB924F400423842 /* DemoDiagnostics.swift */; };
-		E03F560E2EB924F400423842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E03F56042EB924F400423842 /* Assets.xcassets */; };
 		E040971D2D8C9CF40054BA3A /* HighlightColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */; };
 		E043E6CF2DB0065E002A114F /* VerseImageCreatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */; };
 		E04A93A32D7D2AA6006AC6E6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */; };
@@ -110,10 +104,6 @@
 		E0F415C02D825C1D000A4C7E /* VerseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415BF2D825C19000A4C7E /* VerseCard.swift */; };
 		E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */; };
 		E0F415CA2D825FAD000A4C7E /* VerseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C92D825FA9000A4C7E /* VerseModels.swift */; };
-		E0F4B1102F5C5BB100ABCD01 /* FSBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */; };
-		E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */; };
-		E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */; };
-		E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */; };
 		E0FAC5252F202B1F00A190AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0FAC5242F202B1F00A190AA /* WidgetKit.framework */; };
 		E0FAC5272F202B1F00A190AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0FAC5262F202B1F00A190AA /* SwiftUI.framework */; };
 		E0FAC5382F202B2000A190AA /* AAVEBibleLiveActivitiesExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -206,15 +196,6 @@
 		E0196C362D9B3D1700A07E19 /* NotificationMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMessages.swift; sourceTree = "<group>"; };
 		E01A9DEB2DA87BAD0000F4A3 /* RedLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedLetterService.swift; sourceTree = "<group>"; };
 		E03501ED2D7CFC9200FA380E /* DownloadManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManagerViewModel.swift; sourceTree = "<group>"; };
-		E03F55CA2EB9236000423842 /* AAVE FS Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AAVE FS Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAVE_FS_DemoApp.swift; sourceTree = "<group>"; };
-		E03F56012EB924F400423842 /* DemoAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAppDelegate.swift; sourceTree = "<group>"; };
-		E03F56022EB924F400423842 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		E03F56032EB924F400423842 /* DemoDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDiagnostics.swift; sourceTree = "<group>"; };
-		E03F56042EB924F400423842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E03F56052EB924F400423842 /* FullStory.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FullStory.json; sourceTree = "<group>"; };
-		E03F56062EB924F400423842 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E03F56072EB924F400423842 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E040971C2D8C9CEE0054BA3A /* HighlightColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightColorPickerView.swift; sourceTree = "<group>"; };
 		E043E6CE2DB00653002A114F /* VerseImageCreatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseImageCreatorView.swift; sourceTree = "<group>"; };
 		E04A93A22D7D2A9F006AC6E6 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -277,10 +258,6 @@
 		E0F415BF2D825C19000A4C7E /* VerseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseCard.swift; sourceTree = "<group>"; };
 		E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseDetailSheet.swift; sourceTree = "<group>"; };
 		E0F415C92D825FA9000A4C7E /* VerseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseModels.swift; sourceTree = "<group>"; };
-		E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FSBridge.swift; sourceTree = "<group>"; };
-		E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AAVEBibleLiveActivitiesExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0FAC5242F202B1F00A190AA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E0FAC5262F202B1F00A190AA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -364,14 +341,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E03F55C72EB9236000423842 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E03F55DF2EB9239F00423842 /* FullStory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,25 +495,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		E03F55CB2EB9236000423842 /* AAVE FS Demo */ = {
-			isa = PBXGroup;
-			children = (
-				E03F56002EB924F400423842 /* AAVE_FS_DemoApp.swift */,
-				E03F56012EB924F400423842 /* DemoAppDelegate.swift */,
-				E03F56022EB924F400423842 /* ContentView.swift */,
-				E0F4B1002F5C5BB100ABCD01 /* FSBridge.swift */,
-				E0F4B1012F5C5BB100ABCD01 /* HomeView.swift */,
-				E0F4B1022F5C5BB100ABCD01 /* LoginView.swift */,
-				E0F4B1032F5C5BB100ABCD01 /* SettingsView.swift */,
-				E03F56032EB924F400423842 /* DemoDiagnostics.swift */,
-				E03F56042EB924F400423842 /* Assets.xcassets */,
-				E03F56052EB924F400423842 /* FullStory.json */,
-				E03F56062EB924F400423842 /* Info.plist */,
-				E03F56072EB924F400423842 /* README.md */,
-			);
-			path = "AAVE FS Demo";
-			sourceTree = "<group>";
-		};
 		E04B08222D7A69990022E2DB = {
 			isa = PBXGroup;
 			children = (
@@ -555,7 +505,6 @@
 				E0054FB92D7C202800A26A71 /* Models */,
 				E04B082D2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCF2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
-				E03F55CB2EB9236000423842 /* AAVE FS Demo */,
 				E0FAC5282F202B1F00A190AA /* AAVEBibleLiveActivities */,
 				E077B96D2DB9F8F40072C19F /* Frameworks */,
 				E04B082C2D7A69990022E2DB /* Products */,
@@ -567,7 +516,6 @@
 			children = (
 				E04B082B2D7A69990022E2DB /* AAVE Bible Concordance.app */,
 				E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */,
-				E03F55CA2EB9236000423842 /* AAVE FS Demo.app */,
 				E0FAC5232F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension.appex */,
 			);
 			name = Products;
@@ -631,30 +579,6 @@
 			productName = "AAVE Bible ConcordanceTests";
 			productReference = E0054FCE2D7CC38300A26A71 /* AAVE Bible ConcordanceTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		E03F55C92EB9236000423842 /* AAVE FS Demo */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E03F55D42EB9236300423842 /* Build configuration list for PBXNativeTarget "AAVE FS Demo" */;
-			buildPhases = (
-				E03F55E02EB923CA00423842 /* FullStory CLI Build */,
-				E03F55C62EB9236000423842 /* Sources */,
-				E03F55C72EB9236000423842 /* Frameworks */,
-				E03F55C82EB9236000423842 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				E03F55CB2EB9236000423842 /* AAVE FS Demo */,
-			);
-			name = "AAVE FS Demo";
-			packageProductDependencies = (
-				E03F55DE2EB9239F00423842 /* FullStory */,
-			);
-			productName = "AAVE FS Demo";
-			productReference = E03F55CA2EB9236000423842 /* AAVE FS Demo.app */;
-			productType = "com.apple.product-type.application";
 		};
 		E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */ = {
 			isa = PBXNativeTarget;
@@ -723,9 +647,6 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = E04B082A2D7A69990022E2DB;
 					};
-					E03F55C92EB9236000423842 = {
-						CreatedOnToolsVersion = 26.0;
-					};
 					E04B082A2D7A69990022E2DB = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -745,7 +666,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E04B082C2D7A69990022E2DB /* Products */;
@@ -754,7 +674,6 @@
 			targets = (
 				E04B082A2D7A69990022E2DB /* AAVE Bible Concordance */,
 				E0054FCD2D7CC38300A26A71 /* AAVE Bible ConcordanceTests */,
-				E03F55C92EB9236000423842 /* AAVE FS Demo */,
 				E0FAC5222F202B1F00A190AA /* AAVEBibleLiveActivitiesExtension */,
 			);
 		};
@@ -765,14 +684,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E03F55C82EB9236000423842 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E03F560E2EB924F400423842 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -794,28 +705,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E03F55E02EB923CA00423842 /* FullStory CLI Build */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Tools/FullStoryCommandLine",
-				"$(SRCROOT)/AAVE FS Demo/FullStory.json",
-			);
-			name = "FullStory CLI Build";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/FullStory.json",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nFS_CLI=\"${SRCROOT}/Tools/FullStoryCommandLine\"\nFS_CONFIG=\"${SRCROOT}/AAVE FS Demo/FullStory.json\"\nFS_OUTPUT=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}/FullStory.json\"\necho \"📦 FS_CLI: $FS_CLI\"\necho \"🗂️  FS_CONFIG: $FS_CONFIG\"\necho \"🎯 FS_OUTPUT: $FS_OUTPUT\"\nif [ ! -x \"$FS_CLI\" ]; then echo \"❌ Missing CLI\"; exit 1; fi\nif [ ! -f \"$FS_CONFIG\" ]; then echo \"❌ Missing config\"; exit 1; fi\n\"$FS_CLI\" build --config \"$FS_CONFIG\" --output \"$FS_OUTPUT\"\necho \"✅ FullStory CLI build complete: $FS_OUTPUT\"\nif ! /usr/bin/grep -q '\"FSBuildID\"' \"$FS_OUTPUT\"; then\n  echo \"❌ FSBuildID missing\"; cat \"$FS_OUTPUT\"; exit 1\nfi\necho \"🧪 Bundled FullStory.json (first 240 chars):\"; head -c 240 \"$FS_OUTPUT\" || true; echo\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -823,21 +712,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E03F55C62EB9236000423842 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E03F560A2EB924F400423842 /* AAVE_FS_DemoApp.swift in Sources */,
-				E03F560B2EB924F400423842 /* DemoAppDelegate.swift in Sources */,
-				E03F560C2EB924F400423842 /* ContentView.swift in Sources */,
-				E0F4B1102F5C5BB100ABCD01 /* FSBridge.swift in Sources */,
-				E0F4B1112F5C5BB100ABCD01 /* HomeView.swift in Sources */,
-				E0F4B1122F5C5BB100ABCD01 /* LoginView.swift in Sources */,
-				E0F4B1132F5C5BB100ABCD01 /* SettingsView.swift in Sources */,
-				E03F560D2EB924F400423842 /* DemoDiagnostics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1018,74 +892,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AAVE Bible Concordance.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AAVE Bible Concordance";
-			};
-			name = Release;
-		};
-		E03F55D22EB9236300423842 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "AAVE FS Demo/Info.plist";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.phisho.aavefsdemo.AAVE-FS-Demo";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		E03F55D32EB9236300423842 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7ER7B4U7Y5;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "AAVE FS Demo/Info.plist";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.phisho.aavefsdemo.AAVE-FS-Demo";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1358,15 +1164,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E03F55D42EB9236300423842 /* Build configuration list for PBXNativeTarget "AAVE FS Demo" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E03F55D22EB9236300423842 /* Debug */,
-				E03F55D32EB9236300423842 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		E04B08262D7A69990022E2DB /* Build configuration list for PBXProject "AAVE Bible Concordance" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1397,14 +1194,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/fullstorydev/fullstory-swift-package-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.65.0;
-			};
-		};
 		E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1416,11 +1205,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E03F55DE2EB9239F00423842 /* FullStory */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E03F55DD2EB9238D00423842 /* XCRemoteSwiftPackageReference "fullstory-swift-package-ios" */;
-			productName = FullStory;
-		};
 		E077B9672DB9F32B0072C19F /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E077B9662DB9F32B0072C19F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

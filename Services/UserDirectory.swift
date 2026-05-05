@@ -29,6 +29,10 @@ final class UserDirectory {
         }
     }
 
+    func invalidateDisplayName(for uid: String) {
+        cache.removeValue(forKey: uid)
+    }
+
     static func fallbackName(for uid: String) -> String {
         let shortID = uid.prefix(6)
         return "User \(shortID)"

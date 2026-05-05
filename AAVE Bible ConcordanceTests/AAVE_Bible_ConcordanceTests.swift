@@ -117,6 +117,53 @@ final class AAVE_Bible_ConcordanceTests: XCTestCase {
         )
     }
 
+    func testVerseOfDayProviderChangesByCalendarDay() {
+        let firstDay = date(2026, 2, 14, 8, 0)
+        let nextDay = date(2026, 2, 15, 8, 0)
+
+        let firstReference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            date: firstDay,
+            calendar: calendar
+        )
+        let nextReference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            date: nextDay,
+            calendar: calendar
+        )
+
+        XCTAssertNotEqual(firstReference, nextReference)
+    }
+
+    func testVerseOfDayProviderKeepsSameVerseWithinCalendarDay() {
+        let morning = date(2026, 2, 14, 8, 0)
+        let evening = date(2026, 2, 14, 20, 30)
+
+        let morningReference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            date: morning,
+            calendar: calendar
+        )
+        let eveningReference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            date: evening,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(morningReference, eveningReference)
+    }
+
+    func testVerseOfDayProviderHonorsBookFilterWhenAvailable() {
+        let reference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            book: "Romans",
+            date: date(2026, 2, 14, 8, 0),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(reference?.book, "Romans")
+    }
+
     private func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) -> Date {
         var components = DateComponents()
         components.year = year

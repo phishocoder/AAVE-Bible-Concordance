@@ -24,6 +24,14 @@ final class UserProfilePreferences: ObservableObject {
     func resetOnboarding() {
         didCompleteOnboarding = false
     }
+
+    func resetForAccountDeletion() {
+        didCompleteOnboarding = false
+        displayName = ""
+        faithVibeRaw = FaithVibe.stillFiguringItOut.rawValue
+        tonePreferenceRaw = TonePreference.mix.rawValue
+        wantsDailyNudge = false
+    }
 }
 
 enum FaithVibe: String, CaseIterable, Identifiable {

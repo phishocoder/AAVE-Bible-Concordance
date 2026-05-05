@@ -36,12 +36,22 @@ enum VerseOfDayProvider {
         VerseReference(book: "Matthew", chapter: 11, verse: 30)
     ]
 
-    static func today(jesusSaidOnly: Bool, preferredVersion: VerseVersion) async -> DailyVerseSelection? {
-        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
-        let source = jesusSaidOnly ? jesusSaidVerses : dailyVerses
-        guard !source.isEmpty else { return nil }
+    static func today(
+        jesusSaidOnly: Bool,
+        preferredVersion: VerseVersion,
+        testament: String = "Both",
+        book: String? = nil,
+        date: Date = Date(),
+        calendar: Calendar = .current
+    ) async -> DailyVerseSelection? {
+        guard let reference = reference(
+            jesusSaidOnly: jesusSaidOnly,
+            testament: testament,
+            book: book,
+            date: date,
+            calendar: calendar
+        ) else { return nil }
 
-        let reference = source[(dayOfYear - 1) % source.count]
         let verseId = makeVerseId(for: reference)
         let textResult = await ScriptureStore.bestText(for: verseId, preferredVersion: preferredVersion)
 
@@ -57,6 +67,25 @@ enum VerseOfDayProvider {
         )
     }
 
+    static func reference(
+        jesusSaidOnly: Bool,
+        testament: String = "Both",
+        book: String? = nil,
+        date: Date = Date(),
+        calendar: Calendar = .current
+    ) -> VerseReference? {
+        let dayOfYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 1
+        var source = jesusSaidOnly ? jesusSaidVerses : dailyVerses
+
+        if !jesusSaidOnly {
+            source = filteredDailyVerses(from: source, testament: testament, book: book)
+        }
+
+        guard !source.isEmpty else { return nil }
+
+        return source[(dayOfYear - 1) % source.count]
+    }
+
     static func reference(forVerseId verseId: String) -> VerseReference? {
         let parts = verseId.split(separator: "-")
         guard parts.count >= 3,
@@ -69,6 +98,24 @@ enum VerseOfDayProvider {
     private static func makeVerseId(for reference: VerseReference) -> String {
         let bookPart = reference.book.replacingOccurrences(of: " ", with: "-")
         return "\(bookPart)-\(reference.chapter)-\(reference.verse)"
+    }
+
+    private static func filteredDailyVerses(from verses: [VerseReference], testament: String, book: String?) -> [VerseReference] {
+        var filtered = verses
+
+        if testament == "Old Testament" {
+            filtered = filtered.filter { PopularScriptures.isOldTestament($0.book) }
+        } else if testament == "New Testament" {
+            filtered = filtered.filter { !PopularScriptures.isOldTestament($0.book) }
+        }
+
+        if let book, book != "Any" {
+            let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
+            let bookFiltered = filtered.filter { $0.book == canonicalBook }
+            filtered = bookFiltered.isEmpty ? verses : bookFiltered
+        }
+
+        return filtered.isEmpty ? verses : filtered
     }
 
     private static func clippedExcerpt(_ text: String) -> String {

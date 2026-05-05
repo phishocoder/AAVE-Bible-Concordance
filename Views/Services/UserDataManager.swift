@@ -87,6 +87,8 @@ class UserDataManager: ObservableObject {
         if let reference = lastReadVerse,
            let encoded = try? JSONEncoder().encode(reference) {
             UserDefaults.standard.set(encoded, forKey: lastReadVerseKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: lastReadVerseKey)
         }
     }
     
@@ -162,6 +164,18 @@ class UserDataManager: ObservableObject {
     
     func clearChaptersRead() {
         chaptersRead.removeAll()
+        saveChaptersRead()
+    }
+
+    func clearAllUserData() {
+        history.removeAll()
+        notes.removeAll()
+        lastReadVerse = nil
+        chaptersRead.removeAll()
+
+        saveHistory()
+        saveNotes()
+        saveLastReadVerse()
         saveChaptersRead()
     }
 

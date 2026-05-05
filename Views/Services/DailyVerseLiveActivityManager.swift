@@ -34,9 +34,11 @@ enum DailyVerseLiveActivityCoordinator {
         guard #available(iOS 16.1, *) else { return }
 
         Task {
+#if DEBUG
             let osVersion = UIDevice.current.systemVersion
             let authorization = ActivityAuthorizationInfo()
             print("Live Activities debug: iOS=\(osVersion), enabled=\(authorization.areActivitiesEnabled)")
+#endif
             await DailyVerseLiveActivityManager.shared.refreshIfNeeded(forceUpdate: false)
         }
     }
@@ -113,9 +115,13 @@ final class DailyVerseLiveActivityManager {
     func refreshIfNeeded(forceUpdate: Bool) async {
         guard defaults.bool(forKey: DailyVerseLiveActivityCoordinator.enabledKey) else { return }
         let authorization = ActivityAuthorizationInfo()
+#if DEBUG
         print("LA-DEBUG refreshIfNeeded enabled=\(authorization.areActivitiesEnabled)")
+#endif
         guard authorization.areActivitiesEnabled else {
+#if DEBUG
             print("LA-DEBUG refreshIfNeeded early-exit activities disabled")
+#endif
             return
         }
 
@@ -143,7 +149,9 @@ final class DailyVerseLiveActivityManager {
                 isJesusSaid: snap.isJesusSaid
             )
 
+#if DEBUG
             print("LA-DEBUG using HOME snapshot verseId=\(snap.verseId) isJesusSaid=\(snap.isJesusSaid) versionUsed=\(versionUsed.rawValue)")
+#endif
             await upsertActivity(
                 contentState: contentState,
                 today: today,
@@ -157,17 +165,25 @@ final class DailyVerseLiveActivityManager {
             return
         }
 
+        let testament = SettingsViewModel.shared.verseOfDayTestament
+        let book = SettingsViewModel.shared.verseOfDayBook == "Any" ? nil : SettingsViewModel.shared.verseOfDayBook
         guard let todayVerse = await VerseOfDayProvider.today(
             jesusSaidOnly: jesusSaidOnly,
-            preferredVersion: preferredVersion
+            preferredVersion: preferredVersion,
+            testament: testament,
+            book: book
         ) else {
+#if DEBUG
             print("LA-DEBUG no daily verse available for mode=\(jesusSaidOnly ? "jesus" : "daily")")
+#endif
             return
         }
 
+#if DEBUG
         print("LA-DEBUG mode jesusSaidOnly=\(jesusSaidOnly) requestedVersion=\(preferredVersion.rawValue) versionUsed=\(todayVerse.versionUsed.rawValue)")
         print("LA-DEBUG selection verseId=\(todayVerse.verseId) isJesusSaid=\(todayVerse.isJesusSaid) versionUsed=\(todayVerse.versionUsed.rawValue)")
         print("LA-DEBUG content reference=\(todayVerse.reference) excerptLength=\(todayVerse.excerpt.count) verseId=\(todayVerse.verseId)")
+#endif
         let contentState = DailyVerseAttributes.ContentState(
             reference: todayVerse.reference,
             excerpt: todayVerse.excerpt,
@@ -207,16 +223,22 @@ final class DailyVerseLiveActivityManager {
         }
 
         do {
+#if DEBUG
             debugDailyVerseLiveActivities("before-request")
+#endif
             let attributes = DailyVerseAttributes(activityId: UUID().uuidString)
             let activity = try Activity.request(attributes: attributes, contentState: contentState)
+#if DEBUG
             print("LA-DEBUG request SUCCESS id=\(activity.id)")
             print("LA-DEBUG UI should render via widget extension: AAVEBibleLiveActivities")
             debugDailyVerseLiveActivities("after-request-success")
+#endif
             recordUpdate(for: today, verseId: verseId, mode: mode, version: version)
         } catch {
+#if DEBUG
             print("LA-DEBUG request FAILED error=\(error)")
             debugDailyVerseLiveActivities("after-request-failed")
+#endif
         }
     }
 

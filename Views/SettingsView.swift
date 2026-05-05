@@ -173,11 +173,13 @@ struct SettingsView: View {
                         }
                     }
                     .onChange(of: lockScreenDailyVerseEnabled) { _, newValue in
+#if DEBUG
                         if newValue {
                             print("LA-DEBUG toggle ON")
                         } else {
                             print("LA-DEBUG toggle OFF")
                         }
+#endif
 
                         if #available(iOS 16.1, *) {
                             if newValue {

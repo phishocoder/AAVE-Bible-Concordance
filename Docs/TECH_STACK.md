@@ -21,9 +21,8 @@
 ## Backend / Services (if any)
 - API provider / backend: `labs.bible.org` (NET + other remote translations)
 - Firebase (via Swift Package Manager, min 11.12.0): Analytics, Auth, Firestore, Messaging, Core
-- FullStory iOS SDK (via Swift Package Manager, min 1.65.0)
 - Auth: FirebaseAuth (incl. Apple sign-in via Firebase)
-- Analytics: FirebaseAnalytics + FullStory session replay
+- Analytics: FirebaseAnalytics
 - Crash reporting: Not found in repo (TBD)
 - Remote config: Not found in repo (TBD)
 
