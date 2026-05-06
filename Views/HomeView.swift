@@ -429,7 +429,7 @@ struct HomeView: View {
                 Spacer()
             }
             
-            Text("Tap in with other testers, drop feedback, and see what's cooking in real time. The Discord is where the squad links up.")
+            Text("Tap in with readers, share feedback, talk scripture, and see what the community is building together. The Discord is where conversation, updates, and fellowship happen in real time.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
