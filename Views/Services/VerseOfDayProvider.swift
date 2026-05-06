@@ -10,13 +10,7 @@ struct DailyVerseSelection: Hashable, Sendable {
 }
 
 enum VerseOfDayProvider {
-    private static let dailyVerses: [VerseReference] = [
-        VerseReference(book: "Matthew", chapter: 8, verse: 2),
-        VerseReference(book: "Psalms", chapter: 23, verse: 1),
-        VerseReference(book: "Romans", chapter: 8, verse: 28),
-        VerseReference(book: "Isaiah", chapter: 41, verse: 10),
-        VerseReference(book: "John", chapter: 3, verse: 16)
-    ]
+    private static let minimumUsefulRotationCount = 14
 
     private static let jesusSaidVerses: [VerseReference] = [
         VerseReference(book: "Matthew", chapter: 5, verse: 3),
@@ -75,7 +69,8 @@ enum VerseOfDayProvider {
         calendar: Calendar = .current
     ) -> VerseReference? {
         let dayOfYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 1
-        var source = jesusSaidOnly ? jesusSaidVerses : dailyVerses
+        let year = calendar.component(.year, from: date)
+        var source = jesusSaidOnly ? jesusSaidVerses : PopularScriptures.popularVerses
 
         if !jesusSaidOnly {
             source = filteredDailyVerses(from: source, testament: testament, book: book)
@@ -83,7 +78,8 @@ enum VerseOfDayProvider {
 
         guard !source.isEmpty else { return nil }
 
-        return source[(dayOfYear - 1) % source.count]
+        let rotation = shuffledForDailyRotation(source, year: year)
+        return rotation[(dayOfYear - 1) % rotation.count]
     }
 
     static func reference(forVerseId verseId: String) -> VerseReference? {
@@ -101,21 +97,40 @@ enum VerseOfDayProvider {
     }
 
     private static func filteredDailyVerses(from verses: [VerseReference], testament: String, book: String?) -> [VerseReference] {
-        var filtered = verses
+        var testamentFiltered = verses
 
         if testament == "Old Testament" {
-            filtered = filtered.filter { PopularScriptures.isOldTestament($0.book) }
+            testamentFiltered = testamentFiltered.filter { PopularScriptures.isOldTestament($0.book) }
         } else if testament == "New Testament" {
-            filtered = filtered.filter { !PopularScriptures.isOldTestament($0.book) }
+            testamentFiltered = testamentFiltered.filter { !PopularScriptures.isOldTestament($0.book) }
         }
 
         if let book, book != "Any" {
             let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
-            let bookFiltered = filtered.filter { $0.book == canonicalBook }
-            filtered = bookFiltered.isEmpty ? verses : bookFiltered
+            let bookFiltered = testamentFiltered.filter { $0.book == canonicalBook }
+            if bookFiltered.count >= minimumUsefulRotationCount {
+                return bookFiltered
+            }
         }
 
-        return filtered.isEmpty ? verses : filtered
+        return testamentFiltered.isEmpty ? verses : testamentFiltered
+    }
+
+    private static func shuffledForDailyRotation(_ verses: [VerseReference], year: Int) -> [VerseReference] {
+        verses
+            .enumerated()
+            .sorted { lhs, rhs in
+                stableDailySortKey(for: lhs.element, index: lhs.offset, year: year) <
+                    stableDailySortKey(for: rhs.element, index: rhs.offset, year: year)
+            }
+            .map(\.element)
+    }
+
+    private static func stableDailySortKey(for reference: VerseReference, index: Int, year: Int) -> UInt64 {
+        let seed = "\(year)|\(reference.book)|\(reference.chapter)|\(reference.verse)|\(index)"
+        return seed.utf8.reduce(UInt64(1469598103934665603)) { hash, byte in
+            (hash ^ UInt64(byte)) &* 1099511628211
+        }
     }
 
     private static func clippedExcerpt(_ text: String) -> String {
