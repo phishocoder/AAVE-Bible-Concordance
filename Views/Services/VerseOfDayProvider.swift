@@ -82,6 +82,27 @@ enum VerseOfDayProvider {
         return rotation[(dayOfYear - 1) % rotation.count]
     }
 
+    static func randomReference(
+        jesusSaidOnly: Bool,
+        testament: String = "Both",
+        book: String? = nil,
+        excluding excludedReference: VerseReference? = nil
+    ) -> VerseReference? {
+        var source = jesusSaidOnly ? jesusSaidVerses : PopularScriptures.popularVerses
+
+        if !jesusSaidOnly {
+            source = filteredDailyVerses(from: source, testament: testament, book: book)
+        }
+
+        guard !source.isEmpty else { return nil }
+
+        if let excludedReference, source.count > 1 {
+            source.removeAll { $0.id == excludedReference.id }
+        }
+
+        return source.randomElement()
+    }
+
     static func reference(forVerseId verseId: String) -> VerseReference? {
         let parts = verseId.split(separator: "-")
         guard parts.count >= 3,

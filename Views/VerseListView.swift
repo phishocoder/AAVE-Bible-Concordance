@@ -39,10 +39,10 @@ struct VerseListView: View {
     @State private var toastMessage = ""
     @State private var showingVerseActionSheet = false
     @State private var selectedActionVerse: Verse?
+    @State private var imageCreatorContext: VerseImageCreatorContext?
     @State private var showingHighlightPalette = false
     @State private var noteReference: VerseReference?
     @State private var compareReference: VerseReference?
-    @State private var showingVerseImageSheet = false
     @AppStorage("didCompleteOnboarding") private var didCompletePrimaryOnboarding = false
     @AppStorage("hasCompletedOnboarding") private var didCompleteLegacyOnboarding = false
     @AppStorage("hasCompletedVerseInteractionOnboarding") private var hasCompletedVerseInteractionOnboarding = false
@@ -152,7 +152,7 @@ struct VerseListView: View {
                     },
                     onCancel: { showingVerseActionSheet = false }
                 )
-                .presentationDetents([.height(220), .medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
             }
         }
@@ -162,10 +162,8 @@ struct VerseListView: View {
         .sheet(item: $compareReference) { reference in
             CompareTranslationsSheet(reference: reference)
         }
-        .sheet(isPresented: $showingVerseImageSheet) {
-            if let verse = selectedActionVerse {
-                VerseImageCreatorView(verse: verse)
-            }
+        .sheet(item: $imageCreatorContext) { context in
+            VerseImageCreatorView(verse: context.verse)
         }
         .glassBackground()
         .task(id: "\(book)-\(chapter)-\(initialVerse ?? -1)") {
@@ -197,27 +195,37 @@ struct VerseListView: View {
     }
 
     private func handleVerseTap(_ verse: Verse) {
-        viewModel.handleVerseTap(verse)
+        if viewModel.selectedVerse != nil || viewModel.isMultiSelectMode {
+            viewModel.handleVerseTap(verse)
+            return
+        }
+
+        presentActions(for: verse)
 
         guard !hasSeenTapHint else { return }
         hasSeenTapHint = true
-        showToastMessage("Verse selected. Tap more verses to select multiple.")
+        showToastMessage("Use Select when you want to choose multiple verses.")
     }
 
     private func handleVerseLongPress(_ verse: Verse) {
-        // Ensure old multi-select toolbar does not conflict with the new action sheet.
-        viewModel.cancelMultiSelect()
-        selectedActionVerse = verse
-        showingHighlightPalette = false
-        showingVerseActionSheet = true
+        presentActions(for: verse)
 
         guard !hasSeenLongPressHint else { return }
         hasSeenLongPressHint = true
         showToastMessage("Long press gives you more options.")
     }
 
+    private func presentActions(for verse: Verse) {
+        selectedActionVerse = verse
+        showingHighlightPalette = false
+        showingVerseActionSheet = true
+    }
+
     private func handleVerseAction(_ action: VerseActionSheetAction, verse: Verse) {
         switch action {
+        case .select:
+            viewModel.beginMultiSelect(with: verse)
+            showingVerseActionSheet = false
         case .highlight:
             showingHighlightPalette.toggle()
         case .bookmark:
@@ -228,23 +236,35 @@ struct VerseListView: View {
             showingVerseActionSheet = false
         case .note:
             showingVerseActionSheet = false
-            noteReference = verse.reference
+            presentAfterActionSheetDismiss {
+                noteReference = verse.reference
+            }
         case .copy:
             UIPasteboard.general.string = formattedVerseText(verse, includeAppLink: false)
             showSavedToast()
             showingVerseActionSheet = false
         case .share:
-            shareText = formattedVerseText(verse, includeAppLink: true)
             showingVerseActionSheet = false
-            showShareSheet = true
             AchievementService.shared.recordShare()
+            presentAfterActionSheetDismiss {
+                shareText = formattedVerseText(verse, includeAppLink: true)
+                showShareSheet = true
+            }
         case .verseImage:
             showingVerseActionSheet = false
-            showingVerseImageSheet = true
+            presentAfterActionSheetDismiss {
+                imageCreatorContext = VerseImageCreatorContext(verse: verse)
+            }
         case .compareTranslation:
             showingVerseActionSheet = false
-            compareReference = verse.reference
+            presentAfterActionSheetDismiss {
+                compareReference = verse.reference
+            }
         }
+    }
+
+    private func presentAfterActionSheetDismiss(_ updatePresentation: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: updatePresentation)
     }
 
     private func isBookmarked(_ verse: Verse) -> Bool {
@@ -301,6 +321,12 @@ struct VerseListView: View {
             }
         }
     }
+}
+
+private struct VerseImageCreatorContext: Identifiable {
+    let verse: Verse
+
+    var id: String { verse.reference.id }
 }
 
 // MARK: - Supporting Views

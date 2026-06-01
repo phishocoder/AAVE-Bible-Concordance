@@ -373,6 +373,13 @@ class VerseListViewModel: ObservableObject {
         selectedVerse = nil
         selectedVerses = verses.sorted { verseOrder(lhs: $0, rhs: $1) }
     }
+
+    func beginMultiSelect(with verse: Verse) {
+        isMultiSelectMode = true
+        selectedVerse = nil
+        selectedVerses = [verse]
+        showVerseActions = false
+    }
     
     func markLastVisibleVerse(_ verseNumber: Int) {
         lastVisibleVerse = verseNumber

@@ -193,7 +193,7 @@ struct HomeView: View {
             DailyVerseLiveActivityCoordinator.setEnabled(newValue)
         }
         .onChange(of: lockScreenJesusSaidEnabled) { _, _ in
-            generateRedLetterVerse()
+            generateRedLetterVerse(forceRefresh: true)
             DailyVerseLiveActivityCoordinator.refreshIfEnabled()
         }
         .toolbar {
@@ -494,7 +494,7 @@ struct HomeView: View {
                 Spacer()
 
                 Button(action: {
-                    generateRedLetterVerse()
+                    generateRedLetterVerse(forceRefresh: true)
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
                     Image(systemName: "arrow.clockwise")
@@ -534,7 +534,7 @@ struct HomeView: View {
                 Spacer()
 
                 Button(action: {
-                    generateRedLetterVerse()
+                    generateRedLetterVerse(forceRefresh: true)
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
                     Image(systemName: "arrow.clockwise")
@@ -572,7 +572,7 @@ struct HomeView: View {
                 Spacer()
 
                 Button(action: {
-                    generateRedLetterVerse()
+                    generateRedLetterVerse(forceRefresh: true)
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
                     Image(systemName: "arrow.clockwise")
@@ -785,7 +785,7 @@ struct HomeView: View {
     }
     
     // Generate red letter verse
-    func generateRedLetterVerse() {
+    func generateRedLetterVerse(forceRefresh: Bool = false) {
         isLoadingVerse = true
         error = nil
         redLetterVerse = nil
@@ -797,13 +797,40 @@ struct HomeView: View {
                     verse = try await getRandomJesusQuote()
                 } else {
                     let preferredVersion = VerseVersion(rawValue: settings.verseOfDayTranslation) ?? .aave
-                    if let selection = await VerseOfDayProvider.today(
-                        jesusSaidOnly: false,
-                        preferredVersion: preferredVersion,
-                        testament: settings.verseOfDayTestament,
-                        book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook
-                    ), let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
+                    let selection: DailyVerseSelection?
+                    if forceRefresh,
+                       let reference = VerseOfDayProvider.randomReference(
+                            jesusSaidOnly: false,
+                            testament: settings.verseOfDayTestament,
+                            book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook,
+                            excluding: previousReference
+                       ) {
+                        let verseId = liveActivityVerseId(for: reference)
+                        if let textResult = await ScriptureStore.bestText(for: verseId, preferredVersion: preferredVersion) {
+                            selection = DailyVerseSelection(
+                                verseId: verseId,
+                                reference: reference.displayString,
+                                excerpt: liveActivityExcerpt(from: textResult.text, maxLength: 120),
+                                fullText: textResult.text,
+                                versionUsed: textResult.versionUsed,
+                                isJesusSaid: false
+                            )
+                        } else {
+                            selection = nil
+                        }
+                    } else {
+                        selection = await VerseOfDayProvider.today(
+                            jesusSaidOnly: false,
+                            preferredVersion: preferredVersion,
+                            testament: settings.verseOfDayTestament,
+                            book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook
+                        )
+                    }
+
+                    if let selection,
+                       let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
                         verse = (reference: reference, text: selection.fullText)
+                        previousReference = reference
                     } else {
                         throw NSError(domain: "HomeView.TodayFocus", code: 1)
                     }

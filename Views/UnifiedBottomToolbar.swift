@@ -116,17 +116,14 @@ struct UnifiedBottomToolbar: View {
                     }
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
-                ToolbarButton(icon: "doc.text.magnifyingglass") {
-                    showingTranslations = true
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }
-                ToolbarButton(icon: "photo") {
-                    showingImageOptions = true
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }
-                .sheet(isPresented: $showingImageOptions) {
-                    if let verse = viewModel.selectedVerse {
-                        VerseImageCreatorView(verse: verse)
+                if !viewModel.isMultiSelectMode {
+                    ToolbarButton(icon: "doc.text.magnifyingglass") {
+                        showingTranslations = true
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }
+                    ToolbarButton(icon: "photo") {
+                        showingImageOptions = true
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
                 }
             }
@@ -144,8 +141,7 @@ struct UnifiedBottomToolbar: View {
             compareSheet
         }
         .sheet(isPresented: $showingImageOptions) {
-            Text("Image options coming soon")
-                .padding()
+            imageCreatorSheet
         }
     }
     
@@ -177,6 +173,27 @@ struct UnifiedBottomToolbar: View {
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button("Done") { showingTranslations = false }
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    private var imageCreatorSheet: some View {
+        Group {
+            if let verse = viewModel.orderedSelectedVerses.first {
+                VerseImageCreatorView(verse: verse)
+            } else {
+                NavigationView {
+                    Text("Select a verse to create an image.")
+                        .glassCard()
+                        .padding(24)
+                        .glassBackground()
+                        .navigationTitle("Verse Image")
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showingImageOptions = false }
                             }
                         }
                 }

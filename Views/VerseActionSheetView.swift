@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 enum VerseActionSheetAction {
+    case select
     case highlight
     case bookmark
     case note
@@ -32,6 +33,12 @@ struct VerseActionSheetView: View {
 
     private var actions: [TrayAction] {
         [
+            TrayAction(
+                title: "Select",
+                icon: "checkmark.circle",
+                isActive: false,
+                action: { onAction(.select) }
+            ),
             TrayAction(
                 title: "Highlight",
                 icon: isHighlighted ? "highlighter" : "highlighter",
