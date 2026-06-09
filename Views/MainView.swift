@@ -31,7 +31,9 @@ struct MainView: View {
                 }
                 .tag(AppTab.bible)
             
-            SearchView(selectedTab: selectedTabBinding)
+            NavigationStack {
+                SearchView(selectedTab: selectedTabBinding)
+            }
                 .tabItem {
                     Label("Search", systemImage: "magnifyingglass")
                 }

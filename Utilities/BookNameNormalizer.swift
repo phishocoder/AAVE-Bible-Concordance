@@ -9,6 +9,7 @@ enum BookNameNormalizer {
     private static let canonicalNames = BibleBooks.all
     private static let shortNames = BibleBooks.shortNames
     private static let aliasMap: [String: String] = [
+        "psalm": "Psalms",
         "songofsongs": "Song of Solomon",
         "songofsolomon": "Song of Solomon"
     ]

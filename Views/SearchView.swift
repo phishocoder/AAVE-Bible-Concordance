@@ -8,170 +8,283 @@
 import SwiftUI
 
 struct SearchView: View {
+    private static let resultLimit = 50
+    private static let suggestions = [
+        "John 3:16",
+        "love",
+        "faith",
+        "peace",
+        "forgiveness",
+        "wisdom"
+    ]
+
     @EnvironmentObject private var router: NavigationRouter
     @Binding var selectedTab: AppTab
     @State private var searchText = ""
-    @State private var searchResults: [SearchResult] = []
-    @State private var isSearching = false
+    @State private var resultPage = SearchResultPage.empty(limit: resultLimit)
+    @State private var isRefining = false
     @State private var error: BibleError?
     @State private var searchTask: Task<Void, Never>?
-    @State private var activeQuery: String = ""
-    @State private var searchMode: SearchMode = .aave
+    @State private var activeQuery = ""
 
-    @StateObject private var settings = SettingsViewModel.shared
     @StateObject private var translationService = TranslationService.shared
-    @StateObject private var verseManager = VerseManager.shared
 
     private let haptics = HapticManager.shared
 
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var matchingSuggestions: [String] {
+        guard !trimmedSearchText.isEmpty else { return Self.suggestions }
+        return Self.suggestions.filter {
+            $0.localizedCaseInsensitiveContains(trimmedSearchText)
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 14) {
-            VStack(alignment: .leading, spacing: 10) {
-                SearchBar(text: $searchText, isSearching: $isSearching) {
-                    cancelScheduledSearch()
-                    Task {
-                        await performSearch(for: searchText)
-                    }
-                }
-                .onChange(of: searchText) { _, newValue in
-                    scheduleSearch(for: newValue)
-                }
-
-                Picker("Search Mode", selection: $searchMode) {
-                    ForEach(SearchMode.allCases, id: \.self) { mode in
-                        Text(mode.label).tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
-                Text(translationService.searchCoverageDescription)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                
-                if searchMode == .reference {
-                    Text("Try: “John 3”, “John 3:16”, or “1 Corinthians 13”.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                } else {
-                    Text("Tip: AAVE search is limited to available books.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .homeCard()
-
-            if isSearching {
-                ProgressView("Searching...")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .homeCard()
-            } else if searchResults.isEmpty && !searchText.isEmpty {
-                ContentUnavailableView(
-                    "No verses found",
-                    systemImage: "magnifyingglass",
-                    description: Text("Try different keywords or another reference.")
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Group {
+            if trimmedSearchText.isEmpty {
+                initialSuggestions
+            } else if let error, resultPage.results.isEmpty {
+                errorState(error)
+            } else if isRefining, resultPage.results.isEmpty {
+                loadingState
+            } else if resultPage.results.isEmpty {
+                emptyState
             } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(searchResults) { result in
-                            Button {
-                                haptics.impact(.light)
-                                navigateToResult(result)
-                            } label: {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Text(result.displayTitle)
-                                            .font(.headline)
-                                        
-                                        if result.kind == .verse,
-                                           let chapter = result.chapter,
-                                           let verse = result.verse,
-                                           translationService.hasCommentary(
-                                            for: result.book,
-                                            chapter: chapter,
-                                            verse: verse
-                                           ) {
-                                            Image(systemName: "lightbulb.fill")
-                                                .foregroundColor(.yellow)
-                                                .font(.system(size: 12))
-                                        }
-                                    }
-
-                                    if let preview = result.previewText {
-                                        Text(preview)
-                                            .font(.body)
-                                            .foregroundColor(.primary)
-                                            .lineLimit(3)
-                                    } else {
-                                        Text(result.kind == .book ? "Jump to book" : "Open chapter")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .buttonStyle(.plain)
-                            .homeCard()
-                        }
-                    }
-                    .padding(.bottom, 24)
-                }
+                resultsContent
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 12)
         .glassBackground()
         .applyGlassToolbar()
         .navigationTitle("Search")
+        .searchable(
+            text: $searchText,
+            prompt: "Books, references, or words in AAVE Scripture."
+        )
+        .searchSuggestions {
+            ForEach(matchingSuggestions, id: \.self) { suggestion in
+                Label(suggestion, systemImage: suggestion == "John 3:16" ? "book" : "text.magnifyingglass")
+                    .searchCompletion(suggestion)
+            }
+        }
+        .onSubmit(of: .search) {
+            submitSearch()
+        }
+        .onChange(of: searchText) { _, newValue in
+            scheduleSearch(for: newValue)
+        }
+        .onDisappear {
+            cancelScheduledSearch()
+        }
     }
 
-    @MainActor
-    private func performSearch(for rawQuery: String? = nil) async {
-        let trimmedQuery = (rawQuery ?? searchText).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedQuery.isEmpty else {
-            searchResults = []
-            isSearching = false
-            error = nil
-            return
+    private var initialSuggestions: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Search bundled AAVE Scripture")
+                        .font(.headline)
+                    Text(translationService.searchCoverageDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("Enter a book, reference, or words from a verse.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .homeCard()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Try a search")
+                        .font(.headline)
+
+                    ForEach(Self.suggestions, id: \.self) { suggestion in
+                        Button {
+                            searchText = suggestion
+                        } label: {
+                            Label(
+                                suggestion,
+                                systemImage: suggestion == "John 3:16" ? "book" : "text.magnifyingglass"
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.vertical, 4)
+                    }
+                }
+                .homeCard()
+            }
+            .padding(.top, 12)
+            .padding(.bottom, 24)
         }
+    }
 
-        activeQuery = trimmedQuery
-        isSearching = true
-        error = nil
+    private var loadingState: some View {
+        ProgressView("Searching bundled AAVE Scripture…")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 
-        do {
-            let results = try await verseManager.searchVerses(
-                trimmedQuery,
-                translation: settings.preferredTranslation
-            )
+    private var emptyState: some View {
+        ContentUnavailableView(
+            "No verses found",
+            systemImage: "magnifyingglass",
+            description: Text("Try different words or a reference like John 3:16.")
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 
-            guard activeQuery == trimmedQuery else { return }
-            searchResults = results
-            isSearching = false
-        } catch {
-            guard activeQuery == trimmedQuery else { return }
-            self.error = error as? BibleError ?? .unknown
-            searchResults = []
-            isSearching = false
+    private func errorState(_ error: BibleError) -> some View {
+        ContentUnavailableView {
+            Label("Search unavailable", systemImage: "exclamationmark.magnifyingglass")
+        } description: {
+            Text(error.localizedDescription)
+        } actions: {
+            Button("Try Again") {
+                submitSearch()
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var resultsContent: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Text(resultSummary)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+
+                    if isRefining {
+                        ProgressView()
+                            .controlSize(.small)
+                            .accessibilityLabel("Refining search results")
+                    }
+                }
+                .padding(.top, 12)
+
+                if let error {
+                    HStack {
+                        Label(error.localizedDescription, systemImage: "exclamationmark.triangle.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Retry") {
+                            submitSearch()
+                        }
+                        .font(.footnote.weight(.semibold))
+                    }
+                    .homeCard()
+                }
+
+                ForEach(resultPage.results) { result in
+                    Button {
+                        haptics.impact(.light)
+                        navigateToResult(result)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(result.displayTitle)
+                                    .font(.headline)
+
+                                if result.kind == .verse,
+                                   let chapter = result.chapter,
+                                   let verse = result.verse,
+                                   translationService.hasCommentary(
+                                    for: result.book,
+                                    chapter: chapter,
+                                    verse: verse
+                                   ) {
+                                    Image(systemName: "lightbulb.fill")
+                                        .foregroundStyle(.yellow)
+                                        .font(.system(size: 12))
+                                        .accessibilityLabel("Commentary available")
+                                }
+                            }
+
+                            if let preview = result.previewText {
+                                Text(preview)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(3)
+                            } else {
+                                Text(result.kind == .book ? "Jump to book" : "Open chapter")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .homeCard()
+                }
+            }
+            .padding(.bottom, 24)
+        }
+    }
+
+    private var resultSummary: String {
+        if resultPage.isLimited {
+            return "Showing top \(resultPage.results.count) of \(resultPage.totalCount) results"
+        }
+        return resultPage.totalCount == 1 ? "1 result" : "\(resultPage.totalCount) results"
     }
 
     private func scheduleSearch(for text: String) {
-        searchTask?.cancel()
+        cancelScheduledSearch()
 
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        activeQuery = trimmed
+
         guard !trimmed.isEmpty else {
-            searchResults = []
-            isSearching = false
+            resultPage = .empty(limit: Self.resultLimit)
+            isRefining = false
             error = nil
             return
         }
 
+        isRefining = true
+        error = nil
         searchTask = Task {
             try? await Task.sleep(nanoseconds: 300_000_000)
             guard !Task.isCancelled else { return }
             await performSearch(for: trimmed)
+        }
+    }
+
+    private func submitSearch() {
+        cancelScheduledSearch()
+        let trimmed = trimmedSearchText
+        activeQuery = trimmed
+        guard !trimmed.isEmpty else { return }
+        isRefining = true
+        error = nil
+        searchTask = Task {
+            await performSearch(for: trimmed)
+        }
+    }
+
+    @MainActor
+    private func performSearch(for query: String) async {
+        do {
+            if !translationService.isLoaded {
+                try await translationService.loadTranslations()
+            }
+            let page = try await translationService.searchAAVEScripture(
+                query: query,
+                limit: Self.resultLimit
+            )
+
+            guard activeQuery == query, !Task.isCancelled else { return }
+            resultPage = page
+            isRefining = false
+        } catch {
+            guard activeQuery == query, !Task.isCancelled else { return }
+            self.error = error as? BibleError ?? .unknown
+            isRefining = false
         }
     }
 
@@ -185,7 +298,6 @@ struct SearchView: View {
 #if DEBUG
         assertCanonicalBook(canonicalBook, context: "SearchView.navigateToResult")
 #endif
-        // Request intent first; Bible tab applies this deep link when active.
         switch result.kind {
         case .book:
             router.requestDeepLink(.bookChapters(bookID: canonicalBook))
@@ -214,60 +326,9 @@ struct SearchView: View {
     }
 }
 
-private enum SearchMode: CaseIterable {
-    case aave
-    case reference
-
-    var label: String {
-        switch self {
-        case .aave:
-            return "AAVE"
-        case .reference:
-            return "Reference"
-        }
-    }
-}
-
-private struct SearchBar: View {
-    @Binding var text: String
-    @Binding var isSearching: Bool
-    let onSubmit: () -> Void
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-
-            TextField("Search verses...", text: $text)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .submitLabel(.search)
-                .onSubmit(onSubmit)
-
-            if !text.isEmpty {
-                Button(action: {
-                    text = ""
-                    onSubmit()
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-        .padding(.horizontal, 12)
-        .frame(minHeight: 44)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color.white.opacity(0.16), lineWidth: 1)
-                )
-        )
-    }
-}
-
 #Preview {
-    SearchView(selectedTab: Binding.constant(AppTab.bible))
-        .environmentObject(NavigationRouter())
+    NavigationStack {
+        SearchView(selectedTab: Binding.constant(AppTab.bible))
+            .environmentObject(NavigationRouter())
+    }
 }

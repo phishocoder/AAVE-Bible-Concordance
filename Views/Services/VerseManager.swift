@@ -203,9 +203,6 @@ class VerseManager: ObservableObject {
     func refreshAvailableBooks() async {
         validateDownloadedBooks()
     }
-    func searchVerses(_ query: String, translation: String) async throws -> [SearchResult] {
-        return try await TranslationService.shared.searchVerses(query: query)
-    }
     
     func getChapterVerses(book: String, chapter: Int, translation: String) async throws -> [VerseItem] {
         guard let verseCount = chapterVerseCount[book]?[chapter] else {

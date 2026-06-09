@@ -286,15 +286,17 @@ class TranslationService: ObservableObject {
         }
     }
     
-    func searchVerses(query: String) async throws -> [SearchResult] {
+    func searchAAVEScripture(
+        query: String,
+        limit: Int = 50
+    ) async throws -> SearchResultPage {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return [] }
+        guard !trimmed.isEmpty else { return .empty(limit: limit) }
         
         if let reference = SearchQueryParser.parseReference(from: trimmed) {
             let canonicalBook = BookNameNormalizer.canonicalBookName(reference.book) ?? reference.book
             if reference.chapter == nil {
-                return [
-                    SearchResult(
+                let result = SearchResult(
                         book: canonicalBook,
                         chapter: nil,
                         verse: nil,
@@ -302,9 +304,9 @@ class TranslationService: ObservableObject {
                         aaveText: "",
                         traditionalText: ""
                     )
-                ]
+                return SearchResultPage(results: [result], totalCount: 1, limit: limit)
             }
-            guard let chapter = reference.chapter else { return [] }
+            guard let chapter = reference.chapter else { return .empty(limit: limit) }
             if let verse = reference.verse {
                 let verseReference = VerseReference(
                     book: canonicalBook,
@@ -312,17 +314,18 @@ class TranslationService: ObservableObject {
                     verse: verse
                 )
                 if let specific = try await searchByReference(verseReference) {
-                    return [specific]
+                    return SearchResultPage(results: [specific], totalCount: 1, limit: limit)
                 }
-                return []
+                return .empty(limit: limit)
             }
 
             let chapterKey = String(chapter)
             if let chapterVerses = aaveTranslations[canonicalBook]?[chapterKey],
                !chapterVerses.isEmpty {
-                let maxResults = 10
-                let sortedVerses = chapterVerses.keys.compactMap(Int.init).sorted().prefix(maxResults)
-                return sortedVerses.compactMap { verseNumber in
+                let sortedVerses = chapterVerses.keys.compactMap(Int.init).sorted()
+                let results: [SearchResult] = sortedVerses
+                    .prefix(max(0, limit))
+                    .compactMap { verseNumber -> SearchResult? in
                     guard let text = chapterVerses[String(verseNumber)] else { return nil }
                     return SearchResult(
                         book: canonicalBook,
@@ -332,11 +335,15 @@ class TranslationService: ObservableObject {
                         aaveText: text,
                         traditionalText: ""
                     )
-                }
+                    }
+                return SearchResultPage(
+                    results: results,
+                    totalCount: sortedVerses.count,
+                    limit: limit
+                )
             }
 
-            return [
-                SearchResult(
+            let result = SearchResult(
                     book: canonicalBook,
                     chapter: chapter,
                     verse: nil,
@@ -344,21 +351,14 @@ class TranslationService: ObservableObject {
                     aaveText: "",
                     traditionalText: ""
                 )
-            ]
+            return SearchResultPage(results: [result], totalCount: 1, limit: limit)
         }
-        
-        let normalizedQuery = trimmed.lowercased()
-        let normalizedReferenceNeedle = normalizedQuery.replacingOccurrences(of: " ", with: "")
-        let tokens = normalizedQuery
-            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
-            .map(String.init)
-            .filter { !$0.isEmpty }
         
         let translationsSnapshot = aaveTranslations
         let availableBooks = Set(availableAAVEBooks)
         
-        let results = await Task.detached(priority: .userInitiated) { () -> [SearchResult] in
-            var matches: [SearchResult] = []
+        return await Task.detached(priority: .userInitiated) {
+            var candidates: [SearchResult] = []
             
             for (book, chapters) in translationsSnapshot where availableBooks.contains(book) {
                 for (chapterStr, verses) in chapters {
@@ -367,34 +367,32 @@ class TranslationService: ObservableObject {
                     for (verseStr, aaveText) in verses {
                         guard let verse = Int(verseStr) else { continue }
                         
-                        let lowerText = aaveText.lowercased()
-                        let referenceString = "\(book) \(chapter):\(verse)".lowercased()
-                        let normalizedReference = referenceString.replacingOccurrences(of: " ", with: "")
-                        
-                        let matchesPhrase = lowerText.contains(normalizedQuery)
-                        let matchesTokens = !tokens.isEmpty && tokens.allSatisfy { lowerText.contains($0) }
-                        let matchesReference = normalizedReference.contains(normalizedReferenceNeedle)
-                            || referenceString.contains(normalizedQuery)
-                        
-                        guard matchesPhrase || matchesTokens || matchesReference else { continue }
-                        
-                        let result = SearchResult(
-                            book: book,
-                            chapter: chapter,
-                            verse: verse,
-                            kind: .verse,
-                            aaveText: aaveText,
-                            traditionalText: ""
+                        candidates.append(
+                            SearchResult(
+                                book: book,
+                                chapter: chapter,
+                                verse: verse,
+                                kind: .verse,
+                                aaveText: aaveText,
+                                traditionalText: ""
+                            )
                         )
-                        matches.append(result)
                     }
                 }
             }
             
-            return matches
+            // The existing token index is punctuation-sensitive and can't preserve phrase or
+            // partial-token ranking, so this MVP ranks a stable in-memory snapshot instead.
+            return SearchResultRanker.rankedPage(
+                query: trimmed,
+                candidates: candidates,
+                limit: limit
+            )
         }.value
-        
-        return results
+    }
+
+    func searchVerses(query: String) async throws -> [SearchResult] {
+        try await searchAAVEScripture(query: query, limit: .max).results
     }
     
     private func searchByReference(_ reference: VerseReference) async throws -> SearchResult? {
@@ -412,20 +410,13 @@ class TranslationService: ObservableObject {
             throw error
         }
         
-        let traditionalText = try await verseManager.getVerse(
-            book: reference.book,
-            chapter: reference.chapter,
-            verse: reference.verse,
-            translation: "KJV"
-        )
-        
         return SearchResult(
             book: reference.book,
             chapter: reference.chapter,
             verse: reference.verse,
             kind: .verse,
             aaveText: aaveText,
-            traditionalText: traditionalText
+            traditionalText: ""
         )
     }
     
