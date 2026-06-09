@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F10000012F40000100000001 /* IntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000112F40000100000001 /* IntelligenceAvailability.swift */; };
+		F10000022F40000100000002 /* StudyGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000122F40000100000002 /* StudyGuide.swift */; };
+		F10000032F40000100000003 /* IntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000132F40000100000003 /* IntelligenceService.swift */; };
+		F10000042F40000100000004 /* FoundationModelsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */; };
+		F10000052F40000100000005 /* DefaultIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000152F40000100000005 /* DefaultIntelligenceService.swift */; };
+		F10000062F40000100000006 /* IntelligenceDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000162F40000100000006 /* IntelligenceDebugView.swift */; };
 		E0054F922D7BB55100A26A71 /* BookListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F802D7BB55100A26A71 /* BookListView.swift */; };
 		E0054F932D7BB55100A26A71 /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F812D7BB55100A26A71 /* ChapterListView.swift */; };
 		E0054F942D7BB55100A26A71 /* ConcordanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F822D7BB55100A26A71 /* ConcordanceView.swift */; };
@@ -164,6 +170,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F10000112F40000100000001 /* IntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceAvailability.swift; sourceTree = "<group>"; };
+		F10000122F40000100000002 /* StudyGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyGuide.swift; sourceTree = "<group>"; };
+		F10000132F40000100000003 /* IntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceService.swift; sourceTree = "<group>"; };
+		F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsAvailabilityProvider.swift; sourceTree = "<group>"; };
+		F10000152F40000100000005 /* DefaultIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIntelligenceService.swift; sourceTree = "<group>"; };
+		F10000162F40000100000006 /* IntelligenceDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceDebugView.swift; sourceTree = "<group>"; };
 		E0054F802D7BB55100A26A71 /* BookListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListView.swift; sourceTree = "<group>"; };
 		E0054F812D7BB55100A26A71 /* ChapterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterListView.swift; sourceTree = "<group>"; };
 		E0054F822D7BB55100A26A71 /* ConcordanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcordanceView.swift; sourceTree = "<group>"; };
@@ -371,6 +383,8 @@
 		E0054FB92D7C202800A26A71 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F10000112F40000100000001 /* IntelligenceAvailability.swift */,
+				F10000122F40000100000002 /* StudyGuide.swift */,
 				E077B97A2DBD715E0072C19F /* QuizQuestionModel.swift */,
 				E0FFF0002FFE1234000ABCDE /* QuizQuestionRepository.swift */,
 				E077B9622DB9E1360072C19F /* JesusQuotes.swift */,
@@ -394,6 +408,7 @@
 		E0054FBA2D7C203300A26A71 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F10000162F40000100000006 /* IntelligenceDebugView.swift */,
 				E1A0AA012F00000100000003 /* AchievementsView.swift */,
 				E1A0AA012F00000100000004 /* StreakCard.swift */,
 				E1A0AA012F00000100000005 /* ReadingProgressDebugView.swift */,
@@ -524,6 +539,7 @@
 		E05A4D842D7D0E270091AA66 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F10000202F40000100000020 /* Intelligence */,
 				E1A0AA012F00000100000001 /* AchievementService.swift */,
 				E1A0AA012F00000100000002 /* ReadingProgressService.swift */,
 				E1C0AA012F20000100000012 /* DailyVerseLiveActivityManager.swift */,
@@ -543,6 +559,16 @@
 				E0054FA02D7BFDF700A26A71 /* TranslationService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		F10000202F40000100000020 /* Intelligence */ = {
+			isa = PBXGroup;
+			children = (
+				F10000132F40000100000003 /* IntelligenceService.swift */,
+				F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */,
+				F10000152F40000100000005 /* DefaultIntelligenceService.swift */,
+			);
+			path = Intelligence;
 			sourceTree = "<group>";
 		};
 		E077B96D2DB9F8F40072C19F /* Frameworks */ = {
@@ -719,6 +745,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F10000012F40000100000001 /* IntelligenceAvailability.swift in Sources */,
+				F10000022F40000100000002 /* StudyGuide.swift in Sources */,
+				F10000032F40000100000003 /* IntelligenceService.swift in Sources */,
+				F10000042F40000100000004 /* FoundationModelsAvailabilityProvider.swift in Sources */,
+				F10000052F40000100000005 /* DefaultIntelligenceService.swift in Sources */,
+				F10000062F40000100000006 /* IntelligenceDebugView.swift in Sources */,
 				E040971D2D8C9CF40054BA3A /* HighlightColorPickerView.swift in Sources */,
 				E0054F922D7BB55100A26A71 /* BookListView.swift in Sources */,
 				E0054F932D7BB55100A26A71 /* ChapterListView.swift in Sources */,

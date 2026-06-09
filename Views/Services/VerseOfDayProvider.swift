@@ -10,8 +10,6 @@ struct DailyVerseSelection: Hashable, Sendable {
 }
 
 enum VerseOfDayProvider {
-    private static let minimumUsefulRotationCount = 14
-
     private static let jesusSaidVerses: [VerseReference] = [
         VerseReference(book: "Matthew", chapter: 5, verse: 3),
         VerseReference(book: "Matthew", chapter: 5, verse: 4),
@@ -129,7 +127,7 @@ enum VerseOfDayProvider {
         if let book, book != "Any" {
             let canonicalBook = BookNameNormalizer.canonicalBookName(book) ?? book
             let bookFiltered = testamentFiltered.filter { $0.book == canonicalBook }
-            if bookFiltered.count >= minimumUsefulRotationCount {
+            if !bookFiltered.isEmpty {
                 return bookFiltered
             }
         }

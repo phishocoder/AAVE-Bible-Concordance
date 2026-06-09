@@ -8,70 +8,62 @@
 import XCTest
 @testable import AAVE_Bible_Concordance
 
+@MainActor
 final class BibleModelsTests: XCTestCase {
     
-    // MARK: - BibleVerse Tests
-    func testBibleVerseInitialization() {
-        let verse = BibleVerse(
-            book: "John",
-            chapter: 3,
-            verse: 16,
+    // MARK: - Verse Tests
+    func testVerseInitialization() {
+        let reference = VerseReference(book: "John", chapter: 3, verse: 16)
+        let verse = Verse(
             text: "For God so loved the world...",
-            commentary: "This verse emphasizes..."
+            translation: "KJV",
+            reference: reference
         )
         
-        XCTAssertEqual(verse.id, "John-3-16")
-        XCTAssertEqual(verse.book, "John")
-        XCTAssertEqual(verse.chapter, 3)
-        XCTAssertEqual(verse.verse, 16)
+        XCTAssertEqual(verse.reference.id, "John_3_16")
+        XCTAssertEqual(verse.reference.book, "John")
+        XCTAssertEqual(verse.reference.chapter, 3)
+        XCTAssertEqual(verse.reference.verse, 16)
         XCTAssertEqual(verse.text, "For God so loved the world...")
-        XCTAssertEqual(verse.commentary, "This verse emphasizes...")
+        XCTAssertEqual(verse.translation, "KJV")
     }
     
-    func testBibleVerseCoding() throws {
-        let original = BibleVerse(
+    func testVerseCoding() throws {
+        let reference = VerseReference(
             book: "John",
             chapter: 3,
             verse: 16,
+            timestamp: Date(timeIntervalSince1970: 1_741_435_200)
+        )
+        let original = Verse(
             text: "For God so loved the world...",
-            commentary: "This verse emphasizes..."
+            translation: "KJV",
+            reference: reference
         )
         
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         
         let data = try encoder.encode(original)
-        let decoded = try decoder.decode(BibleVerse.self, from: data)
+        let decoded = try decoder.decode(Verse.self, from: data)
         
-        XCTAssertEqual(decoded.id, original.id)
-        XCTAssertEqual(decoded.book, original.book)
-        XCTAssertEqual(decoded.chapter, original.chapter)
-        XCTAssertEqual(decoded.verse, original.verse)
-        XCTAssertEqual(decoded.text, original.text)
-        XCTAssertEqual(decoded.commentary, original.commentary)
+        XCTAssertEqual(decoded, original)
     }
     
-    // MARK: - BibleTranslations Tests
-    func testBibleTranslationsCoding() throws {
-        let translations = BibleTranslations(
-            traditional: ["John": ["3": ["16": "For God so loved the world..."]]],
-            aave: ["John": ["3": ["16": "God was really feeling the world..."]]]
+    // MARK: - Bundled Translation Tests
+    func testBundledAAVETranslationLoads() async throws {
+        let service = TranslationService.shared
+        try await service.loadTranslations()
+
+        let text = try await service.getVerseTranslation(
+            for: "John",
+            chapter: 3,
+            verse: 16,
+            translation: "AAVE"
         )
-        
-        let encoder = JSONEncoder()
-        let decoder = JSONDecoder()
-        
-        let data = try encoder.encode(translations)
-        let decoded = try decoder.decode(BibleTranslations.self, from: data)
-        
-        XCTAssertEqual(
-            decoded.traditional["John"]?["3"]?["16"],
-            "For God so loved the world..."
-        )
-        XCTAssertEqual(
-            decoded.aave["John"]?["3"]?["16"],
-            "God was really feeling the world..."
-        )
+
+        XCTAssertFalse(text.isEmpty)
+        XCTAssertNotEqual(text, "Coming Soon - AAVE Translation")
     }
     
     // MARK: - BibleBook Tests

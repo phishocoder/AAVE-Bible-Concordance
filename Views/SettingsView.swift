@@ -133,6 +133,9 @@ struct SettingsView: View {
             NavigationLink(destination: PersonalizationDebugView()) {
                 SettingsNavigationRow(icon: "sparkles.rectangle.stack", tint: .teal, title: "Personalization Debug")
             }
+            NavigationLink(destination: IntelligenceDebugView()) {
+                SettingsNavigationRow(icon: "brain.head.profile", tint: .purple, title: "Intelligence Debug")
+            }
 #endif
         }
     }

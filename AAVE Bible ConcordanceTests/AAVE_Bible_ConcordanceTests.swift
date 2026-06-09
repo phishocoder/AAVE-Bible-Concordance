@@ -12,6 +12,7 @@ final class AAVE_Bible_ConcordanceTests: XCTestCase {
         defaults = UserDefaults(suiteName: suiteName)
         defaults.removePersistentDomain(forName: suiteName)
         calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
     }
 
     override func tearDown() {
