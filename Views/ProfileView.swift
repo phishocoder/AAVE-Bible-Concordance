@@ -148,7 +148,7 @@ struct ProfileView: View {
 
                 ProfileInfoRow(
                     label: "Today",
-                    value: readingProgress.currentStreak > 0 ? "Done" : "Not yet"
+                    value: readingProgress.versesReadToday > 0 ? "Done" : "Not yet"
                 )
 
                 if readingProgress.currentStreak > 0 {
@@ -156,9 +156,29 @@ struct ProfileView: View {
                         label: "Grace Pass",
                         value: readingProgress.gracePassesRemaining > 0 ? "Available" : "Used"
                     )
+
+                    Label {
+                        Text(gracePassDetail)
+                    } icon: {
+                        Image(systemName: readingProgress.gracePassesRemaining > 0 ? "shield.checkered" : "checkmark.shield.fill")
+                            .foregroundStyle(readingProgress.gracePassesRemaining > 0 ? Color.orange : Color.secondary)
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
+    }
+
+    private var gracePassDetail: String {
+        if let usedDate = readingProgress.gracePassUsedDate {
+            return "Used automatically on \(usedDate.formatted(date: .abbreviated, time: .omitted)) after one missed day. It resets next month."
+        }
+        if readingProgress.gracePassesRemaining == 0 {
+            return "Used automatically after one missed day. It resets next month."
+        }
+        return "No activation needed. If you miss one day, read the next day and this pass automatically keeps your streak going. You get one each month."
     }
 
     private var shortcutsCard: some View {

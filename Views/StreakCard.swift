@@ -30,8 +30,14 @@ struct StreakCard: View {
         Double(clampedVersesRead) / Double(max(progress.dailyGoalVerses, 1))
     }
 
-    private var shouldShowGracePassNote: Bool {
-        progress.currentStreak > 0 && progress.gracePassesRemaining == 1
+    private var gracePassText: String {
+        if let usedDate = progress.gracePassUsedDate {
+            return "Grace Pass used \(usedDate.formatted(date: .abbreviated, time: .omitted)). Resets next month."
+        }
+        if progress.gracePassesRemaining == 0 {
+            return "Grace Pass used this month. Resets next month."
+        }
+        return "Grace Pass ready. Miss one day, then read the next day to use it automatically."
     }
 
     var body: some View {
@@ -82,10 +88,12 @@ struct StreakCard: View {
                 }
             }
 
-            if shouldShowGracePassNote {
-                Text("Grace pass available this month")
+            if progress.currentStreak > 0 {
+                Label(gracePassText, systemImage: progress.gracePassesRemaining > 0 ? "shield.checkered" : "checkmark.shield.fill")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(progress.gracePassesRemaining > 0 ? Color.orange : Color.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel(gracePassText)
             }
         }
         .homeCard()

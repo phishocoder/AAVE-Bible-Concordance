@@ -1,5 +1,31 @@
 import Foundation
 
+enum GracePassPolicy {
+    static func shouldActivate(
+        currentStreak: Int,
+        passesRemaining: Int,
+        lastReadDate: Date?,
+        readingDate: Date,
+        calendar: Calendar
+    ) -> Bool {
+        guard currentStreak > 0,
+              passesRemaining > 0,
+              let lastReadDate else {
+            return false
+        }
+
+        let lastDay = calendar.startOfDay(for: lastReadDate)
+        let readingDay = calendar.startOfDay(for: readingDate)
+
+        guard lastDay != readingDay,
+              let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: readingDay) else {
+            return false
+        }
+
+        return calendar.isDate(lastDay, inSameDayAs: twoDaysAgo)
+    }
+}
+
 @MainActor
 final class ReadingProgressService: ObservableObject {
     static let shared = ReadingProgressService()
@@ -10,6 +36,7 @@ final class ReadingProgressService: ObservableObject {
     @Published private(set) var versesReadToday: Int
     @Published private(set) var gracePassMonth: String
     @Published private(set) var gracePassUsedCount: Int
+    @Published private(set) var gracePassUsedDate: Date?
     @Published var dailyGoalVerses: Int {
         didSet {
             defaults.set(dailyGoalVerses, forKey: Keys.dailyGoalVerses)
@@ -31,6 +58,7 @@ final class ReadingProgressService: ObservableObject {
         static let versesReadDay = "reading.versesReadDay"
         static let gracePassMonth = "reading.gracePassMonth"
         static let gracePassUsedCount = "reading.gracePassUsedCount"
+        static let gracePassUsedDate = "reading.gracePassUsedDate"
     }
 
     private init() {
@@ -42,6 +70,7 @@ final class ReadingProgressService: ObservableObject {
         dailyGoalVerses = savedGoal > 0 ? savedGoal : 10
         gracePassMonth = defaults.string(forKey: Keys.gracePassMonth) ?? ""
         gracePassUsedCount = defaults.integer(forKey: Keys.gracePassUsedCount)
+        gracePassUsedDate = defaults.object(forKey: Keys.gracePassUsedDate) as? Date
         resetGracePassIfNewMonth(for: Date())
         syncDayState(for: Date())
     }
@@ -131,28 +160,27 @@ final class ReadingProgressService: ObservableObject {
         guard gracePassMonth != monthKey else { return }
         gracePassMonth = monthKey
         gracePassUsedCount = 0
+        gracePassUsedDate = nil
         defaults.set(gracePassMonth, forKey: Keys.gracePassMonth)
         defaults.set(gracePassUsedCount, forKey: Keys.gracePassUsedCount)
+        defaults.removeObject(forKey: Keys.gracePassUsedDate)
     }
 
     private func applyGracePassIfEligible(today: Date) -> Bool {
-        guard currentStreak > 0,
-              gracePassUsedCount < 1,
-              let lastReadDate else {
-            return false
-        }
-
-        let lastDay = calendar.startOfDay(for: lastReadDate)
-        let todayDay = calendar.startOfDay(for: today)
-
-        guard lastDay != todayDay,
-              let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: todayDay),
-              calendar.isDate(lastDay, inSameDayAs: twoDaysAgo) else {
+        guard GracePassPolicy.shouldActivate(
+            currentStreak: currentStreak,
+            passesRemaining: gracePassesRemaining,
+            lastReadDate: lastReadDate,
+            readingDate: today,
+            calendar: calendar
+        ) else {
             return false
         }
 
         gracePassUsedCount += 1
+        gracePassUsedDate = today
         defaults.set(gracePassUsedCount, forKey: Keys.gracePassUsedCount)
+        defaults.set(today, forKey: Keys.gracePassUsedDate)
         return true
     }
 
@@ -176,6 +204,7 @@ final class ReadingProgressService: ObservableObject {
         versesReadToday = 0
         gracePassMonth = ""
         gracePassUsedCount = 0
+        gracePassUsedDate = nil
         readVerseIDs.removeAll()
         lastSignalTimes.removeAll()
 
@@ -186,6 +215,7 @@ final class ReadingProgressService: ObservableObject {
         defaults.removeObject(forKey: Keys.versesReadDay)
         defaults.removeObject(forKey: Keys.gracePassMonth)
         defaults.set(0, forKey: Keys.gracePassUsedCount)
+        defaults.removeObject(forKey: Keys.gracePassUsedDate)
     }
 }
 

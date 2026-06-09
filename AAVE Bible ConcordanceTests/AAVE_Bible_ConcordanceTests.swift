@@ -165,6 +165,52 @@ final class AAVE_Bible_ConcordanceTests: XCTestCase {
         XCTAssertEqual(reference?.book, "Romans")
     }
 
+    func testGracePassActivatesAfterExactlyOneMissedDay() {
+        XCTAssertTrue(
+            GracePassPolicy.shouldActivate(
+                currentStreak: 5,
+                passesRemaining: 1,
+                lastReadDate: date(2026, 6, 6, 20, 0),
+                readingDate: date(2026, 6, 8, 8, 0),
+                calendar: calendar
+            )
+        )
+    }
+
+    func testGracePassDoesNotActivateForConsecutiveReading() {
+        XCTAssertFalse(
+            GracePassPolicy.shouldActivate(
+                currentStreak: 5,
+                passesRemaining: 1,
+                lastReadDate: date(2026, 6, 7, 20, 0),
+                readingDate: date(2026, 6, 8, 8, 0),
+                calendar: calendar
+            )
+        )
+    }
+
+    func testGracePassDoesNotActivateAfterMultipleMissedDaysOrWhenUsed() {
+        XCTAssertFalse(
+            GracePassPolicy.shouldActivate(
+                currentStreak: 5,
+                passesRemaining: 1,
+                lastReadDate: date(2026, 6, 5, 20, 0),
+                readingDate: date(2026, 6, 8, 8, 0),
+                calendar: calendar
+            )
+        )
+
+        XCTAssertFalse(
+            GracePassPolicy.shouldActivate(
+                currentStreak: 5,
+                passesRemaining: 0,
+                lastReadDate: date(2026, 6, 6, 20, 0),
+                readingDate: date(2026, 6, 8, 8, 0),
+                calendar: calendar
+            )
+        )
+    }
+
     private func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) -> Date {
         var components = DateComponents()
         components.year = year
