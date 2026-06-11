@@ -7,25 +7,25 @@
 
 import SwiftUI
 
-@MainActor
-struct VerseRow: View {
+struct VerseRow: View, Equatable {
     let verse: Verse
     let isMultiSelectMode: Bool
     let isSelected: Bool
     let isFocused: Bool
     let hasCommentary: Bool
+    let highlightColor: Color?
+    let fontFamily: String
+    let fontSize: Double
+    let colorScheme: ColorScheme
     let onTap: () -> Void
     let onLongPress: () -> Void
     let onCommentaryTap: () -> Void
+    let onRemoveHighlight: () -> Void
+    let onAppear: () -> Void
     
-    @ObservedObject private var highlightManager = HighlightManager.shared
-    @ObservedObject private var settings = SettingsViewModel.shared
-    @ObservedObject private var readingProgress = ReadingProgressService.shared
     private let haptics = HapticManager.shared
-    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        let highlightColor = highlightManager.getHighlightColor(for: verse.reference)
         let cardFill = colorScheme == .dark ? Color.white.opacity(0.05) : Color.white.opacity(0.75)
         let strokeOpacity = colorScheme == .dark ? 0.08 : 0.25
         let focusFill = colorScheme == .dark ? Color.yellow.opacity(0.18) : Color.yellow.opacity(0.12)
@@ -72,9 +72,7 @@ struct VerseRow: View {
                     }
                     
                     if highlightColor != nil {
-                        Button {
-                            highlightManager.removeHighlight(verse.reference)
-                        } label: {
+                        Button(action: onRemoveHighlight) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
                         }
@@ -84,7 +82,7 @@ struct VerseRow: View {
             }
             
             Text(verse.text)
-                .font(getFont(for: settings.fontFamily, size: settings.fontSize))
+                .font(verseFont)
                 .foregroundStyle(.primary)
                 .lineSpacing(4)
                 .padding(12)
@@ -129,21 +127,31 @@ struct VerseRow: View {
             haptics.impact(.medium)
             onLongPress()
         }
-        .onAppear {
-            readingProgress.markVerseRead(verse.reference)
-        }
+        .onAppear(perform: onAppear)
     }
     
-    private func getFont(for family: String, size: Double) -> Font {
-        switch family.lowercased() {
+    private var verseFont: Font {
+        switch fontFamily.lowercased() {
         case "serif":
-            return .system(size: size, weight: .regular, design: .serif)
+            return .system(size: fontSize, weight: .regular, design: .serif)
         case "rounded":
-            return .system(size: size, weight: .regular, design: .rounded)
+            return .system(size: fontSize, weight: .regular, design: .rounded)
         case "monospaced":
-            return .system(size: size, weight: .regular, design: .monospaced)
+            return .system(size: fontSize, weight: .regular, design: .monospaced)
         default:
-            return .system(size: size, weight: .regular, design: .default)
+            return .system(size: fontSize, weight: .regular, design: .default)
         }
+    }
+
+    static func == (lhs: VerseRow, rhs: VerseRow) -> Bool {
+        lhs.verse == rhs.verse
+            && lhs.isMultiSelectMode == rhs.isMultiSelectMode
+            && lhs.isSelected == rhs.isSelected
+            && lhs.isFocused == rhs.isFocused
+            && lhs.hasCommentary == rhs.hasCommentary
+            && lhs.highlightColor == rhs.highlightColor
+            && lhs.fontFamily == rhs.fontFamily
+            && lhs.fontSize == rhs.fontSize
+            && lhs.colorScheme == rhs.colorScheme
     }
 }

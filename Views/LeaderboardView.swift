@@ -23,9 +23,43 @@ struct UserScoreSummary {
     let gamesPlayed: Int
 }
 
+enum LeaderboardPeriod: String, CaseIterable, Identifiable {
+    case week
+    case month
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .week: return "This Week"
+        case .month: return "This Month"
+        }
+    }
+
+    var emptyMessage: String {
+        switch self {
+        case .week: return "No community scores logged this week yet."
+        case .month: return "No community scores logged this month yet."
+        }
+    }
+
+    func dateInterval(containing date: Date, calendar: Calendar = .current) -> DateInterval {
+        switch self {
+        case .week:
+            let start = QuizScoreLogger.startOfLeaderboardWeek(for: date, calendar: calendar)
+            let end = calendar.date(byAdding: .weekOfYear, value: 1, to: start) ?? date
+            return DateInterval(start: start, end: end)
+        case .month:
+            return calendar.dateInterval(of: .month, for: date)
+                ?? DateInterval(start: calendar.startOfDay(for: date), duration: 1)
+        }
+    }
+}
+
 struct LeaderboardView: View {
     @StateObject private var viewModel = LeaderboardViewModel()
     @ObservedObject private var readingProgress = ReadingProgressService.shared
+    @State private var selectedPeriod: LeaderboardPeriod = .week
     private let currentUserID = Auth.auth().currentUser?.uid
 
     var body: some View {
@@ -69,7 +103,16 @@ struct LeaderboardView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                Section("Top Scores (This Week)") {
+                Section {
+                    Picker("Leaderboard period", selection: $selectedPeriod) {
+                        ForEach(LeaderboardPeriod.allCases) { period in
+                            Text(period.title).tag(period)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+
                     if let errorMessage = viewModel.errorMessage {
                         Text("Couldn't load community scores: \(errorMessage)")
                             .foregroundColor(.secondary)
@@ -79,7 +122,7 @@ struct LeaderboardView: View {
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     } else if viewModel.entries.isEmpty {
-                        Text("No community scores logged this week yet.")
+                        Text(selectedPeriod.emptyMessage)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .homeCard()
@@ -92,6 +135,8 @@ struct LeaderboardView: View {
                             leaderboardRow(for: entry, rank: index + 1)
                         }
                     }
+                } header: {
+                    Text("Top Scores (\(selectedPeriod.title))")
                 }
             }
         }
@@ -101,7 +146,10 @@ struct LeaderboardView: View {
         .applyGlassToolbar()
         .navigationTitle("Leaderboard")
         .onAppear {
-            viewModel.fetchLeaderboard(currentUserID: currentUserID)
+            viewModel.fetchLeaderboard(currentUserID: currentUserID, period: selectedPeriod)
+        }
+        .onChange(of: selectedPeriod) { _, period in
+            viewModel.fetchLeaderboard(currentUserID: currentUserID, period: period)
         }
     }
 
@@ -181,11 +229,16 @@ final class LeaderboardViewModel: ObservableObject {
     private var resolvedNames: [String: String] = [:]
     private let quizType = "WhoSaidThat"
 
-    func fetchLeaderboard(currentUserID: String?, limit: Int = 10) {
+    func fetchLeaderboard(
+        currentUserID: String?,
+        period: LeaderboardPeriod = .week,
+        limit: Int = 10,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) {
         isLoading = true
         errorMessage = nil
         userSummary = nil
-        let weekKey = QuizScoreLogger.leaderboardWeekKey(for: Date())
 
         var pendingRequests = currentUserID == nil ? 1 : 2
 
@@ -196,13 +249,25 @@ final class LeaderboardViewModel: ObservableObject {
             }
         }
 
-        db.collection("quizScores")
-            .whereField("quizType", isEqualTo: quizType)
-            .whereField("leaderboardWeek", isEqualTo: weekKey)
-            .order(by: "score", descending: true)
-            .order(by: "timestamp", descending: true)
-            .limit(to: 200)
-            .getDocuments { [weak self] snapshot, error in
+        let scores = db.collection("quizScores")
+        let leaderboardQuery: Query
+        switch period {
+        case .week:
+            let weekKey = QuizScoreLogger.leaderboardWeekKey(for: now, calendar: calendar)
+            leaderboardQuery = scores
+                .whereField("quizType", isEqualTo: quizType)
+                .whereField("leaderboardWeek", isEqualTo: weekKey)
+                .order(by: "score", descending: true)
+                .order(by: "timestamp", descending: true)
+                .limit(to: 200)
+        case .month:
+            let interval = period.dateInterval(containing: now, calendar: calendar)
+            leaderboardQuery = scores
+                .whereField("timestamp", isGreaterThanOrEqualTo: Timestamp(date: interval.start))
+                .whereField("timestamp", isLessThan: Timestamp(date: interval.end))
+        }
+
+        leaderboardQuery.getDocuments { [weak self] snapshot, error in
                 guard let self else { return }
                 if let error {
                     DispatchQueue.main.async {
@@ -223,6 +288,7 @@ final class LeaderboardViewModel: ObservableObject {
 
                 let runs = docs.compactMap { doc -> LeaderboardEntry? in
                     let data = doc.data()
+                    guard data["quizType"] as? String == self.quizType else { return nil }
                     let userID = data["userID"] as? String ?? "unknown"
                     let score = data["score"] as? Int ?? 0
                     let rawUsername = (data["username"] as? String)?
@@ -284,7 +350,7 @@ final class LeaderboardViewModel: ObservableObject {
             }
     }
 
-    private static func bestEntriesPerUser(from runs: [LeaderboardEntry], limit: Int) -> [LeaderboardEntry] {
+    nonisolated static func bestEntriesPerUser(from runs: [LeaderboardEntry], limit: Int) -> [LeaderboardEntry] {
         var bestByUser: [String: LeaderboardEntry] = [:]
 
         for run in runs where run.userID != "unknown" {
@@ -310,10 +376,13 @@ final class LeaderboardViewModel: ObservableObject {
 
         return bestByUser.values
             .sorted {
-                if $0.score == $1.score {
+                if $0.score != $1.score {
+                    return $0.score > $1.score
+                }
+                if $0.timestamp != $1.timestamp {
                     return $0.timestamp > $1.timestamp
                 }
-                return $0.score > $1.score
+                return $0.userID < $1.userID
             }
             .prefix(limit)
             .map { $0 }

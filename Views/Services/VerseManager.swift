@@ -1,5 +1,57 @@
 import Foundation
 
+struct ChapterCacheKey: Hashable {
+    let book: String
+    let chapter: Int
+    let translation: String
+
+    init(book: String, chapter: Int, translation: String) {
+        self.book = book
+        self.chapter = chapter
+        self.translation = translation.uppercased()
+    }
+}
+
+struct ChapterVerseCache {
+    let capacity: Int
+    private(set) var storage: [ChapterCacheKey: [VerseItem]] = [:]
+    private var recency: [ChapterCacheKey] = []
+
+    init(capacity: Int) {
+        self.capacity = max(1, capacity)
+    }
+
+    mutating func value(for key: ChapterCacheKey) -> [VerseItem]? {
+        guard let value = storage[key] else { return nil }
+        markRecentlyUsed(key)
+        return value
+    }
+
+    mutating func insert(_ value: [VerseItem], for key: ChapterCacheKey) {
+        storage[key] = value
+        markRecentlyUsed(key)
+
+        while recency.count > capacity, let leastRecent = recency.first {
+            recency.removeFirst()
+            storage.removeValue(forKey: leastRecent)
+        }
+    }
+
+    mutating func removeAll() {
+        storage.removeAll()
+        recency.removeAll()
+    }
+
+    func contains(_ key: ChapterCacheKey) -> Bool {
+        storage[key] != nil
+    }
+
+    private mutating func markRecentlyUsed(_ key: ChapterCacheKey) {
+        recency.removeAll { $0 == key }
+        recency.append(key)
+    }
+}
+
 @MainActor
 class VerseManager: ObservableObject {
     static let shared = VerseManager()
@@ -11,6 +63,7 @@ class VerseManager: ObservableObject {
     private let fileManager = FileManager.default
     private let bibleAPI = BibleAPIService.shared
     private let cache = NSCache<NSString, NSString>()
+    private var chapterCache = ChapterVerseCache(capacity: 3)
     
     private var documentsPath: URL? {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
@@ -205,6 +258,17 @@ class VerseManager: ObservableObject {
     }
     
     func getChapterVerses(book: String, chapter: Int, translation: String) async throws -> [VerseItem] {
+        let cacheKey = ChapterCacheKey(book: book, chapter: chapter, translation: translation)
+        if let cachedVerses = chapterCache.value(for: cacheKey) {
+            return cachedVerses
+        }
+
+        if translation.uppercased() == "AAVE" {
+            let verses = try TranslationService.shared.getAAVEChapter(book: book, chapter: chapter)
+            chapterCache.insert(verses, for: cacheKey)
+            return verses
+        }
+
         guard let verseCount = chapterVerseCount[book]?[chapter] else {
             throw BibleError.invalidChapter
         }
@@ -220,6 +284,68 @@ class VerseManager: ObservableObject {
             ))
         }
         
+        chapterCache.insert(verses, for: cacheKey)
         return verses
     }
+
+    func preloadAdjacentChapters(book: String, chapter: Int, translation: String) async {
+        for reference in Self.adjacentChapterReferences(book: book, chapter: chapter) {
+            guard !Task.isCancelled else { return }
+            guard translation.uppercased() == "AAVE" || downloadedBooks.contains(reference.book) else {
+                continue
+            }
+
+            do {
+                _ = try await getChapterVerses(
+                    book: reference.book,
+                    chapter: reference.chapter,
+                    translation: translation
+                )
+            } catch {
+#if DEBUG
+                print("DEBUG: Adjacent chapter preload failed for \(reference.book) \(reference.chapter): \(error)")
+#endif
+            }
+        }
+    }
+
+    static func adjacentChapterReferences(book: String, chapter: Int) -> [(book: String, chapter: Int)] {
+        guard let bookIndex = BibleBooks.all.firstIndex(of: book),
+              let chapterCount = BibleBooks.chapterCounts[book],
+              chapter >= 1,
+              chapter <= chapterCount else {
+            return []
+        }
+
+        var references: [(book: String, chapter: Int)] = []
+
+        if chapter > 1 {
+            references.append((book, chapter - 1))
+        } else if bookIndex > 0 {
+            let previousBook = BibleBooks.all[bookIndex - 1]
+            references.append((previousBook, BibleBooks.chapterCounts[previousBook] ?? 1))
+        }
+
+        if chapter < chapterCount {
+            references.append((book, chapter + 1))
+        } else if bookIndex < BibleBooks.all.count - 1 {
+            references.append((BibleBooks.all[bookIndex + 1], 1))
+        }
+
+        return references
+    }
+
+#if DEBUG
+    func resetChapterCacheForTesting() {
+        chapterCache.removeAll()
+    }
+
+    func isChapterCachedForTesting(book: String, chapter: Int, translation: String) -> Bool {
+        chapterCache.contains(ChapterCacheKey(book: book, chapter: chapter, translation: translation))
+    }
+
+    var chapterCacheCountForTesting: Int {
+        chapterCache.storage.count
+    }
+#endif
 }

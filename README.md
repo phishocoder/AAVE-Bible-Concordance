@@ -72,7 +72,7 @@ Why:
 - `/Users/philshobo/Documents/Projects/AAVE-Bible-Concordance/Docs` - product and engineering docs
 
 ## Local Setup
-1. Open project in Xcode.
+1. Open `/Users/philshobo/Documents/Projects/AAVE-Bible-Concordance/AAVE Bible Concordance.xcodeproj` in Xcode. This is the repository's only supported Xcode project.
 2. Ensure local Firebase config is present if needed for auth/leaderboard features.
 3. Build and run on simulator/device.
 

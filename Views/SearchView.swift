@@ -29,6 +29,7 @@ struct SearchView: View {
 
     @StateObject private var translationService = TranslationService.shared
 
+    private let discoveryService = DefaultScriptureDiscoveryService.shared
     private let haptics = HapticManager.shared
 
     private var trimmedSearchText: String {
@@ -166,6 +167,15 @@ struct SearchView: View {
                 }
                 .padding(.top, 12)
 
+#if DEBUG
+                Label(
+                    resultPage.rankingSource.experimentalDisplayName,
+                    systemImage: resultPage.rankingSource == .aiAssisted ? "sparkles" : "line.3.horizontal.decrease"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+#endif
+
                 if let error {
                     HStack {
                         Label(error.localizedDescription, systemImage: "exclamationmark.triangle.fill")
@@ -273,7 +283,7 @@ struct SearchView: View {
             if !translationService.isLoaded {
                 try await translationService.loadTranslations()
             }
-            let page = try await translationService.searchAAVEScripture(
+            let page = try await discoveryService.search(
                 query: query,
                 limit: Self.resultLimit
             )

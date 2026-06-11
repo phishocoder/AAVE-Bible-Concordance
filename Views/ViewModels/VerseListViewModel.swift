@@ -14,6 +14,7 @@ class VerseListViewModel: ObservableObject {
     @Published var currentBook: String { didSet { persistLocation() } }
     @Published var currentChapter: Int { didSet { persistLocation() } }
     @Published var verses: [Verse] = []
+    @Published private(set) var commentaryVerseIDs: Set<String> = []
     @Published var isLoading = false
     @Published var refreshID = UUID()
     
@@ -32,7 +33,7 @@ class VerseListViewModel: ObservableObject {
     @Published var commentaryVerse: Verse? = nil
     @Published var commentaryReference: VerseReference? = nil
     @Published var showingImageOptions = false
-    @Published var lastVisibleVerse: Int? { didSet { persistLocation() } }
+    private(set) var lastVisibleVerse: Int?
     
     private var translationService = TranslationService.shared
     private var verseManager = VerseManager.shared
@@ -42,6 +43,7 @@ class VerseListViewModel: ObservableObject {
     private let lastBookKey = "lastBook"
     private let lastChapterKey = "lastChapter"
     private let lastVerseKey = "lastVerse"
+    private var loadGeneration = UUID()
     
     init(book: String, chapter: Int, initialVerse: Int? = nil) {
         // Restore last location unless a specific navigation target was provided.
@@ -120,40 +122,71 @@ class VerseListViewModel: ObservableObject {
     }
     
     func loadVerses() async {
+        let generation = UUID()
+        loadGeneration = generation
+        let requestedBook = currentBook
+        let requestedChapter = currentChapter
+        let requestedTranslation = SettingsViewModel.shared.preferredTranslation
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            if loadGeneration == generation {
+                isLoading = false
+            }
+        }
 
         do {
             let loadedVerses = try await verseManager.getChapterVerses(
-                book: currentBook,
-                chapter: currentChapter,
-                translation: SettingsViewModel.shared.preferredTranslation
+                book: requestedBook,
+                chapter: requestedChapter,
+                translation: requestedTranslation
             )
+
+            guard loadGeneration == generation,
+                  currentBook == requestedBook,
+                  currentChapter == requestedChapter,
+                  SettingsViewModel.shared.preferredTranslation == requestedTranslation else {
+                return
+            }
 
             self.verses = loadedVerses.map { item in
                 Verse(
                     text: item.text,
-                    translation: SettingsViewModel.shared.preferredTranslation,
+                    translation: requestedTranslation,
                     reference: item.reference
                 )
             }
+            self.commentaryVerseIDs = Set(loadedVerses.compactMap { item in
+                translationService.hasCommentary(
+                    for: item.reference.book,
+                    chapter: item.reference.chapter,
+                    verse: item.reference.verse
+                ) ? item.reference.id : nil
+            })
 
             self.selectedVerses = []
             self.isMultiSelectMode = false
+            ReaderAnalytics.shared.track(.chapterOpened(
+                book: requestedBook,
+                chapter: requestedChapter,
+                translation: requestedTranslation
+            ))
+
+            Task(priority: .utility) { [verseManager] in
+                await Task.yield()
+                await verseManager.preloadAdjacentChapters(
+                    book: requestedBook,
+                    chapter: requestedChapter,
+                    translation: requestedTranslation
+                )
+            }
         } catch {
+            guard loadGeneration == generation else { return }
 #if DEBUG
-            print("DEBUG loadVerses FAILED book=\(currentBook) chapter=\(currentChapter) error=\(error)")
+            print("DEBUG loadVerses FAILED book=\(requestedBook) chapter=\(requestedChapter) error=\(error)")
 #endif
             self.verses = []
+            self.commentaryVerseIDs = []
         }
-    }
-    
-    func hasCommentary(for verse: Verse) async -> Bool {
-        return await translationService.hasCommentary(
-            for: verse.reference.book,
-            chapter: verse.reference.chapter,
-            verse: verse.reference.verse
-        )
     }
     
     func handleVerseTap(_ verse: Verse) {
@@ -382,7 +415,9 @@ class VerseListViewModel: ObservableObject {
     }
     
     func markLastVisibleVerse(_ verseNumber: Int) {
+        guard lastVisibleVerse != verseNumber else { return }
         lastVisibleVerse = verseNumber
+        persistLocation()
     }
     
     private func persistLocation() {

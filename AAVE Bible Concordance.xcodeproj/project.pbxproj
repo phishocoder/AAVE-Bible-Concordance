@@ -7,12 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F10000012F40000100000001 /* IntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000112F40000100000001 /* IntelligenceAvailability.swift */; };
-		F10000022F40000100000002 /* StudyGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000122F40000100000002 /* StudyGuide.swift */; };
-		F10000032F40000100000003 /* IntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000132F40000100000003 /* IntelligenceService.swift */; };
-		F10000042F40000100000004 /* FoundationModelsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */; };
-		F10000052F40000100000005 /* DefaultIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000152F40000100000005 /* DefaultIntelligenceService.swift */; };
-		F10000062F40000100000006 /* IntelligenceDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000162F40000100000006 /* IntelligenceDebugView.swift */; };
 		E0054F922D7BB55100A26A71 /* BookListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F802D7BB55100A26A71 /* BookListView.swift */; };
 		E0054F932D7BB55100A26A71 /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F812D7BB55100A26A71 /* ChapterListView.swift */; };
 		E0054F942D7BB55100A26A71 /* ConcordanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0054F822D7BB55100A26A71 /* ConcordanceView.swift */; };
@@ -106,6 +100,13 @@
 		E0DCC5332D7E18D60061F222 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DCC5322D7E18D30061F222 /* HomeView.swift */; };
 		E0E071D22D890F5800BFB93E /* Assets 2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0E071D12D890F5800BFB93E /* Assets 2.xcassets */; };
 		E0E071D82D8913EC00BFB93E /* MultiSelectBottomToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E071D72D8913E100BFB93E /* MultiSelectBottomToolbar.swift */; };
+		E0F2E61C2FD8846B00E99DCD /* ScriptureCandidateRanking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2E61B2FD8846B00E99DCD /* ScriptureCandidateRanking.swift */; };
+		E0F2E61E2FD8848000E99DCD /* ScriptureQueryExpander.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2E61D2FD8848000E99DCD /* ScriptureQueryExpander.swift */; };
+		E0F2E6202FD8849800E99DCD /* ScriptureDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2E61F2FD8849800E99DCD /* ScriptureDiscoveryService.swift */; };
+		E0F2E6222FD884A800E99DCD /* FoundationModelScriptureRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2E6212FD884A800E99DCD /* FoundationModelScriptureRanker.swift */; };
+		E0F2ECF12FDB0D3B00E99DCD /* StudyGuideContentGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2ECF02FDB0D3B00E99DCD /* StudyGuideContentGenerator.swift */; };
+		E0F2ECF32FDB0D3C00E99DCD /* DeterministicStudyGuideContentGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2ECF22FDB0D3C00E99DCD /* DeterministicStudyGuideContentGenerator.swift */; };
+		E0F2ECF52FDB0D3C00E99DCD /* FoundationModelStudyGuideContentGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F2ECF42FDB0D3C00E99DCD /* FoundationModelStudyGuideContentGenerator.swift */; };
 		E0F415BA2D813630000A4C7E /* CommentaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415B92D81362C000A4C7E /* CommentaryView.swift */; };
 		E0F415C02D825C1D000A4C7E /* VerseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415BF2D825C19000A4C7E /* VerseCard.swift */; };
 		E0F415C22D825C87000A4C7E /* VerseDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */; };
@@ -134,8 +135,14 @@
 		E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000014 /* LiveActivityDebug.swift */; };
 		E1C0AA012F20000100000005 /* DailyVerseAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000011 /* DailyVerseAttributes.swift */; };
 		E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000015 /* VerseVersion.swift */; };
-			E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
-			E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D0AA012F30000100000002 /* VerseActionSheetView.swift */; };
+		E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C0AA012F20000100000016 /* ScriptureStore.swift */; };
+		E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D0AA012F30000100000002 /* VerseActionSheetView.swift */; };
+		F10000012F40000100000001 /* IntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000112F40000100000001 /* IntelligenceAvailability.swift */; };
+		F10000022F40000100000002 /* StudyGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000122F40000100000002 /* StudyGuide.swift */; };
+		F10000032F40000100000003 /* IntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000132F40000100000003 /* IntelligenceService.swift */; };
+		F10000042F40000100000004 /* FoundationModelsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */; };
+		F10000052F40000100000005 /* DefaultIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000152F40000100000005 /* DefaultIntelligenceService.swift */; };
+		F10000062F40000100000006 /* IntelligenceDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000162F40000100000006 /* IntelligenceDebugView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -170,12 +177,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F10000112F40000100000001 /* IntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceAvailability.swift; sourceTree = "<group>"; };
-		F10000122F40000100000002 /* StudyGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyGuide.swift; sourceTree = "<group>"; };
-		F10000132F40000100000003 /* IntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceService.swift; sourceTree = "<group>"; };
-		F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsAvailabilityProvider.swift; sourceTree = "<group>"; };
-		F10000152F40000100000005 /* DefaultIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIntelligenceService.swift; sourceTree = "<group>"; };
-		F10000162F40000100000006 /* IntelligenceDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceDebugView.swift; sourceTree = "<group>"; };
 		E0054F802D7BB55100A26A71 /* BookListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListView.swift; sourceTree = "<group>"; };
 		E0054F812D7BB55100A26A71 /* ChapterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterListView.swift; sourceTree = "<group>"; };
 		E0054F822D7BB55100A26A71 /* ConcordanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcordanceView.swift; sourceTree = "<group>"; };
@@ -266,6 +267,13 @@
 		E0DCC5322D7E18D30061F222 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		E0E071D12D890F5800BFB93E /* Assets 2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets 2.xcassets"; sourceTree = "<group>"; };
 		E0E071D72D8913E100BFB93E /* MultiSelectBottomToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSelectBottomToolbar.swift; sourceTree = "<group>"; };
+		E0F2E61B2FD8846B00E99DCD /* ScriptureCandidateRanking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureCandidateRanking.swift; sourceTree = "<group>"; };
+		E0F2E61D2FD8848000E99DCD /* ScriptureQueryExpander.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureQueryExpander.swift; sourceTree = "<group>"; };
+		E0F2E61F2FD8849800E99DCD /* ScriptureDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureDiscoveryService.swift; sourceTree = "<group>"; };
+		E0F2E6212FD884A800E99DCD /* FoundationModelScriptureRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScriptureRanker.swift; sourceTree = "<group>"; };
+		E0F2ECF02FDB0D3B00E99DCD /* StudyGuideContentGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyGuideContentGenerator.swift; sourceTree = "<group>"; };
+		E0F2ECF22FDB0D3C00E99DCD /* DeterministicStudyGuideContentGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicStudyGuideContentGenerator.swift; sourceTree = "<group>"; };
+		E0F2ECF42FDB0D3C00E99DCD /* FoundationModelStudyGuideContentGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelStudyGuideContentGenerator.swift; sourceTree = "<group>"; };
 		E0F415B92D81362C000A4C7E /* CommentaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentaryView.swift; sourceTree = "<group>"; };
 		E0F415BF2D825C19000A4C7E /* VerseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseCard.swift; sourceTree = "<group>"; };
 		E0F415C12D825C82000A4C7E /* VerseDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseDetailSheet.swift; sourceTree = "<group>"; };
@@ -293,8 +301,14 @@
 		E1C0AA012F20000100000013 /* VerseOfDayProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseOfDayProvider.swift; sourceTree = "<group>"; };
 		E1C0AA012F20000100000014 /* LiveActivityDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebug.swift; sourceTree = "<group>"; };
 		E1C0AA012F20000100000015 /* VerseVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseVersion.swift; sourceTree = "<group>"; };
-			E1C0AA012F20000100000016 /* ScriptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureStore.swift; sourceTree = "<group>"; };
-			E1D0AA012F30000100000002 /* VerseActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseActionSheetView.swift; sourceTree = "<group>"; };
+		E1C0AA012F20000100000016 /* ScriptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureStore.swift; sourceTree = "<group>"; };
+		E1D0AA012F30000100000002 /* VerseActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseActionSheetView.swift; sourceTree = "<group>"; };
+		F10000112F40000100000001 /* IntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceAvailability.swift; sourceTree = "<group>"; };
+		F10000122F40000100000002 /* StudyGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyGuide.swift; sourceTree = "<group>"; };
+		F10000132F40000100000003 /* IntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceService.swift; sourceTree = "<group>"; };
+		F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsAvailabilityProvider.swift; sourceTree = "<group>"; };
+		F10000152F40000100000005 /* DefaultIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIntelligenceService.swift; sourceTree = "<group>"; };
+		F10000162F40000100000006 /* IntelligenceDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligenceDebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -441,10 +455,10 @@
 				E0E071D72D8913E100BFB93E /* MultiSelectBottomToolbar.swift */,
 				E0E071D12D890F5800BFB93E /* Assets 2.xcassets */,
 				E04E17322D87E172002EDE4A /* ActionButton.swift */,
-					E04E172A2D87DC21002EDE4A /* ChapterNavigationHeader.swift */,
-					E04E17282D87DC0E002EDE4A /* VerseRow.swift */,
-					E1D0AA012F30000100000002 /* VerseActionSheetView.swift */,
-					E04E17262D87CBC5002EDE4A /* CreditsView.swift */,
+				E04E172A2D87DC21002EDE4A /* ChapterNavigationHeader.swift */,
+				E04E17282D87DC0E002EDE4A /* VerseRow.swift */,
+				E1D0AA012F30000100000002 /* VerseActionSheetView.swift */,
+				E04E17262D87CBC5002EDE4A /* CreditsView.swift */,
 				E04E17212D87C72B002EDE4A /* VerseofDaySettingsView.swift */,
 				E04E171D2D87C5C0002EDE4A /* BookChapterPickerView.swift */,
 				E04E171B2D87C593002EDE4A /* BibleNavigationHeader.swift */,
@@ -557,18 +571,9 @@
 				E089B5EE2D7D616000255567 /* NetworkMonitor.swift */,
 				E05A4D832D7D0E270091AA66 /* UserDataManager.swift */,
 				E0054FA02D7BFDF700A26A71 /* TranslationService.swift */,
+				E0F2E61A2FD8846B00E99DCD /* ScriptureDiscovery */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		F10000202F40000100000020 /* Intelligence */ = {
-			isa = PBXGroup;
-			children = (
-				F10000132F40000100000003 /* IntelligenceService.swift */,
-				F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */,
-				F10000152F40000100000005 /* DefaultIntelligenceService.swift */,
-			);
-			path = Intelligence;
 			sourceTree = "<group>";
 		};
 		E077B96D2DB9F8F40072C19F /* Frameworks */ = {
@@ -578,6 +583,30 @@
 				E0FAC5262F202B1F00A190AA /* SwiftUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E0F2E61A2FD8846B00E99DCD /* ScriptureDiscovery */ = {
+			isa = PBXGroup;
+			children = (
+				E0F2E61B2FD8846B00E99DCD /* ScriptureCandidateRanking.swift */,
+				E0F2E61D2FD8848000E99DCD /* ScriptureQueryExpander.swift */,
+				E0F2E61F2FD8849800E99DCD /* ScriptureDiscoveryService.swift */,
+				E0F2E6212FD884A800E99DCD /* FoundationModelScriptureRanker.swift */,
+			);
+			path = ScriptureDiscovery;
+			sourceTree = "<group>";
+		};
+		F10000202F40000100000020 /* Intelligence */ = {
+			isa = PBXGroup;
+			children = (
+				F10000132F40000100000003 /* IntelligenceService.swift */,
+				F10000142F40000100000004 /* FoundationModelsAvailabilityProvider.swift */,
+				F10000152F40000100000005 /* DefaultIntelligenceService.swift */,
+				E0F2ECF02FDB0D3B00E99DCD /* StudyGuideContentGenerator.swift */,
+				E0F2ECF22FDB0D3C00E99DCD /* DeterministicStudyGuideContentGenerator.swift */,
+				E0F2ECF42FDB0D3C00E99DCD /* FoundationModelStudyGuideContentGenerator.swift */,
+			);
+			path = Intelligence;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -730,9 +759,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		E0054FCA2D7CC38300A26A71 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -745,6 +771,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0F2E6222FD884A800E99DCD /* FoundationModelScriptureRanker.swift in Sources */,
+				E0F2E61C2FD8846B00E99DCD /* ScriptureCandidateRanking.swift in Sources */,
+				E0F2E6202FD8849800E99DCD /* ScriptureDiscoveryService.swift in Sources */,
+				E0F2E61E2FD8848000E99DCD /* ScriptureQueryExpander.swift in Sources */,
 				F10000012F40000100000001 /* IntelligenceAvailability.swift in Sources */,
 				F10000022F40000100000002 /* StudyGuide.swift in Sources */,
 				F10000032F40000100000003 /* IntelligenceService.swift in Sources */,
@@ -799,6 +829,7 @@
 				E1C0AA012F20000100000002 /* DailyVerseLiveActivityManager.swift in Sources */,
 				E1C0AA012F20000100000003 /* VerseOfDayProvider.swift in Sources */,
 				E1C0AA012F20000100000004 /* LiveActivityDebug.swift in Sources */,
+				E0F2ECF32FDB0D3C00E99DCD /* DeterministicStudyGuideContentGenerator.swift in Sources */,
 				E1C0AA012F20000100000006 /* VerseVersion.swift in Sources */,
 				E1C0AA012F20000100000007 /* ScriptureStore.swift in Sources */,
 				E04E17222D87C733002EDE4A /* VerseofDaySettingsView.swift in Sources */,
@@ -817,10 +848,10 @@
 				E1A0AA012F00000100000011 /* AchievementService.swift in Sources */,
 				E1A0AA012F00000100000012 /* ReadingProgressService.swift in Sources */,
 				E04E171E2D87C5C6002EDE4A /* BookChapterPickerView.swift in Sources */,
-					E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
-					E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,
-					E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */,
-					E00962732D827D97007677BD /* NotesView.swift in Sources */,
+				E0D29A0D2D8B13620057EE2B /* UnifiedBottomToolbar.swift in Sources */,
+				E04E17292D87DC11002EDE4A /* VerseRow.swift in Sources */,
+				E1D0AA012F30000100000001 /* VerseActionSheetView.swift in Sources */,
+				E00962732D827D97007677BD /* NotesView.swift in Sources */,
 				E0534B692DC2A4F10038651E /* UsernamePromptView.swift in Sources */,
 				E04E15DF2D85F567002EDE4A /* TranslationsView.swift in Sources */,
 				E04E171A2D87C57E002EDE4A /* MultiVerseActionsOverlay.swift in Sources */,
@@ -858,11 +889,13 @@
 				E0196C372D9B3D2000A07E19 /* NotificationMessages.swift in Sources */,
 				E0054FA72D7C0E3B00A26A71 /* SettingsViewModel.swift in Sources */,
 				E04E0F9C2D93396D004C44A2 /* NotificationManager.swift in Sources */,
+				E0F2ECF12FDB0D3B00E99DCD /* StudyGuideContentGenerator.swift in Sources */,
 				E04E0FA22D933C64004C44A2 /* AppState.swift in Sources */,
 				E0DCC5252D7E06240061F222 /* ShareSheet.swift in Sources */,
 				E077B9752DB9F9B70072C19F /* QuizScoreLogger.swift in Sources */,
 				E077B9792DB9FA0B0072C19F /* LeaderboardView.swift in Sources */,
 				E04E15DD2D85F470002EDE4A /* ToolButton.swift in Sources */,
+				E0F2ECF52FDB0D3C00E99DCD /* FoundationModelStudyGuideContentGenerator.swift in Sources */,
 				E09A7EC42E69FBB8009BB9F0 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

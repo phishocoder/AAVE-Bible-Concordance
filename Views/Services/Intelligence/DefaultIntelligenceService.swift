@@ -9,9 +9,30 @@ final class DefaultIntelligenceService: IntelligenceService {
     }
 
     private let translationService: TranslationService
+    private let contentGenerator: any StudyGuideContentGenerator
+    private let fallbackGenerator: any StudyGuideContentGenerator
+    private let isFoundationModelsGenerationEnabled: Bool
+    private let generationTimeoutNanoseconds: UInt64
 
-    init(translationService: TranslationService) {
+    init(
+        translationService: TranslationService,
+        contentGenerator: any StudyGuideContentGenerator,
+        isFoundationModelsGenerationEnabled: Bool,
+        generationTimeoutNanoseconds: UInt64 = 3_000_000_000
+    ) {
         self.translationService = translationService
+        self.contentGenerator = contentGenerator
+        self.fallbackGenerator = DeterministicStudyGuideContentGenerator()
+        self.isFoundationModelsGenerationEnabled = isFoundationModelsGenerationEnabled
+        self.generationTimeoutNanoseconds = generationTimeoutNanoseconds
+    }
+
+    convenience init(translationService: TranslationService) {
+        self.init(
+            translationService: translationService,
+            contentGenerator: FoundationModelStudyGuideContentGenerator(),
+            isFoundationModelsGenerationEnabled: InternalFeatureFlags.studyGuideFoundationModelsEnabled
+        )
     }
 
     convenience init() {
@@ -38,16 +59,58 @@ final class DefaultIntelligenceService: IntelligenceService {
             passageText: passageText,
             excluding: reference
         )
+        let input = StudyGuideContentInput(
+            passageText: passageText,
+            commentary: commentary
+        )
+        let generatedContent = try await generatedContent(for: input)
 
         return StudyGuide(
             passageText: passageText,
             commentary: commentary,
-            summary: nil,
-            reflectionQuestions: [],
+            summary: generatedContent.summary,
+            reflectionQuestions: generatedContent.reflectionQuestions,
             sourceReferences: [reference],
             relatedReferences: relatedReferences,
-            source: .deterministicFallback
+            source: generatedContent.source
         )
+    }
+
+    private func generatedContent(
+        for input: StudyGuideContentInput
+    ) async throws -> StudyGuideGeneratedContent {
+        guard isFoundationModelsGenerationEnabled, contentGenerator.isAvailable else {
+            return try await fallbackGenerator.generateContent(for: input)
+        }
+
+        do {
+            let content = try await contentWithTimeout(for: input)
+            return try StudyGuideContentValidator.validated(content, for: input)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return try await fallbackGenerator.generateContent(for: input)
+        }
+    }
+
+    private func contentWithTimeout(
+        for input: StudyGuideContentInput
+    ) async throws -> StudyGuideGeneratedContent {
+        try await withThrowingTaskGroup(of: StudyGuideGeneratedContent.self) { group in
+            group.addTask {
+                try await self.contentGenerator.generateContent(for: input)
+            }
+            group.addTask {
+                try await Task.sleep(nanoseconds: self.generationTimeoutNanoseconds)
+                throw StudyGuideContentGenerationError.timedOut
+            }
+
+            guard let result = try await group.next() else {
+                throw StudyGuideContentGenerationError.unavailable
+            }
+            group.cancelAll()
+            return result
+        }
     }
 
     private func relatedReferences(

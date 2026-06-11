@@ -172,6 +172,7 @@ struct VerseListView: View {
         
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowCommentary"))) { notification in
             if let reference = notification.userInfo?["reference"] as? VerseReference {
+                ReaderAnalytics.shared.track(.commentaryOpened(reference: reference))
                 viewModel.showCommentary = true
                 viewModel.commentaryReference = reference
             }
@@ -195,6 +196,7 @@ struct VerseListView: View {
     }
 
     private func handleVerseTap(_ verse: Verse) {
+        ReaderAnalytics.shared.track(.verseSelected(reference: verse.reference))
         if viewModel.selectedVerse != nil || viewModel.isMultiSelectMode {
             viewModel.handleVerseTap(verse)
             return
@@ -208,6 +210,7 @@ struct VerseListView: View {
     }
 
     private func handleVerseLongPress(_ verse: Verse) {
+        ReaderAnalytics.shared.track(.verseSelected(reference: verse.reference))
         presentActions(for: verse)
 
         guard !hasSeenLongPressHint else { return }
@@ -246,6 +249,7 @@ struct VerseListView: View {
         case .share:
             showingVerseActionSheet = false
             AchievementService.shared.recordShare()
+            ReaderAnalytics.shared.track(.verseShared(reference: verse.reference))
             presentAfterActionSheetDismiss {
                 shareText = formattedVerseText(verse, includeAppLink: true)
                 showShareSheet = true
@@ -257,6 +261,7 @@ struct VerseListView: View {
             }
         case .compareTranslation:
             showingVerseActionSheet = false
+            ReaderAnalytics.shared.track(.compareOpened(reference: verse.reference))
             presentAfterActionSheetDismiss {
                 compareReference = verse.reference
             }
@@ -416,6 +421,8 @@ struct VerseListMainContent: View {
             } else {
                 VerseListContent(
                     viewModel: viewModel,
+                    fontFamily: settings.fontFamily,
+                    fontSize: settings.fontSize,
                     onVerseTap: onVerseTap,
                     onVerseLongPress: onVerseLongPress
                 )
@@ -515,13 +522,19 @@ struct VerseListMainContent: View {
 // MARK: - Verse List Content
 struct VerseListContent: View {
     @ObservedObject var viewModel: VerseListViewModel
+    let fontFamily: String
+    let fontSize: Double
     let onVerseTap: (Verse) -> Void
     let onVerseLongPress: (Verse) -> Void
-    @ObservedObject private var translationService = TranslationService.shared
+    @ObservedObject private var highlightManager = HighlightManager.shared
+    @Environment(\.colorScheme) private var colorScheme
     @State private var shouldScrollToTop = false
     @State private var isClearingFocus = false
     
     var body: some View {
+        let selectedVerseIDs = selectedVerseIDs
+        let highlightColors = highlightColors
+
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
@@ -529,26 +542,31 @@ struct VerseListContent: View {
                         VerseRow(
                             verse: verse,
                             isMultiSelectMode: viewModel.isMultiSelectMode,
-                            isSelected: viewModel.isVerseSelected(verse),
+                            isSelected: selectedVerseIDs.contains(verse.reference.id),
                             isFocused: verse.reference.id == viewModel.focusedVerseID,
-                            hasCommentary: translationService.hasCommentary(
-                                for: verse.reference.book,
-                                chapter: verse.reference.chapter,
-                                verse: verse.reference.verse
-                            ),
+                            hasCommentary: viewModel.commentaryVerseIDs.contains(verse.reference.id),
+                            highlightColor: highlightColors[verse.reference.id],
+                            fontFamily: fontFamily,
+                            fontSize: fontSize,
+                            colorScheme: colorScheme,
                             onTap: { onVerseTap(verse) },
                             onLongPress: { onVerseLongPress(verse) },
                             onCommentaryTap: {
+                                ReaderAnalytics.shared.track(.commentaryOpened(reference: verse.reference))
                                 viewModel.showCommentary = true
                                 viewModel.commentaryReference = verse.reference
+                            },
+                            onRemoveHighlight: {
+                                highlightManager.removeHighlight(verse.reference)
+                            },
+                            onAppear: {
+                                ReadingProgressService.shared.markVerseRead(verse.reference)
+                                viewModel.markLastVisibleVerse(verse.reference.verse)
                             }
                         )
+                        .equatable()
                         // Use a more stable ID that doesn't trigger full redraws
                         .id(scrollID(for: verse.reference))
-                        .onAppear {
-                            // Track the last visible verse to restore position on relaunch.
-                            viewModel.markLastVisibleVerse(verse.reference.verse)
-                        }
                     }
                 }
                 .padding(.horizontal, 24)
@@ -625,6 +643,20 @@ struct VerseListContent: View {
                 }
             }
         }
+    }
+
+    private var selectedVerseIDs: Set<String> {
+        if viewModel.isMultiSelectMode {
+            return Set(viewModel.selectedVerses.map(\.reference.id))
+        }
+
+        return Set(viewModel.selectedVerse.map { [$0.reference.id] } ?? [])
+    }
+
+    private var highlightColors: [String: Color] {
+        Dictionary(uniqueKeysWithValues: highlightManager.highlights.map {
+            ($0.reference.id, $0.color)
+        })
     }
     
     private func focus(on verseNumber: Int, proxy: ScrollViewProxy, animated: Bool) {

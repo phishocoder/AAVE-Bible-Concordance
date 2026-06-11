@@ -6,6 +6,7 @@
 
 # Derived data and build
 DerivedData/
+.derivedData/
 Derived/
 Derived*/
 build/
@@ -33,3 +34,12 @@ GoogleService-Info.plist
 
 # Misc
 *.DS_Store
+
+# Retired duplicate workspaces
+AAVE Bible Concordance 2.xcodeproj/
+repo-setup/
+Views/Services/ScriptureDiscovery 2/
+
+# Local research and Xcode-generated metadata
+output/transcribe/
+*.xcodeproj/xcshareddata/xcodecloud/

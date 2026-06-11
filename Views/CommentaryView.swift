@@ -7,6 +7,17 @@
 
 import SwiftUI
 
+struct CommentaryArticleText: View {
+    let content: String
+
+    var body: some View {
+        Text(content)
+            .font(.body)
+            .foregroundStyle(.primary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 struct CommentaryView: View {
     let book: String
     let chapter: Int
@@ -24,8 +35,7 @@ struct CommentaryView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Commentary")
                     .font(.headline)
-                Text(commentary)
-                    .font(.body)
+                CommentaryArticleText(content: commentary)
             }
             .padding()
             .background(Color(.systemBackground))

@@ -3,10 +3,14 @@ import XCTest
 
 @MainActor
 final class ScriptureDiscoveryServiceTests: XCTestCase {
-    func testDirectReferenceBypassesCandidateRanker() async throws {
-        let directResult = result(book: "John", chapter: 3, verse: 16, text: "Bundled text")
+    func testDirectReferencesBypassCandidateRanker() async throws {
+        let john = result(book: "John", chapter: 3, verse: 16, text: "Bundled text")
+        let romans = result(book: "Romans", chapter: 8, verse: 1, text: "Bundled text")
+        let psalms = result(book: "Psalms", chapter: 23, verse: 1, text: "Bundled text")
         let dataSource = StubSearchDataSource(pages: [
-            "John 3:16": page([directResult])
+            "John 3:16": page([john]),
+            "Romans 8": page([romans]),
+            "Psalm 23": page([psalms])
         ])
         let ranker = StubCandidateRanker(proposedIndices: [0])
         let service = DefaultScriptureDiscoveryService(
@@ -15,14 +19,15 @@ final class ScriptureDiscoveryServiceTests: XCTestCase {
             isNaturalLanguageRankingEnabled: true
         )
 
-        let resultPage = try await service.search(query: "John 3:16", limit: 25)
-
-        XCTAssertEqual(resultPage.results.map(\.id), [directResult.id])
+        for query in ["John 3:16", "Romans 8", "Psalm 23"] {
+            let resultPage = try await service.search(query: query, limit: 50)
+            XCTAssertEqual(resultPage.rankingSource, .lexical)
+        }
         XCTAssertEqual(ranker.callCount, 0)
-        XCTAssertEqual(dataSource.queries, ["John 3:16"])
+        XCTAssertEqual(dataSource.queries, ["John 3:16", "Romans 8", "Psalm 23"])
     }
 
-    func testInvalidAndDuplicateIndicesAreRejectedAndOmissionsKeepLexicalOrder() async throws {
+    func testInvalidAndDuplicateIndicesAreRejectedAndOmissionsKeepCandidateOrder() async throws {
         let candidates = [
             result(book: "Psalms", chapter: 1, verse: 1, text: "Peace one"),
             result(book: "Psalms", chapter: 1, verse: 2, text: "Peace two"),
@@ -40,15 +45,16 @@ final class ScriptureDiscoveryServiceTests: XCTestCase {
 
         XCTAssertEqual(resultPage.results.map(\.verse), [3, 1, 2])
         XCTAssertEqual(Set(resultPage.results.map(\.id)).count, 3)
+        XCTAssertEqual(resultPage.rankingSource, .aiAssisted)
     }
 
-    func testModelFailureReturnsOriginalLexicalResults() async throws {
+    func testUnavailableModelReturnsOriginalLexicalResults() async throws {
         let lexical = [
             result(book: "John", chapter: 1, verse: 1, text: "Love one another"),
             result(book: "John", chapter: 1, verse: 2, text: "Love is patient")
         ]
         let dataSource = StubSearchDataSource(pages: ["love": page(lexical)])
-        let ranker = StubCandidateRanker(proposedIndices: [], shouldThrow: true)
+        let ranker = StubCandidateRanker(isAvailable: false, proposedIndices: [])
         let service = DefaultScriptureDiscoveryService(
             dataSource: dataSource,
             ranker: ranker,
@@ -58,9 +64,56 @@ final class ScriptureDiscoveryServiceTests: XCTestCase {
         let resultPage = try await service.search(query: "love", limit: 25)
 
         XCTAssertEqual(resultPage.results.map(\.id), lexical.map(\.id))
+        XCTAssertEqual(resultPage.rankingSource, .lexical)
+        XCTAssertEqual(ranker.callCount, 0)
     }
 
-    func testEmptyValidatedRankingReturnsOriginalLexicalResults() async throws {
+    func testModelFailureReturnsDeterministicLexicalFallback() async throws {
+        let lexical = [
+            result(book: "John", chapter: 1, verse: 1, text: "Love one another"),
+            result(book: "John", chapter: 1, verse: 2, text: "Love is patient")
+        ]
+        let dataSource = StubSearchDataSource(pages: ["love": page(lexical)])
+        let ranker = StubCandidateRanker(proposedIndices: [], error: .unavailable)
+        let service = DefaultScriptureDiscoveryService(
+            dataSource: dataSource,
+            ranker: ranker,
+            isNaturalLanguageRankingEnabled: true
+        )
+
+        let firstPage = try await service.search(query: "love", limit: 50)
+        let secondPage = try await service.search(query: "love", limit: 50)
+
+        XCTAssertEqual(firstPage.results.map(\.id), lexical.map(\.id))
+        XCTAssertEqual(secondPage.results.map(\.id), lexical.map(\.id))
+        XCTAssertEqual(firstPage.rankingSource, .aiFallback)
+        XCTAssertEqual(secondPage.rankingSource, .aiFallback)
+    }
+
+    func testTimeoutReturnsDeterministicLexicalFallback() async throws {
+        let lexical = [
+            result(book: "Psalms", chapter: 1, verse: 1, text: "Hope one"),
+            result(book: "Psalms", chapter: 1, verse: 2, text: "Hope two")
+        ]
+        let dataSource = StubSearchDataSource(pages: ["hope": page(lexical)])
+        let ranker = StubCandidateRanker(
+            proposedIndices: [1, 0],
+            delayNanoseconds: 50_000_000
+        )
+        let service = DefaultScriptureDiscoveryService(
+            dataSource: dataSource,
+            ranker: ranker,
+            isNaturalLanguageRankingEnabled: true,
+            rankingTimeoutNanoseconds: 1_000_000
+        )
+
+        let resultPage = try await service.search(query: "hope", limit: 50)
+
+        XCTAssertEqual(resultPage.results.map(\.id), lexical.map(\.id))
+        XCTAssertEqual(resultPage.rankingSource, .aiFallback)
+    }
+
+    func testOutsideCandidateSetOutputReturnsLexicalFallback() async throws {
         let lexical = [result(book: "James", chapter: 1, verse: 5, text: "Ask for wisdom")]
         let dataSource = StubSearchDataSource(pages: ["wisdom": page(lexical)])
         let ranker = StubCandidateRanker(proposedIndices: [88])
@@ -73,6 +126,7 @@ final class ScriptureDiscoveryServiceTests: XCTestCase {
         let resultPage = try await service.search(query: "wisdom", limit: 25)
 
         XCTAssertEqual(resultPage.results.map(\.id), lexical.map(\.id))
+        XCTAssertEqual(resultPage.rankingSource, .aiFallback)
     }
 
     func testExpansionCanSupplyCandidatesWithoutAllowingNewReferences() async throws {
@@ -95,6 +149,50 @@ final class ScriptureDiscoveryServiceTests: XCTestCase {
 
         XCTAssertEqual(resultPage.results.map(\.id), [expanded.id])
         XCTAssertTrue(dataSource.queries.contains("anxious"))
+        XCTAssertEqual(resultPage.rankingSource, .aiAssisted)
+    }
+
+    func testLexicalAndAIRankingUseTheSameRequestedResultLimit() async throws {
+        let candidates = (1...60).map {
+            result(book: "Psalms", chapter: 1, verse: $0, text: "Hope \($0)")
+        }
+        let dataSource = StubSearchDataSource(pages: ["hope": page(candidates)])
+        let aiService = DefaultScriptureDiscoveryService(
+            dataSource: dataSource,
+            ranker: StubCandidateRanker(proposedIndices: Array(0..<60)),
+            isNaturalLanguageRankingEnabled: true
+        )
+        let lexicalService = DefaultScriptureDiscoveryService(
+            dataSource: dataSource,
+            ranker: StubCandidateRanker(isAvailable: false, proposedIndices: []),
+            isNaturalLanguageRankingEnabled: true
+        )
+
+        let aiPage = try await aiService.search(query: "hope", limit: 50)
+        let lexicalPage = try await lexicalService.search(query: "hope", limit: 50)
+
+        XCTAssertEqual(aiPage.results.count, 50)
+        XCTAssertEqual(aiPage.limit, 50)
+        XCTAssertEqual(lexicalPage.results.count, 50)
+        XCTAssertEqual(lexicalPage.limit, 50)
+        XCTAssertEqual(aiPage.rankingSource, .aiAssisted)
+        XCTAssertEqual(lexicalPage.rankingSource, .lexical)
+    }
+
+    func testProductionDefaultDisablesAISearchRanking() {
+        XCTAssertFalse(
+            InternalFeatureFlags.naturalLanguageScriptureSearchEnabled(isDebugBuild: false)
+        )
+    }
+
+    func testDebugFlagMarksAISearchRankingAsExperimental() {
+        XCTAssertTrue(
+            InternalFeatureFlags.naturalLanguageScriptureSearchEnabled(isDebugBuild: true)
+        )
+        XCTAssertEqual(
+            SearchRankingSource.aiAssisted.experimentalDisplayName,
+            "Experimental AI-assisted ranking"
+        )
     }
 
     func testNaturalLanguageFixtureQueriesProduceBoundedExpansionTerms() {
@@ -197,15 +295,23 @@ private final class StubSearchDataSource: ScriptureSearchDataSource {
 
 @MainActor
 private final class StubCandidateRanker: ScriptureCandidateRanking {
-    let isAvailable = true
+    let isAvailable: Bool
     private(set) var callCount = 0
 
     private let proposedIndices: [Int]
-    private let shouldThrow: Bool
+    private let error: ScriptureRankingError?
+    private let delayNanoseconds: UInt64
 
-    init(proposedIndices: [Int], shouldThrow: Bool = false) {
+    init(
+        isAvailable: Bool = true,
+        proposedIndices: [Int],
+        error: ScriptureRankingError? = nil,
+        delayNanoseconds: UInt64 = 0
+    ) {
+        self.isAvailable = isAvailable
         self.proposedIndices = proposedIndices
-        self.shouldThrow = shouldThrow
+        self.error = error
+        self.delayNanoseconds = delayNanoseconds
     }
 
     func rankedCandidateIndices(
@@ -214,8 +320,11 @@ private final class StubCandidateRanker: ScriptureCandidateRanking {
         limit: Int
     ) async throws -> [Int] {
         callCount += 1
-        if shouldThrow {
-            throw ScriptureRankingError.unavailable
+        if delayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: delayNanoseconds)
+        }
+        if let error {
+            throw error
         }
         return proposedIndices
     }

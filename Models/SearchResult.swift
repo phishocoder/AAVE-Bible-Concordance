@@ -102,6 +102,19 @@ struct SearchResultPage: Sendable {
     let results: [SearchResult]
     let totalCount: Int
     let limit: Int
+    let rankingSource: SearchRankingSource
+
+    init(
+        results: [SearchResult],
+        totalCount: Int,
+        limit: Int,
+        rankingSource: SearchRankingSource = .lexical
+    ) {
+        self.results = results
+        self.totalCount = totalCount
+        self.limit = limit
+        self.rankingSource = rankingSource
+    }
 
     var isLimited: Bool {
         totalCount > results.count
@@ -110,6 +123,25 @@ struct SearchResultPage: Sendable {
     static func empty(limit: Int) -> SearchResultPage {
         SearchResultPage(results: [], totalCount: 0, limit: limit)
     }
+}
+
+enum SearchRankingSource: Equatable, Sendable {
+    case lexical
+    case aiAssisted
+    case aiFallback
+
+#if DEBUG
+    var experimentalDisplayName: String {
+        switch self {
+        case .lexical:
+            return "Lexical ranking"
+        case .aiAssisted:
+            return "Experimental AI-assisted ranking"
+        case .aiFallback:
+            return "Lexical fallback after experimental AI failure"
+        }
+    }
+#endif
 }
 
 struct SearchResultRanker {

@@ -2,8 +2,24 @@ import Foundation
 
 enum InternalFeatureFlags {
 #if DEBUG
-    static let naturalLanguageScriptureSearchEnabled = true
+    private static let isDebugBuild = true
 #else
-    static let naturalLanguageScriptureSearchEnabled = false
+    private static let isDebugBuild = false
 #endif
+
+    static var naturalLanguageScriptureSearchEnabled: Bool {
+        naturalLanguageScriptureSearchEnabled(isDebugBuild: isDebugBuild)
+    }
+
+    static var studyGuideFoundationModelsEnabled: Bool {
+        studyGuideFoundationModelsEnabled(isDebugBuild: isDebugBuild)
+    }
+
+    static func naturalLanguageScriptureSearchEnabled(isDebugBuild: Bool) -> Bool {
+        isDebugBuild
+    }
+
+    static func studyGuideFoundationModelsEnabled(isDebugBuild: Bool) -> Bool {
+        isDebugBuild
+    }
 }

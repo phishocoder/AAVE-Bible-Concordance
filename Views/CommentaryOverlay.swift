@@ -51,11 +51,10 @@ struct CommentaryOverlay: View {
                 Divider()
 
                 if let verseText {
-                    commentarySection(
-                        title: "Scripture Translation",
-                        caption: settings.preferredTranslation,
-                        systemImage: "text.book.closed",
-                        content: verseText
+                    ScriptureExcerptSection(
+                        translation: settings.preferredTranslation,
+                        text: verseText,
+                        colorScheme: colorScheme
                     )
                 } else if isLoadingVerse {
                     ProgressView("Loading verse…")
@@ -63,11 +62,9 @@ struct CommentaryOverlay: View {
                 }
 
                 if let commentary = commentaryText {
-                    commentarySection(
-                        title: "Real Talk Commentary",
-                        caption: "Reflection and teaching layer",
-                        systemImage: "lightbulb.fill",
-                        content: commentary
+                    CommentaryArticleSection(
+                        commentary: commentary,
+                        colorScheme: colorScheme
                     )
 
                     HStack(spacing: 10) {
@@ -103,38 +100,6 @@ struct CommentaryOverlay: View {
             for: verse.book,
             chapter: verse.chapter,
             verse: verse.verse
-        )
-    }
-
-    private func commentarySection(title: String, caption: String, systemImage: String, content: String) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: systemImage)
-                    .foregroundStyle(systemImage == "lightbulb.fill" ? .yellow : .secondary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                    Text(caption)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            Text(content)
-                .font(.body)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.white.opacity(0.7))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(Color.white.opacity(colorScheme == .dark ? 0.12 : 0.2), lineWidth: 1)
-                )
         )
     }
 
@@ -176,6 +141,78 @@ struct CommentaryOverlay: View {
         } catch {
             verseText = nil
         }
+    }
+}
+
+private struct ScriptureExcerptSection: View {
+    let translation: String
+    let text: String
+    let colorScheme: ColorScheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "text.book.closed")
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Scripture Translation")
+                        .font(.subheadline.weight(.semibold))
+                    Text(translation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Text(text)
+                .font(.body)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.white.opacity(0.7))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(colorScheme == .dark ? 0.12 : 0.2), lineWidth: 1)
+                )
+        )
+    }
+}
+
+private struct CommentaryArticleSection: View {
+    let commentary: String
+    let colorScheme: ColorScheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundStyle(.yellow)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Real Talk Commentary")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Reflection and teaching layer")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            CommentaryArticleText(content: commentary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.white.opacity(0.7))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(colorScheme == .dark ? 0.12 : 0.2), lineWidth: 1)
+                )
+            )
     }
 }
 

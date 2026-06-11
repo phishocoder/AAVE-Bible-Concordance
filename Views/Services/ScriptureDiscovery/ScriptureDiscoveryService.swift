@@ -20,19 +20,21 @@ final class DefaultScriptureDiscoveryService: ScriptureDiscovering {
     static let shared = DefaultScriptureDiscoveryService()
 
     private static let candidateLimit = 100
-
     private let dataSource: any ScriptureSearchDataSource
     private let ranker: any ScriptureCandidateRanking
     private let isNaturalLanguageRankingEnabled: Bool
+    private let rankingTimeoutNanoseconds: UInt64
 
     init(
         dataSource: any ScriptureSearchDataSource,
         ranker: any ScriptureCandidateRanking,
-        isNaturalLanguageRankingEnabled: Bool
+        isNaturalLanguageRankingEnabled: Bool,
+        rankingTimeoutNanoseconds: UInt64 = 3_000_000_000
     ) {
         self.dataSource = dataSource
         self.ranker = ranker
         self.isNaturalLanguageRankingEnabled = isNaturalLanguageRankingEnabled
+        self.rankingTimeoutNanoseconds = rankingTimeoutNanoseconds
     }
 
     convenience init() {
@@ -60,42 +62,97 @@ final class DefaultScriptureDiscoveryService: ScriptureDiscovering {
             limit: Self.candidateLimit
         )
         guard ranker.isAvailable else {
-            return limitedPage(from: lexicalPage.results, totalCount: lexicalPage.totalCount, limit: limit)
+            return limitedPage(
+                from: lexicalPage.results,
+                totalCount: lexicalPage.totalCount,
+                limit: limit,
+                rankingSource: .lexical
+            )
         }
 
-        let candidates = try await candidateResults(query: trimmed, lexicalResults: lexicalPage.results)
+        let candidates: [SearchResult]
+        do {
+            candidates = try await candidateResults(query: trimmed, lexicalResults: lexicalPage.results)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return limitedPage(
+                from: lexicalPage.results,
+                totalCount: lexicalPage.totalCount,
+                limit: limit,
+                rankingSource: .aiFallback
+            )
+        }
         guard !candidates.isEmpty else {
             return limitedPage(from: lexicalPage.results, totalCount: lexicalPage.totalCount, limit: limit)
         }
 
         do {
-            let proposedIndices = try await ranker.rankedCandidateIndices(
+            let proposedIndices = try await rankedCandidateIndices(
                 query: trimmed,
                 candidates: rankingCandidates(from: candidates),
-                limit: limit
+                limit: max(0, limit)
             )
             let validated = ScriptureCitationValidator.validatedOrder(
                 proposedIndices: proposedIndices,
                 candidateCount: candidates.count
             )
             guard !validated.isEmpty else {
-                return limitedPage(from: lexicalPage.results, totalCount: lexicalPage.totalCount, limit: limit)
+                return limitedPage(
+                    from: lexicalPage.results,
+                    totalCount: lexicalPage.totalCount,
+                    limit: limit,
+                    rankingSource: .aiFallback
+                )
             }
 
             let completed = ScriptureCitationValidator.completeOrder(
                 validatedIndices: validated,
                 candidateCount: candidates.count
             )
-            let results = completed.prefix(max(0, limit)).map { candidates[$0] }
+            let safeLimit = max(0, limit)
+            let results = completed.prefix(safeLimit).map { candidates[$0] }
             return SearchResultPage(
                 results: results,
                 totalCount: candidates.count,
-                limit: max(0, limit)
+                limit: safeLimit,
+                rankingSource: .aiAssisted
             )
         } catch is CancellationError {
             throw CancellationError()
         } catch {
-            return limitedPage(from: lexicalPage.results, totalCount: lexicalPage.totalCount, limit: limit)
+            return limitedPage(
+                from: lexicalPage.results,
+                totalCount: lexicalPage.totalCount,
+                limit: limit,
+                rankingSource: .aiFallback
+            )
+        }
+    }
+
+    private func rankedCandidateIndices(
+        query: String,
+        candidates: [ScriptureRankingCandidate],
+        limit: Int
+    ) async throws -> [Int] {
+        try await withThrowingTaskGroup(of: [Int].self) { group in
+            group.addTask {
+                try await self.ranker.rankedCandidateIndices(
+                    query: query,
+                    candidates: candidates,
+                    limit: limit
+                )
+            }
+            group.addTask {
+                try await Task.sleep(nanoseconds: self.rankingTimeoutNanoseconds)
+                throw ScriptureRankingError.timedOut
+            }
+
+            guard let result = try await group.next() else {
+                throw ScriptureRankingError.unavailable
+            }
+            group.cancelAll()
+            return result
         }
     }
 
@@ -134,13 +191,15 @@ final class DefaultScriptureDiscoveryService: ScriptureDiscovering {
     private func limitedPage(
         from results: [SearchResult],
         totalCount: Int,
-        limit: Int
+        limit: Int,
+        rankingSource: SearchRankingSource = .lexical
     ) -> SearchResultPage {
         let safeLimit = max(0, limit)
         return SearchResultPage(
             results: Array(results.prefix(safeLimit)),
             totalCount: totalCount,
-            limit: safeLimit
+            limit: safeLimit,
+            rankingSource: rankingSource
         )
     }
 }

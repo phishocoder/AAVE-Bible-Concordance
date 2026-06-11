@@ -6,6 +6,7 @@ import FoundationModels
 
 enum ScriptureRankingError: Error {
     case unavailable
+    case timedOut
 }
 
 @MainActor
@@ -45,7 +46,7 @@ struct FoundationModelScriptureRanker: ScriptureCandidateRanking {
 private struct FoundationModelRankingResponse {
     @Guide(
         description: "Candidate indices ordered from most relevant to least relevant",
-        .maximumCount(25),
+        .maximumCount(50),
         .element(.range(0...99))
     )
     var indices: [Int]
@@ -73,7 +74,7 @@ private extension FoundationModelScriptureRanker {
         let prompt = """
         User search: \(query)
 
-        Return up to \(min(max(0, limit), 25)) unique candidate indices in relevance order.
+        Return up to \(min(max(0, limit), candidates.count)) unique candidate indices in relevance order.
 
         Candidates:
         \(candidateList)

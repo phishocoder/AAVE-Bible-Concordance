@@ -1,5 +1,9 @@
 # CODEX.md — Operating Rules
 
+## Canonical Xcode project
+- Always open, build, test, and run `/Users/philshobo/Documents/Projects/AAVE-Bible-Concordance/AAVE Bible Concordance.xcodeproj`.
+- Do not create or use numbered duplicate projects or nested repository copies.
+
 ## Session startup checklist
 1) Read `progress.md` and identify current step in Docs/IMPLEMENTATION_PLAN.md
 2) Re-read the relevant sections in Docs/*

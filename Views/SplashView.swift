@@ -12,7 +12,7 @@ struct SplashView: View {
     @State private var currentIndex = 0
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion = ""
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
+    private let whatsNewRelease = "1.5-june-reader-update"
     
     let taglines = [
         ("God's Word. Our Voice.", "🗣️"),
@@ -23,11 +23,10 @@ struct SplashView: View {
     ]
 
     let whatsNewItems = [
-        ("📌", "Daily Verse Live Activity on your Lock Screen"),
-        ("🔴", "Jesus Said mode for red-letter verses"),
-        ("🔤", "Pick your Lock Screen verse version"),
-        ("🔗", "Tap Live Activity to open the verse"),
-        ("✨", "Polished Dynamic Island layout")
+        ("🔎", "Better Scripture search for references, exact phrases, and important words"),
+        ("🛡️", "Grace Pass now clearly protects your streak automatically after one missed day"),
+        ("⚡️", "Faster, smoother chapter reading with nearby chapters prepared in advance"),
+        ("📖", "More responsive verse selection, commentary, comparison, and sharing")
     ]
     
     let timer = Timer.publish(every: 2.6, on: .main, in: .common).autoconnect()
@@ -91,9 +90,9 @@ struct SplashView: View {
                 }
                 .padding(.horizontal, 28)
 
-                if lastSeenWhatsNewVersion != currentVersion {
+                if lastSeenWhatsNewVersion != whatsNewRelease {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Welcome back — what’s new")
+                        Text("What’s new in version 1.5")
                             .font(AAVETypography.sectionTitle)
                             .foregroundStyle(.primary)
 
@@ -129,8 +128,8 @@ struct SplashView: View {
                     if appState.isInitialLoadComplete {
                         Button(action: {
                             withAnimation(.easeInOut) {
-                                if lastSeenWhatsNewVersion != currentVersion {
-                                    lastSeenWhatsNewVersion = currentVersion
+                                if lastSeenWhatsNewVersion != whatsNewRelease {
+                                    lastSeenWhatsNewVersion = whatsNewRelease
                                 }
                                 appState.continueToApp()
                             }

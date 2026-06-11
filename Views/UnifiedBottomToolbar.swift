@@ -105,6 +105,7 @@ struct UnifiedBottomToolbar: View {
                     showShareSheet = true
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     AchievementService.shared.recordShare()
+                    trackSelectedVerses { .verseShared(reference: $0) }
                 }
                 ToolbarButton(icon: isBookmarked() ? "bookmark.fill" : "bookmark") {
                     toggleBookmark()
@@ -118,6 +119,7 @@ struct UnifiedBottomToolbar: View {
                 }
                 if !viewModel.isMultiSelectMode {
                     ToolbarButton(icon: "doc.text.magnifyingglass") {
+                        trackSelectedVerses { .compareOpened(reference: $0) }
                         showingTranslations = true
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
@@ -148,6 +150,12 @@ struct UnifiedBottomToolbar: View {
     private func dismissSelection() {
         viewModel.cancelMultiSelect()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func trackSelectedVerses(_ event: (VerseReference) -> ReaderAnalyticsEvent) {
+        for verse in viewModel.orderedSelectedVerses {
+            ReaderAnalytics.shared.track(event(verse.reference))
+        }
     }
     
     private func toggleSelectAll() {

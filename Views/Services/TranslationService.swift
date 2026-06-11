@@ -254,19 +254,32 @@ class TranslationService: ObservableObject {
     }
     
     func getVerseCommentary(for book: String, chapter: Int, verse: Int) -> String? {
-        // Convert chapter and verse to strings to match the JSON structure
         let key = "\(book)_\(String(chapter))_\(String(verse))"
-        let result = commentary[key]
-        print("DEBUG: Getting commentary for \(key): \(result != nil)")
-        return result
+        return commentary[key]
     }
     
     func hasCommentary(for book: String, chapter: Int, verse: Int) -> Bool {
-        // Convert chapter and verse to strings to match the JSON structure
         let key = "\(book)_\(String(chapter))_\(String(verse))"
-        let result = commentary[key] != nil
-        print("DEBUG: Checking commentary for \(key): \(result)")
-        return result
+        return commentary[key] != nil
+    }
+
+    func getAAVEChapter(book: String, chapter: Int) throws -> [VerseItem] {
+        guard let chapterVerses = aaveTranslations[book]?[String(chapter)],
+              let verseCount = chapterVerseCount[book]?[chapter] else {
+            throw BibleError.chapterNotFound
+        }
+
+        return try (1...verseCount).map { number in
+            guard let text = chapterVerses[String(number)] else {
+                throw BibleError.verseNotFound
+            }
+
+            return VerseItem(
+                number: number,
+                text: text.isEmpty ? "Coming Soon - AAVE Translation" : text,
+                reference: VerseReference(book: book, chapter: chapter, verse: number)
+            )
+        }
     }
     
     func getVerseCount(for book: String, chapter: Int, translation: String) async throws -> Int {
