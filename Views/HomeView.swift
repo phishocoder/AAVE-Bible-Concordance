@@ -259,7 +259,7 @@ struct HomeView: View {
     private var personalizationCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("For You Today")
+                Text("Continue Your Journey")
                     .font(.headline)
                     .fontWeight(.bold)
                 Spacer()
@@ -485,7 +485,7 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "sun.max.fill")
                         .foregroundColor(.yellow)
-                    Text("Today Focus")
+                    Text("For You Today")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -525,7 +525,7 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "sun.max.fill")
                         .foregroundColor(.yellow)
-                    Text("Today Focus")
+                    Text("For You Today")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -563,7 +563,7 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "sun.max.fill")
                         .foregroundColor(.yellow)
-                    Text("Today Focus")
+                    Text("For You Today")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)

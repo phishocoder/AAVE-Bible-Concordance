@@ -89,61 +89,37 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
         let userInfo = response.notification.request.content.userInfo
 
-        switch response.notification.request.content.categoryIdentifier {
-        case "VERSE_OF_DAY", "MIDWEEK_MOTIVATION", "WEEKEND_REFOCUS":
-            if let route = verseRoute(from: userInfo) {
-                Task { @MainActor in
-                    NotificationNavigationBridge.shared.enqueue(route)
-                }
-            } else {
+        if let route = NotificationVerseRouteParser.route(from: userInfo) {
+            Task { @MainActor in
+                NotificationNavigationBridge.shared.enqueue(route)
+            }
+        } else {
+            switch response.notification.request.content.categoryIdentifier {
+            case "VERSE_OF_DAY", "MIDWEEK_MOTIVATION", "WEEKEND_REFOCUS":
                 print("Notification tap ignored: missing or malformed verse payload \(userInfo)")
-            }
 
-        case "BETA_FEEDBACK":
-            if response.actionIdentifier == "GIVE_FEEDBACK" {
-                NotificationCenter.default.post(
-                    name: Notification.Name("ShowFeedbackForm"),
-                    object: nil
-                )
-            }
+            case "BETA_FEEDBACK":
+                if response.actionIdentifier == "GIVE_FEEDBACK" {
+                    NotificationCenter.default.post(
+                        name: Notification.Name("ShowFeedbackForm"),
+                        object: nil
+                    )
+                }
 
-        case "FEATURE_DISCOVERY":
-            if let feature = userInfo["feature"] as? String {
-                NotificationCenter.default.post(
-                    name: Notification.Name("ShowFeature"),
-                    object: nil,
-                    userInfo: ["feature": feature]
-                )
-            }
+            case "FEATURE_DISCOVERY":
+                if let feature = userInfo["feature"] as? String {
+                    NotificationCenter.default.post(
+                        name: Notification.Name("ShowFeature"),
+                        object: nil,
+                        userInfo: ["feature": feature]
+                    )
+                }
 
-        default:
-            break
+            default:
+                break
+            }
         }
 
         completionHandler()
-    }
-
-    private func verseRoute(from userInfo: [AnyHashable: Any]) -> AppRoute? {
-        guard let rawBook = userInfo["book"] as? String,
-              let chapter = notificationIntValue(userInfo["chapter"]),
-              let verse = notificationIntValue(userInfo["verse"]) else {
-            return nil
-        }
-
-        let canonicalBook = BookNameNormalizer.canonicalBookName(rawBook) ?? rawBook
-        return .bible(bookID: canonicalBook, chapter: chapter, verse: verse)
-    }
-
-    private func notificationIntValue(_ rawValue: Any?) -> Int? {
-        switch rawValue {
-        case let value as Int:
-            return value
-        case let value as NSNumber:
-            return value.intValue
-        case let value as String:
-            return Int(value.trimmingCharacters(in: .whitespacesAndNewlines))
-        default:
-            return nil
-        }
     }
 }

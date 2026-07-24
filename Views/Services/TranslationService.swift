@@ -111,6 +111,7 @@ class TranslationService: ObservableObject {
         
         do {
             try await loadAAVETranslations()
+            removeCommentaryThatDuplicatesScripture()
             try await buildSearchIndex()
             await MainActor.run {
                 isLoaded = true
@@ -185,7 +186,26 @@ class TranslationService: ObservableObject {
             }
         }
     }
-    
+
+    private func removeCommentaryThatDuplicatesScripture() {
+        for (book, chapters) in aaveTranslations {
+            for (chapter, verses) in chapters {
+                for (verse, scriptureText) in verses {
+                    let key = "\(book)_\(chapter)_\(verse)"
+                    guard let commentaryText = commentary[key] else { continue }
+
+                    let normalizedScripture = scriptureText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let normalizedCommentary = commentaryText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    if !normalizedScripture.isEmpty,
+                       normalizedScripture == normalizedCommentary {
+                        commentary.removeValue(forKey: key)
+                    }
+                }
+            }
+        }
+    }
+
     private func buildSearchIndex() async throws {
         searchIndex.removeAll()
         

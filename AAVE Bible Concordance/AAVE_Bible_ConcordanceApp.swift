@@ -39,13 +39,6 @@ struct AAVE_Bible_ConcordanceApp: App {
                             
                             // Attempt to restore Sign in with Apple without prompting the user again.
                             appleAuthManager.restorePreviousSignIn()
-                            
-                            // Update verse of day content for today's notification
-                            notificationManager.updateVerseOfDayContent {
-                                #if DEBUG
-                                print("Verse of day notification content updated")
-                                #endif
-                            }
                         }
                 }
             }
@@ -97,11 +90,15 @@ struct AAVE_Bible_ConcordanceApp: App {
 
         selectedTabRawValue = AppTab.bible.rawValue
         router.requestDeepLink(.verseDetail(reference: reference))
+        appState.continueToApp()
     }
 
     private func consumePendingNotificationRouteIfNeeded() {
         guard let route = notificationNavigationBridge.consume() else { return }
         selectedTabRawValue = AppTab.bible.rawValue
         router.requestDeepLink(route)
+        // Skip the decorative launch gate for a notification tap. ContentView still
+        // owns the real scripture-loading state before the destination is shown.
+        appState.continueToApp()
     }
 }

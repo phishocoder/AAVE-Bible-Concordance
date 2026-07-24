@@ -34,6 +34,9 @@ final class NotificationManager: ObservableObject {
     private let calendar = Calendar.current
     private var usageTracker = AppUsageTracker()
     private var rateLimiter = NotificationRateLimiter()
+    private var verseOfDaySchedulingTask: Task<Void, Never>?
+    private static let verseOfDayIdentifierPrefix = "verse-of-day"
+    private static let verseOfDayScheduleCount = 30
 
     enum MilestoneType {
         case finishedBook(book: String)
@@ -119,27 +122,17 @@ final class NotificationManager: ObservableObject {
             return
         }
 
-        cancelVerseOfDayNotifications()
-
-        Task {
-            let content = await makeVerseOfDayNotificationContent()
-            let components = dailyVerseTimeComponents(referenceDate: Date())
-            var triggerDateComponents = DateComponents()
-            triggerDateComponents.hour = components.hour
-            triggerDateComponents.minute = components.minute
-
-            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: true)
-            let request = UNNotificationRequest(identifier: "verse-of-day", content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error {
-                    print("Error scheduling verse of day notification: \(error)")
-                }
-            }
+        verseOfDaySchedulingTask?.cancel()
+        verseOfDaySchedulingTask = Task {
+            await replaceVerseOfDayNotifications(referenceDate: Date())
         }
     }
 
     func cancelVerseOfDayNotifications() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["verse-of-day"])
+        verseOfDaySchedulingTask?.cancel()
+        Task {
+            await removePendingVerseOfDayNotifications()
+        }
     }
 
     func cancelAllNotifications() {
@@ -165,32 +158,16 @@ final class NotificationManager: ObservableObject {
         isAuthorized = false
     }
 
-    func updateVerseOfDayContent(completion: @escaping () -> Void) {
-        Task {
-            let updatedContent = await makeVerseOfDayNotificationContent()
-            let center = UNUserNotificationCenter.current()
-            let requests = await center.pendingNotificationRequests()
-            let vodRequests = requests.filter { $0.identifier == "verse-of-day" }
-
-            for request in vodRequests {
-                let updatedRequest = UNNotificationRequest(
-                    identifier: request.identifier,
-                    content: updatedContent,
-                    trigger: request.trigger
-                )
-                do {
-                    try await center.add(updatedRequest)
-                } catch {
-                    print("Error updating verse of day notification: \(error)")
-                }
-            }
-            completion()
-        }
-    }
-
     private func makeVerseOfDayNotificationContent(date: Date = Date()) async -> UNMutableNotificationContent {
         let settings = SettingsViewModel.shared
         let preferredVersion = VerseVersion(rawValue: settings.verseOfDayTranslation) ?? .aave
+        let expectedReference = VerseOfDayProvider.reference(
+            jesusSaidOnly: false,
+            testament: settings.verseOfDayTestament,
+            book: settings.verseOfDayBook == "Any" ? nil : settings.verseOfDayBook,
+            date: date,
+            calendar: calendar
+        )
         let selection = await VerseOfDayProvider.today(
             jesusSaidOnly: false,
             preferredVersion: preferredVersion,
@@ -201,25 +178,90 @@ final class NotificationManager: ObservableObject {
         )
 
         let content = UNMutableNotificationContent()
-        content.title = "Daily Verse"
+        content.title = "For You Today"
         content.sound = .default
         content.categoryIdentifier = "VERSE_OF_DAY"
 
         if let selection,
            let reference = VerseOfDayProvider.reference(forVerseId: selection.verseId) {
             content.body = "\(selection.reference) - \(selection.excerpt)"
-            content.userInfo = [
-                "book": reference.book,
-                "chapter": reference.chapter,
-                "verse": reference.verse
-            ]
+            applyVersePayload(reference, to: content)
             debugLog("notification content date=\(date) reference=\(selection.reference) version=\(selection.versionUsed.rawValue)")
+        } else if let expectedReference {
+            content.body = "\(expectedReference.displayString) - Tap to read today's verse."
+            applyVersePayload(expectedReference, to: content)
+            debugLog("notification content used reference-only fallback date=\(date) reference=\(expectedReference.displayString)")
         } else {
             content.body = NotificationMessages.message(for: .dailyVerse, style: messageStyle)
             debugLog("notification content fell back to generic daily message for date=\(date)")
         }
 
         return content
+    }
+
+    private func replaceVerseOfDayNotifications(referenceDate: Date) async {
+        let center = UNUserNotificationCenter.current()
+        await removePendingVerseOfDayNotifications(center: center)
+        guard !Task.isCancelled else { return }
+
+        let timeComponents = dailyVerseTimeComponents(referenceDate: referenceDate)
+        let deliveryDates = DailyVerseNotificationPlan.deliveryDates(
+            after: referenceDate,
+            timeComponents: timeComponents,
+            calendar: calendar,
+            count: Self.verseOfDayScheduleCount
+        )
+
+        for deliveryDate in deliveryDates {
+            let content = await makeVerseOfDayNotificationContent(date: deliveryDate)
+            guard !Task.isCancelled else { return }
+            let triggerComponents = calendar.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: deliveryDate
+            )
+            let trigger = UNCalendarNotificationTrigger(
+                dateMatching: triggerComponents,
+                repeats: false
+            )
+            let identifier = DailyVerseNotificationPlan.identifier(
+                for: deliveryDate,
+                calendar: calendar,
+                prefix: Self.verseOfDayIdentifierPrefix
+            )
+            let request = UNNotificationRequest(
+                identifier: identifier,
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+            } catch {
+                print("Error scheduling verse of day notification for \(deliveryDate): \(error)")
+            }
+        }
+    }
+
+    private func removePendingVerseOfDayNotifications(
+        center: UNUserNotificationCenter = .current()
+    ) async {
+        let requests = await center.pendingNotificationRequests()
+        let identifiers = requests
+            .map(\.identifier)
+            .filter { $0.hasPrefix(Self.verseOfDayIdentifierPrefix) }
+        guard !identifiers.isEmpty else { return }
+        center.removePendingNotificationRequests(withIdentifiers: identifiers)
+    }
+
+    private func applyVersePayload(
+        _ reference: VerseReference,
+        to content: UNMutableNotificationContent
+    ) {
+        content.userInfo = [
+            "book": reference.book,
+            "chapter": reference.chapter,
+            "verse": reference.verse
+        ]
     }
 
     func scheduleMidweekMotivation() {
@@ -706,5 +748,46 @@ struct StreakNudgePolicy {
         guard !hasNotificationSentToday else { return false }
         guard let threshold = Calendar.current.date(byAdding: .hour, value: 2, to: baselineDate) else { return false }
         return now >= threshold
+    }
+}
+
+struct DailyVerseNotificationPlan {
+    static func deliveryDates(
+        after referenceDate: Date,
+        timeComponents: DateComponents,
+        calendar: Calendar,
+        count: Int
+    ) -> [Date] {
+        guard count > 0 else { return [] }
+
+        var matchingComponents = DateComponents()
+        matchingComponents.hour = min(23, max(0, timeComponents.hour ?? 8))
+        matchingComponents.minute = min(59, max(0, timeComponents.minute ?? 0))
+
+        guard let firstDelivery = calendar.nextDate(
+            after: referenceDate,
+            matching: matchingComponents,
+            matchingPolicy: .nextTime,
+            repeatedTimePolicy: .first,
+            direction: .forward
+        ) else {
+            return []
+        }
+
+        return (0..<count).compactMap { dayOffset in
+            calendar.date(byAdding: .day, value: dayOffset, to: firstDelivery)
+        }
+    }
+
+    static func identifier(
+        for deliveryDate: Date,
+        calendar: Calendar,
+        prefix: String = "verse-of-day"
+    ) -> String {
+        let components = calendar.dateComponents([.year, .month, .day], from: deliveryDate)
+        let year = components.year ?? 0
+        let month = components.month ?? 0
+        let day = components.day ?? 0
+        return String(format: "%@-%04d-%02d-%02d", prefix, year, month, day)
     }
 }

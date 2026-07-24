@@ -65,6 +65,28 @@ final class BibleModelsTests: XCTestCase {
         XCTAssertFalse(text.isEmpty)
         XCTAssertNotEqual(text, "Coming Soon - AAVE Translation")
     }
+
+    func testDuplicateScriptureIsNotExposedAsCommentary() async throws {
+        let service = TranslationService.shared
+        try await service.loadTranslations()
+
+        for verse in 1...17 {
+            XCTAssertFalse(
+                service.hasCommentary(for: "Leviticus", chapter: 1, verse: verse),
+                "Leviticus 1:\(verse) must not expose duplicated scripture as commentary"
+            )
+            XCTAssertNil(
+                service.getVerseCommentary(for: "Leviticus", chapter: 1, verse: verse)
+            )
+        }
+
+        XCTAssertFalse(service.hasCommentary(for: "1 Corinthians", chapter: 3, verse: 23))
+        XCTAssertFalse(service.hasCommentary(for: "1 Corinthians", chapter: 13, verse: 6))
+        XCTAssertTrue(
+            service.hasCommentary(for: "Leviticus", chapter: 2, verse: 1),
+            "Valid nearby commentary should remain available"
+        )
+    }
     
     // MARK: - BibleBook Tests
     func testBibleBookIdentifiable() {

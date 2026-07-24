@@ -35,6 +35,33 @@ enum AppTab: String, Hashable {
     case bible, home, search, bookmarks, more
 }
 
+enum NotificationVerseRouteParser {
+    static func route(from userInfo: [AnyHashable: Any]) -> AppRoute? {
+        guard let rawBook = userInfo["book"] as? String,
+              let book = BookNameNormalizer.canonicalBookName(rawBook),
+              let chapter = intValue(userInfo["chapter"]),
+              let verse = intValue(userInfo["verse"]),
+              validateVerseCount(book: book, chapter: chapter, verse: verse) else {
+            return nil
+        }
+
+        return .bible(bookID: book, chapter: chapter, verse: verse)
+    }
+
+    private static func intValue(_ rawValue: Any?) -> Int? {
+        switch rawValue {
+        case let value as Int:
+            return value
+        case let value as NSNumber:
+            return value.intValue
+        case let value as String:
+            return Int(value.trimmingCharacters(in: .whitespacesAndNewlines))
+        default:
+            return nil
+        }
+    }
+}
+
 @MainActor
 final class NotificationNavigationBridge: ObservableObject {
     static let shared = NotificationNavigationBridge()

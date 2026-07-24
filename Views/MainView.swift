@@ -140,8 +140,15 @@ private struct BibleTabView: View {
             }
         }
         .onAppear {
+            // A notification can be tapped before this stack exists on a cold launch.
+            if let route = router.pendingDeepLink {
+                router.pendingDeepLink = nil
+                router.resetAndGoTo(route)
+                return
+            }
+
             // If we have a saved reading location and no active navigation, restore it.
-            if router.pendingDeepLink == nil, router.path.isEmpty, !lastBook.isEmpty {
+            if router.path.isEmpty, !lastBook.isEmpty {
                 let safeChapter = max(1, lastChapter)
                 let verse = lastVerse > 0 ? lastVerse : nil
                 let canonicalBook = BookNameNormalizer.canonicalBookName(lastBook) ?? lastBook

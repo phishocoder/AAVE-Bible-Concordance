@@ -42,6 +42,7 @@ struct VerseOfDaySettingsView: View {
                                 settings.verseOfDayBook = "Any"
                             }
                         }
+                        generateNewVerse()
                     }
                 }
                 
@@ -59,8 +60,11 @@ struct VerseOfDaySettingsView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                     .onChange(of: settings.verseOfDayBook) { oldValue, newValue in
-                        if newValue != "Any" && newValue != oldValue && isBookAvailable(newValue) {
+                        guard newValue != oldValue else { return }
+                        if newValue == "Any" || isBookAvailable(newValue) {
                             generateNewVerse()
+                        }
+                        if newValue != "Any" && isBookAvailable(newValue) {
                             showToastMessage("New verse from \(newValue) selected!")
                         }
                     }
@@ -124,6 +128,7 @@ struct VerseOfDaySettingsView: View {
     
     private func generateNewVerse() {
         NotificationCenter.default.post(name: Notification.Name("RefreshVerseOfTheDay"), object: nil)
+        NotificationManager.shared.scheduleVerseOfDayNotification()
     }
     
     private func showToastMessage(_ message: String) {

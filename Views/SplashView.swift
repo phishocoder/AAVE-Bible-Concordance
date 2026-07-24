@@ -12,7 +12,7 @@ struct SplashView: View {
     @State private var currentIndex = 0
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion = ""
-    private let whatsNewRelease = "1.5-june-reader-update"
+    private let whatsNewRelease = "1.6-june-reader-update"
     
     let taglines = [
         ("God's Word. Our Voice.", "🗣️"),
@@ -92,7 +92,7 @@ struct SplashView: View {
 
                 if lastSeenWhatsNewVersion != whatsNewRelease {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("What’s new in version 1.5")
+                        Text("What’s new in version 1.6")
                             .font(AAVETypography.sectionTitle)
                             .foregroundStyle(.primary)
 

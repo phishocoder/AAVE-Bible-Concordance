@@ -165,6 +165,53 @@ final class AAVE_Bible_ConcordanceTests: XCTestCase {
         XCTAssertEqual(reference?.book, "Romans")
     }
 
+    func testDailyVerseNotificationPlanSchedulesDistinctCalendarDays() {
+        let now = date(2026, 2, 14, 7, 30)
+        let deliveryDates = DailyVerseNotificationPlan.deliveryDates(
+            after: now,
+            timeComponents: DateComponents(hour: 8, minute: 0),
+            calendar: calendar,
+            count: 3
+        )
+
+        XCTAssertEqual(deliveryDates.count, 3)
+        XCTAssertEqual(deliveryDates[0], date(2026, 2, 14, 8, 0))
+        XCTAssertEqual(deliveryDates[1], date(2026, 2, 15, 8, 0))
+        XCTAssertEqual(deliveryDates[2], date(2026, 2, 16, 8, 0))
+        XCTAssertEqual(
+            DailyVerseNotificationPlan.identifier(for: deliveryDates[0], calendar: calendar),
+            "verse-of-day-2026-02-14"
+        )
+    }
+
+    func testDailyVerseNotificationPlanSkipsTodaysPastDeliveryTime() {
+        let deliveryDates = DailyVerseNotificationPlan.deliveryDates(
+            after: date(2026, 2, 14, 8, 1),
+            timeComponents: DateComponents(hour: 8, minute: 0),
+            calendar: calendar,
+            count: 1
+        )
+
+        XCTAssertEqual(deliveryDates, [date(2026, 2, 15, 8, 0)])
+    }
+
+    func testNotificationVerseRouteParserCanonicalizesAndValidatesPayload() {
+        let route = NotificationVerseRouteParser.route(from: [
+            "book": "Psalm",
+            "chapter": "23",
+            "verse": NSNumber(value: 1)
+        ])
+
+        XCTAssertEqual(route, .bible(bookID: "Psalms", chapter: 23, verse: 1))
+        XCTAssertNil(
+            NotificationVerseRouteParser.route(from: [
+                "book": "Psalms",
+                "chapter": 23,
+                "verse": 999
+            ])
+        )
+    }
+
     func testGracePassActivatesAfterExactlyOneMissedDay() {
         XCTAssertTrue(
             GracePassPolicy.shouldActivate(
