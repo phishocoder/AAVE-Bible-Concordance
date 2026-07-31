@@ -155,8 +155,15 @@ struct IconMark: View {
 
 private func deepLinkURL(for state: DailyVerseAttributes.ContentState) -> URL? {
     let mode = state.isJesusSaid ? "jesusSaid" : "daily"
-    let urlString = "aavebible://verse/\(state.verseId)?mode=\(mode)&version=\(state.versionLabel)"
-    return URL(string: urlString)
+    var components = URLComponents()
+    components.scheme = "aavebible"
+    components.host = "verse"
+    components.path = "/\(state.verseId)"
+    components.queryItems = [
+        URLQueryItem(name: "mode", value: mode),
+        URLQueryItem(name: "version", value: state.versionLabel)
+    ]
+    return components.url
 }
 
 private func shortBookRef(from reference: String) -> String {

@@ -38,9 +38,36 @@ enum AppTab: String, Hashable {
 enum NotificationVerseRouteParser {
     static func route(from userInfo: [AnyHashable: Any]) -> AppRoute? {
         guard let rawBook = userInfo["book"] as? String,
-              let book = BookNameNormalizer.canonicalBookName(rawBook),
               let chapter = intValue(userInfo["chapter"]),
-              let verse = intValue(userInfo["verse"]),
+              let verse = intValue(userInfo["verse"]) else {
+            return nil
+        }
+
+        return route(book: rawBook, chapter: chapter, verse: verse)
+    }
+
+    static func route(from url: URL) -> AppRoute? {
+        guard url.scheme?.caseInsensitiveCompare("aavebible") == .orderedSame,
+              url.host?.caseInsensitiveCompare("verse") == .orderedSame else {
+            return nil
+        }
+
+        let pathParts = url.path.split(separator: "/", omittingEmptySubsequences: true)
+        guard pathParts.count == 1 else { return nil }
+
+        let verseIDParts = pathParts[0].split(separator: "-", omittingEmptySubsequences: true)
+        guard verseIDParts.count >= 3,
+              let chapter = Int(verseIDParts[verseIDParts.count - 2]),
+              let verse = Int(verseIDParts[verseIDParts.count - 1]) else {
+            return nil
+        }
+
+        let rawBook = verseIDParts.dropLast(2).joined(separator: " ")
+        return route(book: rawBook, chapter: chapter, verse: verse)
+    }
+
+    private static func route(book rawBook: String, chapter: Int, verse: Int) -> AppRoute? {
+        guard let book = BookNameNormalizer.canonicalBookName(rawBook),
               validateVerseCount(book: book, chapter: chapter, verse: verse) else {
             return nil
         }
