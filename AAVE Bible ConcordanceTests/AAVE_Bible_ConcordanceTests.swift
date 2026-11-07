@@ -212,6 +212,29 @@ final class AAVE_Bible_ConcordanceTests: XCTestCase {
         )
     }
 
+    func testPinnedVerseURLRoutesToExactCanonicalScripture() throws {
+        let url = try XCTUnwrap(
+            URL(string: "aavebible://verse/2-Corinthians-5-17?mode=daily&version=AAVE")
+        )
+
+        XCTAssertEqual(
+            NotificationVerseRouteParser.route(from: url),
+            .bible(bookID: "2 Corinthians", chapter: 5, verse: 17)
+        )
+    }
+
+    func testPinnedVerseURLRejectsIncompleteOrInvalidScripture() throws {
+        let incompleteURL = try XCTUnwrap(URL(string: "aavebible://verse/John-3"))
+        let invalidVerseURL = try XCTUnwrap(URL(string: "aavebible://verse/John-3-999"))
+        let wrongHostURL = try XCTUnwrap(URL(string: "aavebible://chapter/John-3-16"))
+        let wrongSchemeURL = try XCTUnwrap(URL(string: "https://verse/John-3-16"))
+
+        XCTAssertNil(NotificationVerseRouteParser.route(from: incompleteURL))
+        XCTAssertNil(NotificationVerseRouteParser.route(from: invalidVerseURL))
+        XCTAssertNil(NotificationVerseRouteParser.route(from: wrongHostURL))
+        XCTAssertNil(NotificationVerseRouteParser.route(from: wrongSchemeURL))
+    }
+
     func testGracePassActivatesAfterExactlyOneMissedDay() {
         XCTAssertTrue(
             GracePassPolicy.shouldActivate(

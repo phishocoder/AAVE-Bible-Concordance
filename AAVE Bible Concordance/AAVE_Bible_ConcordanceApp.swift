@@ -72,11 +72,8 @@ struct AAVE_Bible_ConcordanceApp: App {
     }
 
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "aavebible" else { return }
-        let components = url.pathComponents
-        guard components.count >= 3, components[1] == "verse" else { return }
+        guard let route = NotificationVerseRouteParser.route(from: url) else { return }
 
-        let verseId = components[2]
         let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let mode = urlComponents?.queryItems?.first(where: { $0.name == "mode" })?.value
         let version = urlComponents?.queryItems?.first(where: { $0.name == "version" })?.value
@@ -86,10 +83,8 @@ struct AAVE_Bible_ConcordanceApp: App {
             #endif
         }
 
-        guard let reference = VerseOfDayProvider.reference(forVerseId: verseId) else { return }
-
         selectedTabRawValue = AppTab.bible.rawValue
-        router.requestDeepLink(.verseDetail(reference: reference))
+        router.requestDeepLink(route)
         appState.continueToApp()
     }
 
