@@ -18,6 +18,7 @@
 - Dedicated iPhone Duo test/visual pass, followed by stable-host archive and App Store Connect release preparation.
 - Duo automated tests passed; folded/expanded visual checks remain blocked by native Device Hub control timeouts. Apple sign-in is restored; Free Apps Agreement is active and this app's prices are zero. Optional Paid Apps terms remain pending; do not change legal/bank/tax settings unless a specific submission blocker requires owner action. Editorial gate is cleared. Cloud Default workflow resolves to stable Xcode 27.2/27B52 and macOS 27.2/26B123, unlike the local beta host.
 - 2026-11-07: Created version 1.7 on existing App Store app 6742935082 and saved release notes; status Prepare for Submission, no build uploaded/submitted yet. Xcode launched the app on the dedicated Duo, but visual inspection still needs Device Hub control; owner asked to bring that window forward.
+- 2026-11-07: Preserved remote pinned-verse fix eed0644 through a normal merge after non-fast-forward push rejection. Combined suite is now 80 tests, all passing on iOS 26.5; merged Release build passed with zero errors/18 existing warnings. Owner-approved App Review contact details are saved in App Store Connect, not in the repository.
 - Add optional achievements empty-state CTA tuning (if needed).
 
 ## Next up
