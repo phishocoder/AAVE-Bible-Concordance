@@ -569,7 +569,9 @@ struct VerseListContent: View {
                         .id(scrollID(for: verse.reference))
                     }
                 }
+                .frame(maxWidth: 760)
                 .padding(.horizontal, 24)
+                .frame(maxWidth: .infinity)
                 .padding(.bottom, 80)
             }
             .simultaneousGesture(

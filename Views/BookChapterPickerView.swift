@@ -10,6 +10,7 @@ struct BookChapterPickerView: View {
     @Binding var selectedChapter: Int
     @Binding var selectedVerse: Int?
     @Environment(\.dismiss) private var dismiss
+    @ScaledMetric(relativeTo: .body) private var gridCellSize: CGFloat = 50
     
     var onSelect: () -> Void
     
@@ -59,7 +60,7 @@ struct BookChapterPickerView: View {
                     
                     // Verse grid
                     ScrollView {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 15) {
+                        LazyVGrid(columns: pickerColumns, spacing: 15) {
                             ForEach(1...getVerseCount(for: book.name, chapter: chapter), id: \.self) { verse in
                                 Button(action: {
                                     selectedBook = book.name
@@ -69,7 +70,7 @@ struct BookChapterPickerView: View {
                                     onSelect()
                                 }) {
                                     Text("\(verse)")
-                                        .frame(width: 50, height: 50)
+                                        .frame(maxWidth: .infinity, minHeight: gridCellSize)
                                         .background(
                                             selectedBook == book.name &&
                                             selectedChapter == chapter &&
@@ -84,6 +85,7 @@ struct BookChapterPickerView: View {
                                         )
                                         .cornerRadius(8)
                                 }
+                                .accessibilityLabel("\(book.name) \(chapter), verse \(verse)")
                             }
                         }
                         .padding()
@@ -144,7 +146,7 @@ struct BookChapterPickerView: View {
                     
                     // Chapter grid
                     ScrollView {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 15) {
+                        LazyVGrid(columns: pickerColumns, spacing: 15) {
                             ForEach(1...book.chapters, id: \.self) { chapter in
                                 Button(action: {
                                     if hasVerses(for: book.name, chapter: chapter) {
@@ -162,7 +164,7 @@ struct BookChapterPickerView: View {
                                 }) {
                                     VStack {
                                         Text("\(chapter)")
-                                            .frame(width: 50, height: 50)
+                                            .frame(maxWidth: .infinity, minHeight: gridCellSize)
                                             .background(
                                                 selectedBook == book.name && selectedChapter == chapter ?
                                                 Color.accentColor : Color.secondary.opacity(0.2)
@@ -180,6 +182,7 @@ struct BookChapterPickerView: View {
                                         }
                                     }
                                 }
+                                .accessibilityLabel("\(book.name), chapter \(chapter)")
                             }
                         }
                         .padding()
@@ -209,6 +212,10 @@ struct BookChapterPickerView: View {
                 }
             }
         }
+    }
+
+    private var pickerColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: gridCellSize), spacing: 15)]
     }
     
     // Filter books by testament

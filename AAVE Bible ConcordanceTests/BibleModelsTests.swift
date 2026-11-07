@@ -88,6 +88,26 @@ final class BibleModelsTests: XCTestCase {
         )
     }
     
+    func testDeuteronomyCommentaryMatchesHarvestAndBoundaryVerses() async throws {
+        let service = TranslationService.shared
+        try await service.loadTranslations()
+
+        let olives = try XCTUnwrap(service.getVerseCommentary(for: "Deuteronomy", chapter: 24, verse: 20))
+        let grapes = try XCTUnwrap(service.getVerseCommentary(for: "Deuteronomy", chapter: 24, verse: 21))
+        let boundary = try XCTUnwrap(service.getVerseCommentary(for: "Deuteronomy", chapter: 27, verse: 17))
+
+        XCTAssertTrue(olives.localizedCaseInsensitiveContains("olive"))
+        XCTAssertTrue(grapes.localizedCaseInsensitiveContains("grape"))
+        XCTAssertTrue(boundary.localizedCaseInsensitiveContains("boundary"))
+        for harvestCommentary in [olives, grapes] {
+            XCTAssertFalse(harvestCommentary.localizedCaseInsensitiveContains("wage"))
+            XCTAssertFalse(harvestCommentary.localizedCaseInsensitiveContains("fair pay"))
+        }
+
+        let wages = try XCTUnwrap(service.getVerseCommentary(for: "Deuteronomy", chapter: 24, verse: 15))
+        XCTAssertTrue(wages.localizedCaseInsensitiveContains("wages"))
+    }
+
     // MARK: - BibleBook Tests
     func testBibleBookIdentifiable() {
         let book = BibleBook(name: "Genesis", chapters: 50, testament: .old)

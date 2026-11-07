@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SplashView: View {
     @EnvironmentObject private var appState: AppState
     @State private var currentIndex = 0
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion = ""
-    private let whatsNewRelease = "1.6-june-reader-update"
+    private let whatsNewRelease = "1.7-commentary-reader-update"
     
     let taglines = [
         ("God's Word. Our Voice.", "🗣️"),
@@ -23,10 +24,10 @@ struct SplashView: View {
     ]
 
     let whatsNewItems = [
-        ("🔎", "Better Scripture search for references, exact phrases, and important words"),
-        ("🛡️", "Grace Pass now clearly protects your streak automatically after one missed day"),
-        ("⚡️", "Faster, smoother chapter reading with nearby chapters prepared in advance"),
-        ("📖", "More responsive verse selection, commentary, comparison, and sharing")
+        ("💡", "Corrected commentary alignment for Deuteronomy chapters 23–27"),
+        ("📖", "More comfortable reading across compact and expanded screens"),
+        ("↕️", "Scrollable commentary and verse actions with larger text"),
+        ("🖼️", "Verse-image previews that fit your app window")
     ]
     
     let timer = Timer.publish(every: 2.6, on: .main, in: .common).autoconnect()
@@ -92,7 +93,7 @@ struct SplashView: View {
 
                 if lastSeenWhatsNewVersion != whatsNewRelease {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("What’s new in version 1.6")
+                        Text("What’s new in version 1.7")
                             .font(AAVETypography.sectionTitle)
                             .foregroundStyle(.primary)
 

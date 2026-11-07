@@ -23,6 +23,7 @@ struct VerseActionSheetView: View {
     let onHighlightColor: (Color) -> Void
     let onRemoveHighlight: () -> Void
     let onCancel: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let highlightColors: [(name: String, color: Color)] = [
         ("Yellow", Color(red: 0.98, green: 0.85, blue: 0.20)),
@@ -85,50 +86,53 @@ struct VerseActionSheetView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            header
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                header
 
-            LazyVGrid(
-                columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
-                spacing: 12
-            ) {
-                ForEach(actions) { action in
-                    trayButton(for: action)
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 150 : 96), spacing: 12)],
+                    spacing: 12
+                ) {
+                    ForEach(actions) { action in
+                        trayButton(for: action)
+                    }
+                }
+
+                if showsHighlightPalette {
+                    highlightPalette
+                }
+
+                HStack {
+                    Spacer()
+                    Button(action: onCancel) {
+                        Text("Cancel")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .padding(.horizontal, 16)
+                            .frame(minHeight: 44)
+                            .background(.thinMaterial, in: Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-
-            if showsHighlightPalette {
-                highlightPalette
-            }
-
-            HStack {
-                Spacer()
-                Button(action: onCancel) {
-                    Text("Cancel")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .padding(.horizontal, 16)
-                        .frame(minHeight: 44)
-                        .background(.thinMaterial, in: Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.18), lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-            }
+            .frame(maxWidth: 720)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 10)
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(verse.reference.displayString)
                 .font(.headline.weight(.semibold))
-                .lineLimit(2)
-                .minimumScaleFactor(0.9)
+                .fixedSize(horizontal: false, vertical: true)
             if let translationLabel, !translationLabel.isEmpty {
                 Text(translationLabel)
                     .font(.footnote)
@@ -139,7 +143,7 @@ struct VerseActionSheetView: View {
     }
 
     private var highlightPalette: some View {
-        HStack(spacing: 10) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 120 : 80), spacing: 10)], alignment: .leading, spacing: 10) {
             ForEach(highlightColors, id: \.name) { item in
                 Button {
                     onHighlightColor(item.color)
@@ -155,6 +159,8 @@ struct VerseActionSheetView: View {
                                     lineWidth: isSelectionVisible(item.color) ? 2.5 : 1
                                 )
                         )
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Highlight \(item.name)")
@@ -170,7 +176,7 @@ struct VerseActionSheetView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.red)
                     .padding(.horizontal, 10)
-                    .frame(minHeight: 34)
+                    .frame(minHeight: 44)
                     .background(
                         Capsule()
                             .fill(Color.red.opacity(0.12))
@@ -225,8 +231,7 @@ struct VerseActionSheetView: View {
                 Text(action.title)
                     .font(.caption.weight(.semibold))
                     .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                    .fixedSize(horizontal: false, vertical: true)
                     .foregroundStyle(.primary)
             }
             .frame(maxWidth: .infinity)

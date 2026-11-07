@@ -89,37 +89,40 @@ struct VerseImageCreatorView: View {
                 topBar
 
                 // Canvas
-                VerseImageCanvas(
-                    verse: verse,
-                    userImage: userImage,
-                    fontName: dynamicFont,
-                    fontSize: fontSize,
-                    referenceFontSize: referenceFontSize,
-                    textColor: textColor,
-                    textAlignment: textAlignment,
-                    textPositionRatio: $textPositionRatio,
-                    watermark: watermark,
-                    allowsInteraction: true,
-                    magnification: magnifyBy
-                )
-                // The preview renders at the exact export aspect ratio so the renderer uses identical layout.
-                .aspectRatio(exportCanvasSize, contentMode: .fit)
-                .frame(maxWidth: UIScreen.main.bounds.width)
-                .background(Color.black)
-                .clipped()
-                .overlay(alignment: .topLeading) {
-                    hintPill
+                GeometryReader { geometry in
+                    let previewWidth = max(0, min(geometry.size.width, geometry.size.height * exportCanvasSize.width / exportCanvasSize.height))
+                    VerseImageCanvas(
+                        verse: verse,
+                        userImage: userImage,
+                        fontName: dynamicFont,
+                        fontSize: fontSize,
+                        referenceFontSize: referenceFontSize,
+                        textColor: textColor,
+                        textAlignment: textAlignment,
+                        textPositionRatio: $textPositionRatio,
+                        watermark: watermark,
+                        allowsInteraction: true,
+                        magnification: magnifyBy
+                    )
+                    // Keep the export ratio while fitting the current window and available height.
+                    .frame(width: previewWidth, height: previewWidth * exportCanvasSize.height / exportCanvasSize.width)
+                    .background(Color.black)
+                    .clipped()
+                    .overlay(alignment: .topLeading) {
+                        hintPill
+                    }
+                    .gesture(
+                        MagnificationGesture()
+                            .updating($magnifyBy) { currentState, gestureState, _ in
+                                gestureState = currentState
+                            }
+                            .onEnded { value in
+                                self.fontSize = min(72, max(12, self.fontSize * value))
+                                self.referenceFontSize = min(40, max(10, self.referenceFontSize * value))
+                            }
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .gesture(
-                    MagnificationGesture()
-                        .updating($magnifyBy) { currentState, gestureState, _ in
-                            gestureState = currentState
-                        }
-                        .onEnded { value in
-                            self.fontSize = min(72, self.fontSize * value)
-                            self.referenceFontSize = min(40, self.referenceFontSize * value)
-                        }
-                )
 
                 controlsBar
             }
@@ -138,7 +141,14 @@ struct VerseImageCreatorView: View {
         }
         .overlay {
             if showingFontPicker {
-                fontPickerOverlay()
+                GeometryReader { geometry in
+                    fontPickerOverlay()
+                        .frame(
+                            width: min(480, max(0, geometry.size.width - 32)),
+                            height: min(400, max(0, geometry.size.height - 32))
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
         }
         .overlay(
@@ -396,7 +406,6 @@ struct VerseImageCreatorView: View {
                 .padding()
             }
         }
-        .frame(width: UIScreen.main.bounds.width * 0.8, height: 400)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(.ultraThinMaterial)
@@ -500,6 +509,8 @@ private struct VerseImageCanvas: View {
     var body: some View {
         GeometryReader { geo in
             let size = geo.size
+            // Font controls use a phone-sized baseline; preview and export scale together.
+            let fontScale = max(size.width, 1) / 360
             let safeRect = CGRect(
                 x: size.width * safePaddingRatio,
                 y: size.height * safePaddingRatio,
@@ -519,7 +530,7 @@ private struct VerseImageCanvas: View {
 
                 VStack(spacing: size.height * referenceOffsetRatio) {
                     Text(verse.text)
-                        .font(.custom(fontName, size: fontSize * magnification))
+                        .font(.custom(fontName, size: fontSize * fontScale * magnification))
                         .foregroundColor(textColor)
                         .multilineTextAlignment(textAlignment)
                         .lineLimit(nil)
@@ -528,7 +539,7 @@ private struct VerseImageCanvas: View {
                         .frame(width: safeRect.width)
 
                     Text("\(verse.reference.book) \(verse.reference.chapter):\(verse.reference.verse)")
-                        .font(.custom(fontName, size: referenceFontSize))
+                        .font(.custom(fontName, size: referenceFontSize * fontScale))
                         .foregroundColor(textColor.opacity(0.85))
                         .multilineTextAlignment(textAlignment)
                         .lineLimit(nil)
@@ -547,7 +558,7 @@ private struct VerseImageCanvas: View {
                 .zIndex(1) // keep text above any overlays
 
                 Text(watermark)
-                    .font(.footnote)
+                    .font(.system(size: 13 * fontScale))
                     .foregroundColor(.white.opacity(0.7))
                     .position(x: size.width / 2,
                               y: size.height - size.height * watermarkBottomPaddingRatio)
@@ -579,6 +590,7 @@ private struct VerseImageCanvas: View {
     }
 
     private func updatePosition(with location: CGPoint, safeRect: CGRect) {
+        guard safeRect.width > 0, safeRect.height > 0 else { return }
         let normalizedX = ((location.x - safeRect.minX) / safeRect.width).clamped(to: 0...1)
         let normalizedY = ((location.y - safeRect.minY) / safeRect.height).clamped(to: 0...1)
         textPositionRatio = CGPoint(x: normalizedX, y: normalizedY)

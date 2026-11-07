@@ -19,71 +19,25 @@ struct CommentaryOverlay: View {
     @State private var showShareSheet = false
     
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture(perform: onDismiss)
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.opacity(0.45)
+                    .ignoresSafeArea()
+                    .onTapGesture(perform: onDismiss)
 
-            VStack(alignment: .leading, spacing: 20) {
-                HStack(spacing: 12) {
-                    Image(systemName: "lightbulb.fill")
-                        .font(.title2)
-                        .foregroundStyle(.yellow)
+                VStack(alignment: .leading, spacing: 20) {
+                    header
+                    Divider()
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Real Talk Commentary")
-                            .font(.headline)
-                        Text("\(verse.book) \(verse.chapter):\(verse.verse)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                    ScrollView {
+                        articleContent
                     }
-
-                    Spacer()
-
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
+                    .scrollBounceBehavior(.basedOnSize)
                 }
-
-                Divider()
-
-                if let verseText {
-                    ScriptureExcerptSection(
-                        translation: settings.preferredTranslation,
-                        text: verseText,
-                        colorScheme: colorScheme
-                    )
-                } else if isLoadingVerse {
-                    ProgressView("Loading verse…")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                if let commentary = commentaryText {
-                    CommentaryArticleSection(
-                        commentary: commentary,
-                        colorScheme: colorScheme
-                    )
-
-                    HStack(spacing: 10) {
-                        actionButton(title: "Copy", systemImage: "doc.on.doc") {
-                            UIPasteboard.general.string = shareText(commentary: commentary)
-                        }
-
-                        actionButton(title: "Share", systemImage: "square.and.arrow.up") {
-                            showShareSheet = true
-                        }
-                    }
-                } else {
-                    Text("No commentary available for this verse.")
-                        .italic()
-                        .foregroundStyle(.secondary)
-                }
+                .frame(maxWidth: 640, maxHeight: max(0, geometry.size.height - 72))
+                .glassCard()
+                .padding(16)
             }
-            .glassCard()
-            .padding(.horizontal, 24)
         }
         .task(id: "\(verse.id)-\(settings.preferredTranslation)") {
             await loadVerseText()
@@ -91,6 +45,68 @@ struct CommentaryOverlay: View {
         .sheet(isPresented: $showShareSheet) {
             if let commentary = commentaryText {
                 ShareSheet(items: [shareText(commentary: commentary)])
+            }
+        }
+    }
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "lightbulb.fill")
+                .font(.title2)
+                .foregroundStyle(.yellow)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Real Talk Commentary")
+                    .font(.headline)
+                Text(verse.displayString)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .frame(minWidth: 44, minHeight: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Close commentary")
+        }
+    }
+
+    private var articleContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            if let verseText {
+                ScriptureExcerptSection(
+                    translation: settings.preferredTranslation,
+                    text: verseText,
+                    colorScheme: colorScheme
+                )
+            } else if isLoadingVerse {
+                ProgressView("Loading verse…")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Text("Unable to load this translation. Try another translation or reopen this verse.")
+                    .foregroundStyle(.secondary)
+            }
+
+            if let commentary = commentaryText {
+                CommentaryArticleSection(commentary: commentary, colorScheme: colorScheme)
+
+                HStack(spacing: 10) {
+                    actionButton(title: "Copy", systemImage: "doc.on.doc") {
+                        UIPasteboard.general.string = shareText(commentary: commentary)
+                    }
+                    actionButton(title: "Share", systemImage: "square.and.arrow.up") {
+                        showShareSheet = true
+                    }
+                }
+            } else {
+                Text("No commentary available for this verse.")
+                    .italic()
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -128,6 +144,7 @@ struct CommentaryOverlay: View {
     }
 
     private func loadVerseText() async {
+        verseText = nil
         isLoadingVerse = true
         defer { isLoadingVerse = false }
 

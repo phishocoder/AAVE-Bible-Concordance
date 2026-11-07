@@ -1,10 +1,10 @@
 # TECH_STACK — Locked Versions & Dependencies
 
 ## iOS
-- Xcode: 26.0 (user-confirmed daily use)
+- Xcode: 27.2 (27B52), public stable App Store update installed and verified November 6, 2026
 - Project metadata: `LastUpgradeCheck = 1620` (Xcode 16.2)
 - Swift: 5.0 (from project build settings)
-- iOS deployment target: 26.0 (user-confirmed) — older 18.2 appears in some targets; confirm if any target should remain 18.2
+- iOS deployment target: 18.2 in the app and extension; verified in the November 6 Release binary. Building with the iOS 27.2 SDK does not raise the minimum OS.
 
 ## Architecture
 - UI: SwiftUI
